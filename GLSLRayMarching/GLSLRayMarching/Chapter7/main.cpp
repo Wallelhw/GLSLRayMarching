@@ -222,9 +222,9 @@ public:
 		vertexArrayObject.Destroy();
 	}
 private:
-	FrameBufferTexture2D frameBufferTexture;
+	RenderTarget2D frameBufferTexture;
 
-	TextureCube envMap;
+	TextureCubeMap envMap;
 	ShaderProgram pathTraceShaderProgram;
 
 	ShaderProgram proprocessingShaderProgram;

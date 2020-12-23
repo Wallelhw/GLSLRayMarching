@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories> ../../../3rdparty/rapidjson/include; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories> ../../../3rdparty/rapidjson/include; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../3rdparty/glad/include; ../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories> ../../../3rdparty/rapidjson/include; ../../3rdparty/glad/include; ../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +147,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../3rdparty/glad/include; ../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories> ../../../3rdparty/rapidjson/include; ../../3rdparty/glad/include; ../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,22 +166,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="BlitPS.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="BlitVS.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="PathTracePS.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="PathTraceVS.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

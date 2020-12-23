@@ -8,6 +8,8 @@
 #include <string>
 #include <map>
 
+#include "Vector2.h"
+
 class FrameWork;
 static FrameWork* instance = nullptr;
 
@@ -16,8 +18,17 @@ class FrameWork
 public:
 	FrameWork(const std::string& name_)
 		: name(name_)
+		, window(nullptr)
+		, width(0)
+		, height(0)
 		, theta(0.0)
 		, phi(0.0)
+		, time(0.0)
+		, deltaTime(0.0)
+		, frameCounter(0)
+		, mouse(0.0, 0.0)
+		, mouseDelta(0.0, 0.0)
+		, mouseButtonClicked(0)
 	{
 		assert(!instance);
 
@@ -70,10 +81,16 @@ public:
 	{
 		while (!glfwWindowShouldClose(window))
 		{
+			double now = glfwGetTime();
+			deltaTime = now - time;
+			time = now;
+
 			processInput(window);
 
 			if (!OnUpdate())
 				return false;
+
+			frameCounter++;
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
@@ -110,6 +127,36 @@ protected:
 		phi_ = phi;
 	}
 
+	double GetTime()
+	{
+		return time;
+	}
+
+	double GetDeltaTime()
+	{
+		return deltaTime;
+	}
+
+	vec2 GetMouse()
+	{
+		return mouse;
+	}
+
+	vec2 GetMouseDelta()
+	{
+		return mouseDelta;
+	}
+
+	int GetMouseButtonClicked()
+	{
+		return mouseButtonClicked;
+	}
+
+	int GetFrameCounter()
+	{
+		return frameCounter;
+	}
+
 	virtual bool OnCreate() = 0;
 	virtual bool OnUpdate() = 0;
 	virtual void OnDestroy() = 0;
@@ -126,21 +173,22 @@ private:
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		static float lastXPos = 0;
-		static float lastYPos = 0;
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
+		ypos = instance->height - ypos;
+		
+		instance->mouseButtonClicked = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS);
+		if (instance->mouseButtonClicked)
+		{
+			instance->mouseDelta = vec2(xpos, ypos) - instance->mouse;
+			instance->mouse = vec2(xpos, ypos);
+		}
 
-		float deltaX = xpos - lastXPos;
-		float deltaY = ypos - lastYPos;
-
-		instance->moved = (fabs(deltaX) < 0.01f) && (fabs(deltaX) < 0.01f);
-		lastXPos = xpos;
-		lastYPos = ypos;
-		instance->theta += deltaX / instance->width * 180.0f * 2.0f;
-		instance->phi -= deltaY / instance->height * 180.0f;
+		instance->moved = (fabs(instance->mouseDelta.X()) < 0.01f) && (fabs(instance->mouseDelta.Y()) < 0.01f);
+		instance->theta += instance->mouseDelta.X() / instance->width * 180.0f * 2.0f;
 		instance->theta = fmod(instance->theta, 180.0f * 2.0f);
+		instance->phi -= instance->mouseDelta.Y() / instance->height * 180.0f;
 
 		if (instance->phi > 70)
 		{
@@ -159,9 +207,16 @@ private:
 	GLFWwindow* window;
 	int width;
 	int height;
-
 	float theta;
 	float phi;
+
+	double time;
+	double deltaTime;
+	int frameCounter;
+
+	int mouseButtonClicked;
+	vec2 mouse;
+	vec2 mouseDelta;
 };
 
 #endif
