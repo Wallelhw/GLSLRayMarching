@@ -1,0 +1,35 @@
+{
+  "common": {
+    "shader": "common.glsl"
+  },
+  "passes": [
+    {
+      "shader": "buffera.glsl",
+      "ichannel0": {
+        "type": "2d",
+        "url": "buffera",
+        "filter": "linear",
+        "wrap": "clamp"
+      },
+      "ichannel1": {
+        "type": "cube",
+        "url": "env1.png",
+        "filter": "mipmap",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "buffera"
+    },
+    {
+      "shader": "image.glsl",
+      "ichannel0": {
+        "type": "2d",
+        "url": "buffera",
+        "filter": "linear",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "image"
+    }
+  ]
+}

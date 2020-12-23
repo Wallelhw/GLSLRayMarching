@@ -22,6 +22,56 @@ public:
 		Destroy();
 	}
 
+	bool CreateFromBuffer(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr)
+	{
+		// 2. compile shaders
+		unsigned int vertex, fragment, geometry;
+		// vertex shader
+		vertex = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex, 1, &vShaderCode, NULL);
+		glCompileShader(vertex);
+		if (!CheckCompileErrors(vertex, "VERTEX"))
+			return false;
+
+		// fragment Shader
+		fragment = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment, 1, &fShaderCode, NULL);
+		glCompileShader(fragment);
+		if (!CheckCompileErrors(fragment, "FRAGMENT"))
+			return false;
+
+		if (gShaderCode)
+		{
+			// fragment Shader
+			geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geometry, 1, &gShaderCode, NULL);
+			glCompileShader(geometry);
+			if (!CheckCompileErrors(geometry, "GEOMETRY"))
+				return false;
+		}
+
+		// shader Program
+		handle = glCreateProgram();
+		glAttachShader(handle, vertex);
+		glAttachShader(handle, fragment);
+		if (gShaderCode)
+		{
+			glAttachShader(handle, geometry);
+		}
+
+		glLinkProgram(handle);
+		if (!CheckCompileErrors(handle, "PROGRAM"))
+			return false;
+		glDeleteShader(vertex);
+		glDeleteShader(fragment);
+		if (gShaderCode)
+		{
+			glDeleteShader(geometry);
+		}
+
+		return true;
+	}
+
 	bool Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
 	{
 		// 1. retrieve the vertex/fragment source code from filePath
@@ -70,56 +120,10 @@ public:
 		const char* vShaderCode = vertexCode.c_str();
 		const char* fShaderCode = fragmentCode.c_str();
 		const char* gShaderCode = geometryCode.c_str();
+		if (!geometryPath)
+			gShaderCode = nullptr;
 
-		if (geometryPath)
-			gShaderCode = geometryCode.c_str();
-
-		// 2. compile shaders
-		unsigned int vertex, fragment, geometry;
-		// vertex shader
-		vertex = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertex, 1, &vShaderCode, NULL);
-		glCompileShader(vertex);
-		if (!CheckCompileErrors(vertex, "VERTEX"))
-			return false;
-
-		// fragment Shader
-		fragment = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment, 1, &fShaderCode, NULL);
-		glCompileShader(fragment);
-		if (!CheckCompileErrors(fragment, "FRAGMENT"))
-			return false;
-
-		if (geometryPath)
-		{
-			// fragment Shader
-			geometry = glCreateShader(GL_GEOMETRY_SHADER);
-			glShaderSource(geometry, 1, &gShaderCode, NULL);
-			glCompileShader(geometry);
-			if (!CheckCompileErrors(geometry, "GEOMETRY"))
-				return false;
-		}
-
-		// shader Program
-		handle = glCreateProgram();
-		glAttachShader(handle, vertex);
-		glAttachShader(handle, fragment);
-		if (geometryPath)
-		{
-			glAttachShader(handle, geometry);
-		}
-
-		glLinkProgram(handle);
-		if (!CheckCompileErrors(handle, "PROGRAM"))
-			return false;
-		glDeleteShader(vertex);
-		glDeleteShader(fragment);
-		if(geometryPath)
-		{
-			glDeleteShader(geometry);
-		}
-
-		return true;
+		return CreateFromBuffer(vShaderCode, fShaderCode, gShaderCode);
 	}
 
 	void Destroy()

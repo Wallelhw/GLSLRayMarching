@@ -329,13 +329,13 @@ public:
 		blitShaderProgram.Destroy();
 	}
 private:
-	FrameBufferTexture2D frameBufferTexture;
+	RenderTarget2D frameBufferTexture;
 	VertexArrayObject vertexArrayObject;
 
 	Texture2D simpleMap;
 	ShaderProgram simpleShaderProgram;
 
-	FrameBufferTexture2D pingpongTexture[2];
+	RenderTarget2D pingpongTexture[2];
 	ShaderProgram gussianFilterShaderProgram;
 	ShaderProgram bilateralFilterShaderProgram;
 

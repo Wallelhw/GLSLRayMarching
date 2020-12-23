@@ -1,0 +1,47 @@
+{
+  "passes": [
+    {
+      "shader": "buffera.glsl",
+      "ichannel0": {
+        "type": "2d",
+        "url": "tex0.png",
+        "filter": "mipmap",
+        "wrap": "repeat",
+        "vflip": true
+      },
+      "ichannel1": {
+        "type": "2d",
+        "url": "tex1.png",
+        "filter": "linear",
+        "wrap": "repeat",
+        "vflip": false
+      },
+      "ichannel2": {
+        "type": "2d",
+        "url": "tex2.png",
+        "filter": "mipmap",
+        "wrap": "repeat",
+        "vflip": true
+      },
+      "ichannel3": {
+        "type": "2d",
+        "url": "buffera",
+        "filter": "linear",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "buffera"
+    },
+    {
+      "shader": "image.glsl",
+      "ichannel0": {
+        "type": "2d",
+        "url": "buffera",
+        "filter": "linear",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "image"
+    }
+  ]
+}
