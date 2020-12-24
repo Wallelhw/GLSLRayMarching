@@ -684,10 +684,10 @@ private:
 	FlipFrameBuffer* frameBuffer;
 };
 
-class ShaderToyDemo
+class MacShaderDemo
 {
 public:
-	ShaderToyDemo()
+	MacShaderDemo()
 	: textures()
 	, black()
 	, soundFrameBuffer()
@@ -703,7 +703,7 @@ public:
 	{
 	}
 
-	virtual ~ShaderToyDemo()
+	virtual ~MacShaderDemo()
 	{
 	}
 
@@ -1120,63 +1120,63 @@ private:
 	std::vector<Pass> passes;
 };
 
-class ShaderToy : public FrameWork
+class MacShaderDemoApp : public FrameWork
 {
 public:
-	ShaderToy()
-		: FrameWork("ShaderToy")
-		, shaderToyDemo()
+	MacShaderDemoApp()
+		: FrameWork("MacShaderDemo")
+		, macShaderDemo()
 	{
 	}
 
-	virtual ~ShaderToy()
+	virtual ~MacShaderDemoApp()
 	{
 	}
 
 	virtual bool OnCreate() override
 	{
-		//return shaderToyDemo.Create("default");
-		//return shaderToyDemo.Create("Atmospheric scattering explained");
-		//return shaderToyDemo.Create("Atmospheric Scattering Fog");
-		//return shaderToyDemo.Create("Elevated");
-		//return shaderToyDemo.Create("Fast Atmospheric Scattering");
-		//return shaderToyDemo.Create("Path tracing cornellbox with MIS");
-		//return shaderToyDemo.Create("Bidirectional path tracing");
-		//return shaderToyDemo.Create("Demofox Path Tracing 1");
-		//return shaderToyDemo.Create("Demofox Path Tracing 2");
-		//return shaderToyDemo.Create("Greek Temple");
-		//return shaderToyDemo.Create("Hexagonal Grid Traversal - 3D");
-		//return shaderToyDemo.Create("Post process - SSAO");
-		//return shaderToyDemo.Create("Lake in highland");
-		//return shaderToyDemo.Create("MO");
-		//return shaderToyDemo.Create("PBR Material Gold");
-		return shaderToyDemo.Create("Path Tracer MIS");
-		//return shaderToyDemo.Create("testmouse");
+		//return macShaderDemo.Create("default");
+		//return macShaderDemo.Create("Fast Atmospheric Scattering");
+		//return macShaderDemo.Create("Atmospheric scattering explained");
+		//return macShaderDemo.Create("Atmospheric Scattering Fog");
+		return macShaderDemo.Create("Elevated");
+		//return macShaderDemo.Create("Path tracing cornellbox with MIS");
+		//return macShaderDemo.Create("Bidirectional path tracing");
+		//return macShaderDemo.Create("Demofox Path Tracing 1");
+		//return macShaderDemo.Create("Demofox Path Tracing 2");
+		//return macShaderDemo.Create("Greek Temple");
+		//return macShaderDemo.Create("Hexagonal Grid Traversal - 3D");
+		//return macShaderDemo.Create("Post process - SSAO");
+		//return macShaderDemo.Create("Lake in highland");
+		//return macShaderDemo.Create("MO");
+		//return macShaderDemo.Create("PBR Material Gold");
+		return macShaderDemo.Create("Path Tracer MIS");
+		//return macShaderDemo.Create("testmouse");
 	}
 
 	virtual bool OnUpdate() override
 	{
-		return shaderToyDemo.Update(GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetFrameCounter());
+		return macShaderDemo.Update(GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetFrameCounter());
 	}
 
 	void OnDestroy() override
 	{
-		return shaderToyDemo.Destroy();
+		return macShaderDemo.Destroy();
 	}
 private:
-	ShaderToyDemo shaderToyDemo;
+	MacShaderDemo macShaderDemo;
 };
 
 int main(int argc, char** argv)
 {
-	ShaderToy shaderToy;
+	MacShaderDemoApp macShaderDemoApp;
 
-	if (!shaderToy.Create(SCR_WIDTH, SCR_HEIGHT))
+	if (!macShaderDemoApp.Create(SCR_WIDTH, SCR_HEIGHT))
 		return -1;
 
-	shaderToy.Start();
+	macShaderDemoApp.Start();
 
-	shaderToy.Destroy();
+	macShaderDemoApp.Destroy();
 
 	return 0;
 }
