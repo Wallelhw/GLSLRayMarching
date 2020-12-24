@@ -1060,8 +1060,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     seed = iTime + iResolution.y * fragCoord.x / iResolution.x + fragCoord.y / iResolution.y;
     float fov = radians(40.0);
     
-    vec3 camera_pos = (iFrame == 0)? vec3( 0.3, 3.0,  4.8 ) : LoadVec4(camera_pos_uv).xyz;
-    vec3 camera_dir = (iFrame == 0)? vec3( 1.0, 0.4, -5.0 ) : LoadVec4(camera_dir_uv).xyz;
+    vec3 camera_pos = vec3( 0.3, 3.0,  4.8 );
+    vec3 camera_dir = vec3( 1.0, 0.4, -5.0 );
     
     initCamera(camera_pos, camera_dir, fov, LENS_SIZE, 9.2, cameraOld);
     
@@ -1112,7 +1112,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         if(iFrame == 0) {
             col_acc = accumulatedColor;
         } else {
-            int frame_start = getAccStart();//int(texture( iChannel3, vec2(0.5, 0.5) / iResolution.xy ).x);
+            int frame_start = getAccStart();
             int spp1 = iMouse.z > 0.0 ? 0 : iFrame - frame_start;
             int spp2 = 1;
             vec3 col_new = accumulatedColor;

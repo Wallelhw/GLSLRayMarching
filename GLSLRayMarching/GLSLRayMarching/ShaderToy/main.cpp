@@ -12,6 +12,8 @@
 using namespace rapidjson;
 #include <iostream>
 
+// https://shadertoyunofficial.wordpress.com/2016/07/20/special-shadertoy-features/
+
 #define SCR_WIDTH 800
 #define SCR_HEIGHT 400
 
@@ -372,7 +374,7 @@ public:
 		return true;
 	}
 
-	bool Update(double time, double deltaTime, vec2 mouse, vec2 mouseDelta, bool mouseButtonClick, int frameCounter)
+	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
 		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 0.0);
 		if (frameBuffer)
@@ -388,17 +390,18 @@ public:
 		glViewport(0, 0, resolution[0], resolution[1]);
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0, 0, resolution[0], resolution[1]);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClearDepth(1.0f);
-		glClearStencil(0);
+		//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		//glClearDepth(1.0f);
+		//glClearStencil(0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform3f("iResolution", resolution[0], resolution[1], resolution[2]);
 		shaderProgram.SetUniform1f("iTime", time);
 		shaderProgram.SetUniform1f("iTimeDelta", deltaTime);
+		shaderProgram.SetUniform1f("iFrameRate", 60.0f);
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
-		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), 0.0, 0.0);
+		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 		shaderProgram.SetUniform4f("iDate", 0.0, 0.0, 0.0, 0.0);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
@@ -472,14 +475,6 @@ public:
 		}
 
 		return true;
-	}
-
-	void Flip()
-	{
-		if (frameBuffer)
-		{
-			//frameBuffer->Flip();
-		}
 	}
 
 	void Destroy()
@@ -1055,13 +1050,13 @@ public:
 			return false;
 		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
 			return false;
-		if (!cubeMapAFrameBuffer.Create(SCR_WIDTH, 4, false))
+		if (!cubeMapAFrameBuffer.Create(1024, 4, false))
 			return false;
-		if (!cubeMapBFrameBuffer.Create(SCR_WIDTH, 4, false))
+		if (!cubeMapBFrameBuffer.Create(1024, 4, false))
 			return false;
-		if (!cubeMapCFrameBuffer.Create(SCR_WIDTH, 4, false))
+		if (!cubeMapCFrameBuffer.Create(1024, 4, false))
 			return false;
-		if (!cubeMapDFrameBuffer.Create(SCR_WIDTH, 4, false))
+		if (!cubeMapDFrameBuffer.Create(1024, 4, false))
 			return false;
 
 		if (!CreateScene(folder_, "scene.json"))
@@ -1070,17 +1065,12 @@ public:
 		return true;
 	}
 
-	bool Update(double time, double deltaTime, vec2 mouse, vec2 mouseDelta, bool mouseButtonClick, int frame)
+	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
 		for (auto& pass : passes)
 		{
-			if (!pass.Update(time, deltaTime, mouse, mouseDelta, mouseButtonClick, frame))
+			if (!pass.Update(time, deltaTime, mouse, mouseDelta, frameCounter))
 				return false;
-		}
-
-		for (auto& pass : passes)
-		{
-			pass.Flip();
 		}
 
 		return true;
@@ -1161,11 +1151,12 @@ public:
 		//return shaderToyDemo.Create("MO");
 		//return shaderToyDemo.Create("PBR Material Gold");
 		return shaderToyDemo.Create("Path Tracer MIS");
+		//return shaderToyDemo.Create("testmouse");
 	}
 
 	virtual bool OnUpdate() override
 	{
-		return shaderToyDemo.Update(GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetMouseButtonClicked(), GetFrameCounter());
+		return shaderToyDemo.Update(GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetFrameCounter());
 	}
 
 	void OnDestroy() override

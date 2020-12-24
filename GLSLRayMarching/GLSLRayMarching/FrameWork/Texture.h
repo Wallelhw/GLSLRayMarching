@@ -288,7 +288,7 @@ public:
 
 	virtual void GetResolution(vec3& resolution) const
 	{
-		resolution = vec3(width, height, 0.0);
+		resolution = vec3(width, height, 1.0);
 	}
 
 	unsigned int GetWidth() const
@@ -431,7 +431,7 @@ public:
 
 	virtual void GetResolution(vec3& resolution) const
 	{
-		resolution = vec3(size, size, size);
+		resolution = vec3(size, size, 1.0);
 	}
 
 	unsigned int GetSize() const
