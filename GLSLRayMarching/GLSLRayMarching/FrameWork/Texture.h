@@ -44,7 +44,7 @@ public:
 	{
 	}
 
-	void Bind(unsigned int texStage_)
+	void Bind(unsigned int texStage_) const
 	{
 		if (handle)
 		{
@@ -59,15 +59,12 @@ public:
 		}
 	}
 
-	void Unbind()
+	void Unbind() const
 	{
 		glBindTexture(type, 0);
 	}
 
-	void Update(int xoffset, int yoffset, int width, int height, void* data)
-	{
-		glTexSubImage2D(type, 0, xoffset, yoffset, width, height, format, pixelFormat, data);
-	}
+	virtual void Update(void* data) = 0;
 
 	void SetWarpS(unsigned int warpS_)
 	{
@@ -109,22 +106,27 @@ public:
 		return warpR;
 	}
 
-	unsigned int GetMinFilter()
+	unsigned int GetMinFilter() const
 	{
 		return minFilter;
 	}
 
-	unsigned int GetMagFilter()
+	unsigned int GetMagFilter() const
 	{
 		return magFilter;
 	}
 
-	unsigned int GetType()
+	unsigned int GetType()  const
 	{
 		return type;
 	}
 
-	virtual void GetResolution(vec3& resolution) = 0;
+	unsigned int GetHandle() const
+	{
+		return handle;
+	}
+
+	virtual void GetResolution(vec3& resolution) const = 0;
 public:
 protected:
 	void SetFormat(unsigned int internalformat, unsigned int format, unsigned int type)
@@ -210,85 +212,24 @@ protected:
 private:
 };
 
-class RenderTarget : public Texture
-{
-public:
-	RenderTarget(unsigned int type_)
-		: Texture(type_)
-		, fbo(0)
-	{
-	}
-
-	virtual ~RenderTarget()
-	{
-	}
-
-	bool Create()
-	{
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		if (!glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
-			return false;
-
-		if (type == GL_TEXTURE_2D)
-		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, handle, 0);
-		}
-		else
-		{
-			assert(0); // not implement
-		}
-
-		//glGenRenderbuffers(1, &rbo);
-		//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			//return false;
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		return Texture::Create();
-	}
-
-	void Destroy()
-	{
-		if (fbo)
-		{
-			glDeleteFramebuffers(1, &fbo);
-			fbo = 0;
-		}
-	}
-
-	void BindFrameBuffer()
-	{
-		if (fbo)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		}
-	}
-
-	static void UnBindFrameBuffer()
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-private:
-private:
-	unsigned int fbo;
-};
 
 class Texture2D : public Texture
 {
 public:
 	Texture2D()
-	: Texture(GL_TEXTURE_2D)
-	, width(0)
-	, height(0)
+		: Texture(GL_TEXTURE_2D)
+		, width(0)
+		, height(0)
 	{
 	}
 
 	virtual ~Texture2D()
 	{
+	}
+
+	void Unbind() const
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	bool Create(unsigned int width, unsigned int height, unsigned int internalformat, unsigned int format, unsigned int type, void* data)
@@ -329,49 +270,11 @@ public:
 		return Texture::Create();
 	}
 
-	bool Create(const std::string& path, bool vflip = false)
+	virtual void Update(void* data)
 	{
-		bool isHDR = stbi_is_hdr(path.c_str());
-
-		int width, height, nrComponents;
-
-		void* data = nullptr;
-		if (isHDR)
-		{
-			data = stbi_loadf(path.c_str(), &width, &height, &nrComponents, 0);
-			if(vflip)
-				stbi__vertical_flip(data, width, height, nrComponents * 4);
-		}
-		else
-		{
-			data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
-			if (vflip)
-				stbi__vertical_flip(data, width, height, nrComponents * 1);
-		}
-
-		if (data)
-		{
-			bool result = Create(width, height, nrComponents, isHDR, data);
-
-			stbi_image_free(data);
-
-			return result;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	bool Update(unsigned int width, unsigned int height, void* data)
-	{
-		this->width = width;
-		this->height = height;
-		glGenTextures(1, &this->handle);
 		glBindTexture(GL_TEXTURE_2D, this->handle);
+		
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, (GLint)format, (GLint)pixelFormat, data);
-
-		return true;
 	}
 
 	void Destroy()
@@ -383,16 +286,86 @@ public:
 		}
 	}
 
-	virtual void GetResolution(vec3& resolution)
+	virtual void GetResolution(vec3& resolution) const
 	{
 		resolution = vec3(width, height, 0.0);
+	}
+
+	unsigned int GetWidth() const
+	{
+		return width;
+	}
+
+	unsigned int GetHeight() const
+	{
+		return height;
 	}
 protected:
 private:
 
-private:
+public:
+protected:
 	unsigned int width;
 	unsigned int height;
+private:
+};
+
+class Texture2DFile : public Texture2D
+{
+public:
+	Texture2DFile()
+	: Texture2D()
+	{
+	}
+
+	virtual ~Texture2DFile()
+	{
+	}
+
+	bool Create(const std::string& path, bool vflip = false)
+	{
+		bool isHDR = stbi_is_hdr(path.c_str());
+
+		int width, height, nrComponents;
+
+		void* data = nullptr;
+		if (isHDR)
+		{
+			data = stbi_loadf(path.c_str(), &width, &height, &nrComponents, 0);
+		}
+		else
+		{
+			data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+		}
+
+		if (data)
+		{
+			bool result = Texture2D::Create(width, height, nrComponents, isHDR, data, vflip);
+
+			stbi_image_free(data);
+
+			return result;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	void Destroy()
+	{
+		if (handle)
+		{
+			glDeleteTextures(1, &handle);
+			handle = 0;
+		}
+	}
+protected:
+private:
+
+public:
+protected:
+private:
 };
 
 class TextureCubeMap : public Texture
@@ -400,6 +373,8 @@ class TextureCubeMap : public Texture
 public:
 	TextureCubeMap()
 		: Texture(GL_TEXTURE_CUBE_MAP)
+		, size(0)
+		, faceDataSize(0)
 	{
 	}
 
@@ -407,33 +382,81 @@ public:
 	{
 	}
 
-	bool Create(unsigned int size, unsigned int nrComponents, bool isHDR, void* data)
+	virtual bool Create(unsigned int size, unsigned int nrComponents, bool isHDR, void* data, bool vflip = false)
 	{
 		this->size = size;
 		SetFormat(nrComponents, isHDR);
+		if (isHDR)
+			faceDataSize = size * size * nrComponents * sizeof(float);
+		else
+			faceDataSize = size * size * nrComponents * sizeof(unsigned char);
+
+		unsigned char* dataPtr = (unsigned char*)data;
 
 		glGenTextures(1, &handle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
-		int dataSize;
-		if (isHDR)
-			dataSize = size * size * nrComponents * sizeof(float);
-		else
-			dataSize = size * size * nrComponents * sizeof(unsigned char);
-
-		unsigned char* dataPtr = (unsigned char*)data;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, dataPtr); dataPtr += dataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, data ? dataPtr : data); dataPtr += faceDataSize;
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-		warpS = GL_CLAMP_TO_EDGE;
-		warpT = GL_CLAMP_TO_EDGE;
-		warpR = GL_CLAMP_TO_EDGE;
-
 		return Texture::Create();
+	}
+
+	void Destroy()
+	{
+		if (handle)
+		{
+			glDeleteTextures(1, &handle);
+			handle = 0;
+		}
+	}
+
+	virtual void Update(void* data)
+	{
+		unsigned char* dataPtr = (unsigned char*)data;
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, size, size, (GLint)format, (GLint)pixelFormat, data); dataPtr += faceDataSize;
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	}
+
+	virtual void GetResolution(vec3& resolution) const
+	{
+		resolution = vec3(size, size, size);
+	}
+
+	unsigned int GetSize() const
+	{
+		return size;
+	}
+private:
+
+public:
+protected:
+private:
+	unsigned int size;
+	unsigned int faceDataSize;
+};
+
+class TextureCubeMapFile : public TextureCubeMap
+{
+public:
+	TextureCubeMapFile()
+		: TextureCubeMap()
+	{
+	}
+
+	virtual ~TextureCubeMapFile()
+	{
 	}
 
 	bool Create(const std::string& path)
@@ -449,7 +472,7 @@ public:
 
 		if (data)
 		{
-			bool result = Create(width, nrComponents, isHDR, data);
+			bool result = TextureCubeMap::Create(width, nrComponents, isHDR, data);
 
 			stbi_image_free(data);
 
@@ -469,117 +492,13 @@ public:
 			handle = 0;
 		}
 	}
-
-	virtual void GetResolution(vec3& resolution)
-	{
-		resolution = vec3(size, size, size);
-	}
+protected:
 private:
-private:
-	unsigned int size;
-};
 
-class RenderTarget2D : public RenderTarget
-{
+
 public:
-	RenderTarget2D()
-		: RenderTarget(GL_TEXTURE_2D)
-		, width(0)
-		, height(0)
-	{
-	}
-
-	virtual ~RenderTarget2D()
-	{
-	}
-
-	bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR)
-	{
-		this->width = width;
-		this->height = height;
-
-		SetFormat(nrComponents, isHDR);
-
-		glGenTextures(1, &handle);
-		glBindTexture(GL_TEXTURE_2D, handle);
-		glTexImage2D(GL_TEXTURE_2D, 0, (GLint)internalformat, width, height, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		warpS = GL_CLAMP_TO_EDGE;
-		warpT = GL_CLAMP_TO_EDGE;
-		warpR = GL_CLAMP_TO_EDGE;
-
-		return RenderTarget::Create();
-	}
-
-	void Destroy()
-	{
-		RenderTarget::Destroy();
-	}
-
-	virtual void GetResolution(vec3& resolution)
-	{
-		resolution = vec3(width, height, 0.0);
-	}
+protected:
 private:
-private:
-	unsigned int width;
-	unsigned int height;
-};
-
-class RenderTargetCubeMap : public RenderTarget
-{
-public:
-	RenderTargetCubeMap()
-		: RenderTarget(GL_TEXTURE_CUBE_MAP)
-		, size(0)
-	{
-	}
-
-	virtual ~RenderTargetCubeMap()
-	{
-	}
-
-	bool Create(unsigned int size, unsigned int nrComponents, bool isHDR)
-	{
-		this->size = size;
-		SetFormat(nrComponents, isHDR);
-
-		glGenTextures(1, &handle);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
-		int dataSize;
-		if (isHDR)
-			dataSize = size * size * nrComponents * sizeof(float);
-		else
-			dataSize = size * size * nrComponents * sizeof(unsigned char);
-
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, (GLint)internalformat, size, size, 0, (GLint)format, (GLint)pixelFormat, nullptr);
-		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-		warpS = GL_CLAMP_TO_EDGE;
-		warpT = GL_CLAMP_TO_EDGE;
-		warpR = GL_CLAMP_TO_EDGE;
-
-		return RenderTarget::Create();
-	}
-
-	void Destroy()
-	{
-		RenderTarget::Destroy();
-	}
-
-	virtual void GetResolution(vec3& resolution)
-	{
-		resolution = vec3(size, size, size);
-	}
-private:
-private:
-	unsigned int size;
 };
 
 #endif
