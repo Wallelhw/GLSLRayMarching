@@ -1,0 +1,15 @@
+{
+  "passes": [
+    {
+      "shader": "image.glsl",
+      "ichannel0": {
+        "type": "2d",
+        "url": "tex0.png",
+        "filter": "mipmap",
+        "wrap": "repeat",
+        "vflip": true
+      },
+      "rendertarget": "image"
+    }
+  ]
+}

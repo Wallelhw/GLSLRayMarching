@@ -1,6 +1,7 @@
 #include "FrameWork.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
+#include "FrameBuffer.h"
 #include "VertexArrayObject.h"
 #include "Vector2.h"
 #include "Vector3.h"
@@ -32,9 +33,9 @@ public:
 		return Texture2D::Create(256, 1, 1, false, &buffer[0]);
 	}
 
-	bool Update()
+	virtual void Update()
 	{
-		return Texture2D::Update(256, 1, &buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -59,9 +60,9 @@ public:
 		return Texture2D::Create(1280, 720, 4, false, &buffer[0]);
 	}
 
-	bool Update()
+	virtual void Update()
 	{
-		return Texture2D::Update(1280, 720, &buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -86,9 +87,9 @@ public:
 		return Texture2D::Create(512, 2, 1, false, &buffer[0]);
 	}
 
-	bool Update()
+	virtual void Update()
 	{
-		return Texture2D::Update(512, 2, &buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -113,9 +114,9 @@ public:
 		return Texture2D::Create(512, 2, 1, false, &buffer[0]);
 	}
 
-	bool Update()
+	virtual void Update()
 	{
-		return Texture2D::Update(512, 2, &buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -140,13 +141,142 @@ public:
 		return Texture2D::Create(1280, 720, 4, false, &buffer[0]);
 	}
 
-	bool Update()
+	virtual void Update()
 	{
-		return Texture2D::Update(1280, 720, &buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
 	std::vector<char> buffer;
+};
+
+
+class FlipFrameBuffer : public FrameBuffer
+{
+public:
+	FlipFrameBuffer()
+		: FrameBuffer()
+		, current(0)
+	{
+	}
+
+	virtual ~FlipFrameBuffer()
+	{
+	}
+
+	virtual void Flip()
+	{
+		current = 1 - current;
+	}
+
+	virtual Texture* GetCurrentTexture() = 0;
+protected:
+	int GetCurrent()
+	{
+		return current;
+	}
+private:
+	int current;
+};
+
+class FlipTexture2DFrameBuffer : public FlipFrameBuffer
+{
+public:
+	FlipTexture2DFrameBuffer()
+		: FlipFrameBuffer()
+	{
+	}
+
+	virtual ~FlipTexture2DFrameBuffer()
+	{
+	}
+
+	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR)
+	{
+		if (!FlipFrameBuffer::Create())
+			return false;
+
+		if (!texture[0].Create(width, height, nrComponents, isHDR, nullptr))
+			return false;
+
+		if (!texture[1].Create(width, height, nrComponents, isHDR, nullptr))
+			return false;
+
+		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[0]);
+		return true;
+	}
+
+	virtual void Destroy()
+	{
+		for (int i = 0; i < 2; i++)
+			texture[i].Destroy();
+
+		return FlipFrameBuffer::Destroy();
+	}
+
+	Texture* GetCurrentTexture()
+	{
+		return &texture[1 - GetCurrent()];
+	}
+
+	virtual void Flip()
+	{
+		FlipFrameBuffer::Flip();
+
+		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+	}
+private:
+	Texture2D texture[2];
+};
+
+class FlipTextureCubeMapFrameBuffer : public FlipFrameBuffer
+{
+public:
+	FlipTextureCubeMapFrameBuffer()
+		: FlipFrameBuffer()
+	{
+	}
+
+	virtual ~FlipTextureCubeMapFrameBuffer()
+	{
+	}
+
+	virtual bool Create(unsigned int size, unsigned int nrComponents, bool isHDR)
+	{
+		if (!FlipFrameBuffer::Create())
+			return false;
+
+		if (!texture[0].Create(size, nrComponents, isHDR, nullptr))
+			return false;
+
+		if (!texture[1].Create(size, nrComponents, isHDR, nullptr))
+			return false;
+
+		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[0]);
+		return true;
+	}
+
+	virtual void Destroy()
+	{
+		for(int i=0;i<2; i++)
+			texture[i].Destroy();
+
+		return FlipFrameBuffer::Destroy();
+	}
+
+	Texture* GetCurrentTexture()
+	{
+		return &texture[1 - GetCurrent()];
+	}
+
+	virtual void Flip()
+	{
+		FlipFrameBuffer::Flip();
+
+		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+	}
+private:
+	TextureCubeMap texture[2];
 };
 
 
@@ -179,6 +309,7 @@ public:
 	public:
 		Channel()
 			: texture(nullptr)
+			, frameBuffer(nullptr)
 			, filter(Mipmap)
 			, wrap(Repeat)
 			, vFlip(true)
@@ -188,12 +319,14 @@ public:
 		void Clear()
 		{
 			texture = nullptr;
+			frameBuffer = nullptr;
 			filter = Mipmap;
 			wrap = Repeat;
 			vFlip = true;
 		}
 
 		Texture* texture;
+		FlipFrameBuffer* frameBuffer;
 		Filter filter;
 		Wrap wrap;
 		bool vFlip;
@@ -203,8 +336,8 @@ public:
 		: enabled(true)
 		, vertexArrayObject()
 		, shaderProgram()
-		, renderTarget(nullptr)
 		, iChannels(4)
+		, frameBuffer(nullptr)
 	{
 	}
 
@@ -234,7 +367,7 @@ public:
 		for (int i = 0; i < iChannels.size(); i++)
 			iChannels[i].Clear();
 
-		renderTarget = nullptr;
+		frameBuffer = nullptr;
 
 		return true;
 	}
@@ -242,10 +375,14 @@ public:
 	bool Update(double time, double deltaTime, vec2 mouse, vec2 mouseDelta, bool mouseButtonClick, int frameCounter)
 	{
 		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 0.0);
-		if (renderTarget)
+		if (frameBuffer)
 		{
-			renderTarget->GetResolution(resolution);
-			renderTarget->BindFrameBuffer();
+			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
+			frameBuffer->Bind();
+		}
+		else
+		{
+			FrameBuffer::UnBind();
 		}
 		
 		glViewport(0, 0, resolution[0], resolution[1]);
@@ -254,7 +391,7 @@ public:
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClearDepth(1.0f);
 		glClearStencil(0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform3f("iResolution", resolution[0], resolution[1], resolution[2]);
@@ -269,41 +406,47 @@ public:
 		float channelTimes[4];
 		for (int i = 0; i < iChannels.size(); i++)
 		{
+			Texture* texture = nullptr;
 			if (iChannels[i].texture)
+				texture = iChannels[i].texture;
+			else if (iChannels[i].frameBuffer)
+				texture = iChannels[i].frameBuffer->GetCurrentTexture();
+
+			if (texture)
 			{
-				iChannels[i].texture->GetResolution(channelResolutions[i]);
+				texture->GetResolution(channelResolutions[i]);
 				channelTimes[i] = 0.0;
 
 				if (iChannels[i].wrap == Pass::Wrap::Repeat)
 				{
-					iChannels[i].texture->SetWarpS(GL_REPEAT);
-					iChannels[i].texture->SetWarpR(GL_REPEAT);
-					iChannels[i].texture->SetWarpT(GL_REPEAT);
+					texture->SetWarpS(GL_REPEAT);
+					texture->SetWarpR(GL_REPEAT);
+					texture->SetWarpT(GL_REPEAT);
 				}
 				else if (iChannels[i].wrap == Pass::Wrap::Clamp)
 				{
-					iChannels[i].texture->SetWarpS(GL_CLAMP_TO_EDGE);
-					iChannels[i].texture->SetWarpR(GL_CLAMP_TO_EDGE);
-					iChannels[i].texture->SetWarpT(GL_CLAMP_TO_EDGE);
+					texture->SetWarpS(GL_CLAMP_TO_EDGE);
+					texture->SetWarpR(GL_CLAMP_TO_EDGE);
+					texture->SetWarpT(GL_CLAMP_TO_EDGE);
 				}
 
 				if (iChannels[i].filter == Pass::Filter::Nearest)
 				{
-					iChannels[i].texture->SetMinFilter(GL_NEAREST);
-					iChannels[i].texture->SetMagFilter(GL_NEAREST);
+					texture->SetMinFilter(GL_NEAREST);
+					texture->SetMagFilter(GL_NEAREST);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Linear)
 				{
-					iChannels[i].texture->SetMinFilter(GL_LINEAR);
-					iChannels[i].texture->SetMagFilter(GL_LINEAR);
+					texture->SetMinFilter(GL_LINEAR);
+					texture->SetMagFilter(GL_LINEAR);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Mipmap)
 				{
-					iChannels[i].texture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-					iChannels[i].texture->SetMagFilter(GL_LINEAR);
+					texture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+					texture->SetMagFilter(GL_LINEAR);
 				}
 
-				iChannels[i].texture->Bind(i);
+				texture->Bind(i);
 			}
 			else
 			{
@@ -322,10 +465,21 @@ public:
 		vertexArrayObject.Bind();
 		vertexArrayObject.Draw(GL_TRIANGLES, 6);
 
-		if (renderTarget)
-			renderTarget->UnBindFrameBuffer();
+		if (frameBuffer)
+		{
+			frameBuffer->UnBind();
+			frameBuffer->Flip();
+		}
 
 		return true;
+	}
+
+	void Flip()
+	{
+		if (frameBuffer)
+		{
+			//frameBuffer->Flip();
+		}
 	}
 
 	void Destroy()
@@ -357,9 +511,16 @@ public:
 		this->iChannels[i].vFlip = vFlip_;
 	}
 
-	void SetTexture(int i, Texture* texture_)
+	void SetChannelTexture(int i, Texture* texture_)
 	{
 		this->iChannels[i].texture = texture_;
+		this->iChannels[i].frameBuffer = nullptr;
+	}
+
+	void SetChannelTexture(int i, FlipFrameBuffer* frameBuffer_)
+	{
+		this->iChannels[i].texture = nullptr;
+		this->iChannels[i].frameBuffer = frameBuffer_;
 	}
 
 	const Pass::Channel& GetChannel(int i) const
@@ -367,14 +528,14 @@ public:
 		return this->iChannels[i];
 	}
 
-	void SetRenderTarget(RenderTarget* renderTarget_)
+	void SetFrameBuffer(FlipFrameBuffer* frameBuffer_)
 	{
-		renderTarget = renderTarget_;
+		frameBuffer = frameBuffer_;
 	}
 
-	RenderTarget* GetRenderTarget() const
+	FlipFrameBuffer* GetFrameBuffer() const
 	{
-		return renderTarget;
+		return frameBuffer;
 	}
 
 	bool LoadShader(const char* path_, std::string& fShaderCode)
@@ -424,7 +585,7 @@ public:
 			"void main()\n"
 			"{\n"
 			"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-			"fragCoord = (vec2(aPos.x, aPos.y) + 1.0) / 2.0 * (iResolution.xy - 1.0) + 0.5;\n"
+			"fragCoord = (vec2(aPos.x, aPos.y) + 1.0) / 2.0 * iResolution.xy;\n"
 			"}\n";
 
 		std::string fShaderHeader =
@@ -453,7 +614,14 @@ public:
 			{
 				if (iChannels[i].texture->GetType() == GL_TEXTURE_2D)
 					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
-				else if(iChannels[i].texture->GetType() == GL_TEXTURE_CUBE_MAP)
+				else if (iChannels[i].texture->GetType() == GL_TEXTURE_CUBE_MAP)
+					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
+			}
+			else if (iChannels[i].frameBuffer)
+			{
+				if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == GL_TEXTURE_2D)
+					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
+				else if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == GL_TEXTURE_CUBE_MAP)
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 		}
@@ -492,7 +660,11 @@ public:
 			}
 		}
 
-		std::string fShader = fShaderHeader + fShaderChannels + commonShaderCode + fShaderCode + fShaderMain;
+		std::string fShader = fShaderHeader + "\n" + 
+			fShaderChannels + "\n" +
+			commonShaderCode + "\n" +
+			fShaderCode + "\n" +
+			fShaderMain;
 		{
 			FILE* fptr = fopen("test.log", "wt");
 			if (fptr)
@@ -514,13 +686,25 @@ private:
 	VertexArrayObject vertexArrayObject;
 	ShaderProgram shaderProgram;
 	std::vector<Channel> iChannels;
-	RenderTarget* renderTarget;
+	FlipFrameBuffer* frameBuffer;
 };
 
 class ShaderToyDemo
 {
 public:
 	ShaderToyDemo()
+	: textures()
+	, black()
+	, soundFrameBuffer()
+	, bufferAFrameBuffer()
+	, bufferBFrameBuffer()
+	, bufferCFrameBuffer()
+	, bufferDFrameBuffer()
+	, cubeMapAFrameBuffer()
+	, cubeMapBFrameBuffer()
+	, cubeMapCFrameBuffer()
+	, cubeMapDFrameBuffer()
+	, passes()
 	{
 	}
 
@@ -540,67 +724,90 @@ public:
 		return result;
 	}
 
-	RenderTarget* GetRenderTarget(const char* str)
+	Pass::Filter GetFilter(const char* str)
+	{
+		std::string s = ToLower(str);
+
+		if (s == "nearest")
+		{
+			return Pass::Filter::Nearest;
+		}
+		else if (s == "linear")
+		{
+			return Pass::Filter::Linear;
+		}
+		else// if (s == "mipmap")
+		{
+			return Pass::Filter::Mipmap;
+		}
+	}
+
+	Pass::Wrap GetWrap(const char* str)
+	{
+		std::string s = ToLower(str);
+
+		if (s == "clamp")
+		{
+			return Pass::Wrap::Clamp;
+		}
+		else// if (s == "repeat")
+		{
+			return Pass::Wrap::Repeat;
+		}
+	}
+
+	FlipFrameBuffer* GetFrameBuffer(const char* str)
 	{
 		std::string s = ToLower(str);
 
 		if (s == "sound")
 		{
-			return &sound;
+			return &soundFrameBuffer;
 		}
 		else if (s == "buffera")
 		{
-			return &bufferA;
+			return &bufferAFrameBuffer;
 		}
 		else if (s == "bufferb")
 		{
-			return &bufferB;
+			return &bufferBFrameBuffer;
 		}
 		else if (s == "bufferc")
 		{
-			return &bufferC;
+			return &bufferCFrameBuffer;
 		}
 		else if (s == "bufferd")
 		{
-			return &bufferD;
+			return &bufferDFrameBuffer;
 		}
 		else if (s == "cubemapa")
 		{
-			return &cubeMapA;
+			return &cubeMapAFrameBuffer;
+		}
+		else if (s == "cubemapb")
+		{
+			return &cubeMapBFrameBuffer;
+		}
+		else if (s == "cubemapc")
+		{
+			return &cubeMapCFrameBuffer;
+		}
+		else if (s == "cubemapd")
+		{
+			return &cubeMapDFrameBuffer;
 		}
 		else
 			return nullptr;
 	}
 
-	Texture* GetTexture(const char* type_, const char* folder_, const char* file_)
+	Texture* GetTexture(const char* folder_, const char* file_, const char* type_)
 	{
 		std::string folder;
 		folder = folder_;
 		folder += "/";
 
 		std::string file = ToLower(file_);
-
-		if (file == "buffera")
-		{
-			return &bufferA;
-		}
-		else if (file == "bufferb")
-		{
-			return &bufferB;
-		}
-		else if (file == "bufferc")
-		{
-			return &bufferC;
-		}
-		else if (file == "bufferd")
-		{
-			return &bufferD;
-		}
-		else if (file == "cubemapa")
-		{
-			return &cubeMapA;
-		}
-		else if (file == "keyboard")
+		if (file == "keyboard")
 		{
 			KeyboardTexture* texture = new KeyboardTexture();
 			if (!texture)
@@ -661,7 +868,7 @@ public:
 			std::string type = ToLower(type_);
 			if (type == "cube")
 			{
-				TextureCubeMap* texture = new TextureCubeMap();
+				TextureCubeMapFile* texture = new TextureCubeMapFile();
 				if (!texture)
 					return nullptr;
 				if (!texture->Create(folder + file))
@@ -689,7 +896,7 @@ public:
 			}
 			else //if (type == "2d")
 			{
-				Texture2D* texture = new Texture2D();
+				Texture2DFile* texture = new Texture2DFile();
 				if (!texture)
 					return nullptr;
 				if (!texture->Create(folder + file))
@@ -701,38 +908,6 @@ public:
 				textures.push_back(texture);
 				return texture;
 			}
-		}
-	}
-
-	Pass::Filter GetFilter(const char* str)
-	{
-		std::string s = ToLower(str);
-
-		if (s == "nearest")
-		{
-			return Pass::Filter::Nearest;
-		}
-		else if (s == "linear")
-		{
-			return Pass::Filter::Linear;
-		}
-		else// if (s == "mipmap")
-		{
-			return Pass::Filter::Mipmap;
-		}
-	}
-
-	Pass::Wrap GetWrap(const char* str)
-	{
-		std::string s = ToLower(str);
-
-		if (s == "clamp")
-		{
-			return Pass::Wrap::Clamp;
-		}
-		else// if (s == "repeat")
-		{
-			return Pass::Wrap::Repeat;
 		}
 	}
 
@@ -799,12 +974,12 @@ public:
 					{
 						if (passJson.HasMember("rendertarget"))
 						{
-							passes[i].SetRenderTarget(GetRenderTarget(passJson["rendertarget"].GetString()));
+							passes[i].SetFrameBuffer(GetFrameBuffer(passJson["rendertarget"].GetString()));
 						}
 
 						for (int j = 0; j < 4; j++)
 						{
-							passes[i].SetTexture(j, &black);
+							passes[i].SetChannelTexture(j, &black);
 
 							std::string name = "ichannel";
 							name += ('0' + j);
@@ -829,11 +1004,21 @@ public:
 										bool vFlip = channelJson["vflip"].GetBool();
 										passes[i].SetVFlip(j, vFlip);
 									}
-									if (channelJson.HasMember("url") && channelJson.HasMember("type"))
+									if (channelJson.HasMember("url"))
 									{
 										std::string url = channelJson["url"].GetString();
-										std::string type = channelJson["type"].GetString();
-										passes[i].SetTexture(j, GetTexture(type.c_str(), folder.c_str(), url.c_str()));
+										std::string type = "2d";
+										if(channelJson.HasMember("type"))
+											type = channelJson["type"].GetString();
+										
+										FlipFrameBuffer* frameBuffer = GetFrameBuffer(url.c_str());
+										Texture* texture = GetTexture(folder.c_str(), url.c_str(), type.c_str());
+										if (texture)
+											passes[i].SetChannelTexture(j, texture);
+										else if (frameBuffer)
+											passes[i].SetChannelTexture(j, frameBuffer);
+										else
+											return false;
 									}
 								}
 							}
@@ -855,21 +1040,29 @@ public:
 
 	bool Create(const char* folder_)
 	{
-		if (!black.Create(32, 32, 4, false, nullptr))
-			return false;
-		if (!sound.Create(512, 2, 1, false))
-			return false;
-		if (!bufferA.Create(1024, 1024, 4, false))
-			return false;
-		if (!bufferB.Create(1024, 1024, 4, false))
-			return false;
-		if (!bufferC.Create(1024, 1024, 4, false))
-			return false;
-		if (!bufferD.Create(1024, 1024, 4, false))
-			return false;
-		//if (!cubeMapA.Create(1024, 4, false))
-			//return false;
+		std::vector<char> colors(32 * 32 * 4);
+		memset(&colors[0], 0, (32 * 32 * 4));
 
+		if (!black.Create(32, 32, 4, false, &colors[0], false))
+			return false;
+		if (!soundFrameBuffer.Create(512, 2, 1, false))
+			return false;
+		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+			return false;
+		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+			return false;
+		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+			return false;
+		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+			return false;
+		if (!cubeMapAFrameBuffer.Create(SCR_WIDTH, 4, false))
+			return false;
+		if (!cubeMapBFrameBuffer.Create(SCR_WIDTH, 4, false))
+			return false;
+		if (!cubeMapCFrameBuffer.Create(SCR_WIDTH, 4, false))
+			return false;
+		if (!cubeMapDFrameBuffer.Create(SCR_WIDTH, 4, false))
+			return false;
 
 		if (!CreateScene(folder_, "scene.json"))
 			return false;
@@ -883,6 +1076,11 @@ public:
 		{
 			if (!pass.Update(time, deltaTime, mouse, mouseDelta, mouseButtonClick, frame))
 				return false;
+		}
+
+		for (auto& pass : passes)
+		{
+			pass.Flip();
 		}
 
 		return true;
@@ -900,25 +1098,34 @@ public:
 				texture = nullptr;
 			}
 		}
+		textures.clear();
 
 		black.Destroy();
-		sound.Destroy();
-		bufferA.Destroy();
-		bufferB.Destroy();
-		bufferC.Destroy();
-		bufferD.Destroy();
-		cubeMapA.Destroy();
+
+		soundFrameBuffer.Destroy();
+		bufferAFrameBuffer.Destroy();
+		bufferBFrameBuffer.Destroy();
+		bufferCFrameBuffer.Destroy();
+		bufferDFrameBuffer.Destroy();
+		cubeMapAFrameBuffer.Destroy();
+		cubeMapBFrameBuffer.Destroy();
+		cubeMapCFrameBuffer.Destroy();
+		cubeMapDFrameBuffer.Destroy();
 	}
 protected:
 private:
 	std::vector<Texture*> textures;
 	Texture2D black;
-	RenderTarget2D sound;
-	RenderTarget2D bufferA;
-	RenderTarget2D bufferB;
-	RenderTarget2D bufferC;
-	RenderTarget2D bufferD;
-	RenderTargetCubeMap cubeMapA;
+
+	FlipTexture2DFrameBuffer soundFrameBuffer;
+	FlipTexture2DFrameBuffer bufferAFrameBuffer;
+	FlipTexture2DFrameBuffer bufferBFrameBuffer;
+	FlipTexture2DFrameBuffer bufferCFrameBuffer;
+	FlipTexture2DFrameBuffer bufferDFrameBuffer;
+	FlipTextureCubeMapFrameBuffer cubeMapAFrameBuffer;
+	FlipTextureCubeMapFrameBuffer cubeMapBFrameBuffer;
+	FlipTextureCubeMapFrameBuffer cubeMapCFrameBuffer;
+	FlipTextureCubeMapFrameBuffer cubeMapDFrameBuffer;
 
 	std::vector<Pass> passes;
 };
@@ -938,10 +1145,9 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		//return shaderToyDemo.Create("testing");
 		//return shaderToyDemo.Create("default");
 		//return shaderToyDemo.Create("Atmospheric scattering explained");
-		return shaderToyDemo.Create("Atmospheric Scattering Fog");
+		//return shaderToyDemo.Create("Atmospheric Scattering Fog");
 		//return shaderToyDemo.Create("Elevated");
 		//return shaderToyDemo.Create("Fast Atmospheric Scattering");
 		//return shaderToyDemo.Create("Path tracing cornellbox with MIS");
@@ -951,6 +1157,10 @@ public:
 		//return shaderToyDemo.Create("Greek Temple");
 		//return shaderToyDemo.Create("Hexagonal Grid Traversal - 3D");
 		//return shaderToyDemo.Create("Post process - SSAO");
+		//return shaderToyDemo.Create("Lake in highland");
+		//return shaderToyDemo.Create("MO");
+		//return shaderToyDemo.Create("PBR Material Gold");
+		return shaderToyDemo.Create("Path Tracer MIS");
 	}
 
 	virtual bool OnUpdate() override
@@ -966,16 +1176,16 @@ private:
 	ShaderToyDemo shaderToyDemo;
 };
 
-int main()
+int main(int argc, char** argv)
 {
-	ShaderToy chapter;
+	ShaderToy shaderToy;
 
-	if (!chapter.Create(SCR_WIDTH, SCR_HEIGHT))
+	if (!shaderToy.Create(SCR_WIDTH, SCR_HEIGHT))
 		return -1;
 
-	chapter.Start();
+	shaderToy.Start();
 
-	chapter.Destroy();
+	shaderToy.Destroy();
 
 	return 0;
 }
