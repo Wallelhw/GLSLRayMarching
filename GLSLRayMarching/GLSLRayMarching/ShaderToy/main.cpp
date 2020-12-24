@@ -376,7 +376,7 @@ public:
 
 	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
-		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 0.0);
+		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 1.0);
 		if (frameBuffer)
 		{
 			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
@@ -1040,23 +1040,23 @@ public:
 
 		if (!black.Create(32, 32, 4, false, &colors[0], false))
 			return false;
-		if (!soundFrameBuffer.Create(512, 2, 1, false))
+		if (!soundFrameBuffer.Create(512, 2, 1, true))
 			return false;
-		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
 			return false;
-		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
 			return false;
-		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
 			return false;
-		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, false))
+		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
 			return false;
-		if (!cubeMapAFrameBuffer.Create(1024, 4, false))
+		if (!cubeMapAFrameBuffer.Create(1024, 4, true))
 			return false;
-		if (!cubeMapBFrameBuffer.Create(1024, 4, false))
+		if (!cubeMapBFrameBuffer.Create(1024, 4, true))
 			return false;
-		if (!cubeMapCFrameBuffer.Create(1024, 4, false))
+		if (!cubeMapCFrameBuffer.Create(1024, 4, true))
 			return false;
-		if (!cubeMapDFrameBuffer.Create(1024, 4, false))
+		if (!cubeMapDFrameBuffer.Create(1024, 4, true))
 			return false;
 
 		if (!CreateScene(folder_, "scene.json"))

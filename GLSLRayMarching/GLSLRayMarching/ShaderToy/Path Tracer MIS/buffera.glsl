@@ -38,8 +38,6 @@ float seed;	//seed initialized in main
 float rnd() { return fract(sin(seed++)*43758.5453123); }
 //***********************************
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
 vec3 toVec3( vec4 v ) {
@@ -68,7 +66,6 @@ mat4 mat4Inverse( in mat4 m ) {
               		vec4( (-rotate_inv)*m[3].xyz, 1.0 ) );
 }
 
-    
 #define SURFACE_ID_BASE	0
 #define LIGHT_ID_BASE	64
 
