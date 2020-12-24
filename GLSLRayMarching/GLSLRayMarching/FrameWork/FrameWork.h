@@ -9,6 +9,8 @@
 #include <map>
 
 #include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
 class FrameWork;
 static FrameWork* instance = nullptr;
@@ -26,9 +28,9 @@ public:
 		, time(0.0)
 		, deltaTime(0.0)
 		, frameCounter(0)
-		, mouse(0.0, 0.0)
+		, mouse(0.0, 0.0, 0.0, 0.0)
 		, mouseDelta(0.0, 0.0)
-		, mouseButtonClicked(0)
+		, mouseButtonStatus(0)
 	{
 		assert(!instance);
 
@@ -79,6 +81,11 @@ public:
 
 	bool Start()
 	{
+		if (frameCounter == 0)
+		{
+			time = glfwGetTime();
+		}
+
 		while (!glfwWindowShouldClose(window))
 		{
 			double now = glfwGetTime();
@@ -137,7 +144,7 @@ protected:
 		return deltaTime;
 	}
 
-	vec2 GetMouse()
+	vec4 GetMouse()
 	{
 		return mouse;
 	}
@@ -147,9 +154,9 @@ protected:
 		return mouseDelta;
 	}
 
-	int GetMouseButtonClicked()
+	int GetMouseButtonStatus()
 	{
-		return mouseButtonClicked;
+		return mouseButtonStatus;
 	}
 
 	int GetFrameCounter()
@@ -178,11 +185,39 @@ private:
 		glfwGetCursorPos(window, &xpos, &ypos);
 		ypos = instance->height - ypos;
 		
-		instance->mouseButtonClicked = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS);
-		if (instance->mouseButtonClicked)
+		int oldMouseButtonStatus = instance->mouseButtonStatus;
+		instance->mouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+		if (instance->mouseButtonStatus== GLFW_PRESS)
 		{
-			instance->mouseDelta = vec2(xpos, ypos) - instance->mouse;
-			instance->mouse = vec2(xpos, ypos);
+			if (oldMouseButtonStatus != instance->mouseButtonStatus)
+			{
+				printf("mouse click\n");
+				instance->mouse.Z() = 1;
+				instance->mouse.W() = 1;
+			}
+			else
+			{
+				printf("mouse down\n");
+				instance->mouse.Z() = 1;
+				instance->mouse.W() = 0;
+			}
+
+			instance->mouse.X() = xpos;
+			instance->mouse.Y() = ypos;
+		}
+		else if (instance->mouseButtonStatus== GLFW_RELEASE)
+		{
+			if (oldMouseButtonStatus != instance->mouseButtonStatus)
+			{
+				printf("mouse unclick\n");
+			}
+			else
+			{
+				printf("mouse release\n");
+			}
+
+			instance->mouse.Z() = -1;
+			instance->mouse.W() = 0;
 		}
 
 		instance->moved = (fabs(instance->mouseDelta.X()) < 0.01f) && (fabs(instance->mouseDelta.Y()) < 0.01f);
@@ -214,8 +249,8 @@ private:
 	double deltaTime;
 	int frameCounter;
 
-	int mouseButtonClicked;
-	vec2 mouse;
+	int mouseButtonStatus;
+	vec4 mouse;
 	vec2 mouseDelta;
 };
 
