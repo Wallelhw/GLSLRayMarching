@@ -107,6 +107,43 @@ private:
 	std::vector<char> buffer;
 };
 
+class GUITexture : public Texture2D
+{
+public:
+	GUITexture()
+		: Texture2D()
+		, buffer(256 * 3)
+	{
+	}
+
+	virtual ~GUITexture()
+	{
+	}
+
+	bool Create()
+	{
+		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
+			return false;
+
+		SetMinFilter(GL_NEAREST);
+		SetMagFilter(GL_NEAREST);
+		SetWarpS(GL_CLAMP);
+		SetWarpR(GL_CLAMP);
+		SetWarpT(GL_CLAMP);
+
+		return true;
+	}
+
+	virtual void Update()
+	{
+		Texture2D::UpdateData(&buffer[0]);
+	}
+private:
+private:
+	std::vector<char> buffer;
+};
+
+
 class WebcamTexture : public Texture2D
 {
 public:
@@ -465,6 +502,8 @@ public:
 		shaderProgram.SetUniform1f("iFrameRate", 60.0f);
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
 		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
+
+		printf("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 		SYSTEMTIME lt = { 0 };
 		GetLocalTime(&lt);
 		shaderProgram.SetUniform4f("iDate", lt.wYear-1, lt.wMonth-1, lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
@@ -536,10 +575,17 @@ public:
 		if (frameBuffer)
 		{
 			frameBuffer->UnBind();
-			frameBuffer->Flip();
 		}
 
 		return true;
+	}
+
+	void Flip()
+	{
+		if (frameBuffer)
+		{
+			frameBuffer->Flip();
+		}
 	}
 
 	void Destroy()
@@ -663,9 +709,9 @@ public:
 			"uniform vec4 iDate;\n"
 			"uniform float iSampleRate;\n"
 			"uniform vec3 iChannelResolution[4];\n";
-			"uniform float isliders[8];\n";
-			"uniform bool icheckboxes[8];\n";
-			"uniform vec3 ivec3[8];\n";
+			"uniform float guisliders[8];\n";
+			"uniform bool guicheckboxes[8];\n";
+			"uniform vec3 guivec3[8];\n";
 
 		std::string fShaderChannels = "";
 		for (int i = 0; i < iChannels.size(); i++)
@@ -1355,18 +1401,23 @@ public:
 
 	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
-		for (auto& pass : passes)
-		{
-			if (!pass.Update(time, deltaTime, mouse, mouseDelta, frameCounter))
-				return false;
-		}
-
 		for (auto& texture : textures)
 		{
 			texture->Update();
 		}
 
-		std::vector<Texture*> textures;
+		for (auto& pass : passes)
+		{
+			if (!pass.Update(time, deltaTime, mouse, mouseDelta, frameCounter))
+				return false;
+
+			pass.Flip();
+		}
+
+		for (auto& pass : passes)
+		{
+			//pass.Flip();
+		}
 
 		return true;
 	}
@@ -1433,9 +1484,9 @@ public:
 		//return macShaderDemo.Create("default");
 		//return macShaderDemo.Create("Atmospheric scattering explained");
 		//return macShaderDemo.Create("Atmospheric Scattering Fog");
-		//return macShaderDemo.Create("Bidirectional path tracing");
-		//return macShaderDemo.Create("Demofox Path Tracing 1");
-		//return macShaderDemo.Create("Demofox Path Tracing 2");
+		//return macShaderDemo.Create("Demos/PathTracings/Bidirectional path tracing");
+		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 1");
+		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 2");
 		//return macShaderDemo.Create("Elevated");
 		//return macShaderDemo.Create("Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Greek Temple");
@@ -1454,6 +1505,8 @@ public:
 		//return macShaderDemo.Create("Very fast procedural ocean");
 		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
 		return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
+		//return macShaderDemo.Create("Demos/PathTracings/Room DI");
+		//return macShaderDemo.Create("Demos/PathTracings/Path tracing testing");
 	}
 
 	virtual bool OnUpdate() override
