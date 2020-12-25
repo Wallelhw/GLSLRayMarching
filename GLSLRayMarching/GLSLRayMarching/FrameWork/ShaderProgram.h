@@ -31,14 +31,20 @@ public:
 		glShaderSource(vertex, 1, &vShaderCode, NULL);
 		glCompileShader(vertex);
 		if (!CheckCompileErrors(vertex, "VERTEX"))
+		{
+			printf("failed to compile vertex shader\n");
 			return false;
+		}
 
 		// fragment Shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
 		glCompileShader(fragment);
 		if (!CheckCompileErrors(fragment, "FRAGMENT"))
+		{
+			printf("failed to compile fragment shader\n");
 			return false;
+		}
 
 		if (gShaderCode)
 		{
@@ -47,7 +53,10 @@ public:
 			glShaderSource(geometry, 1, &gShaderCode, NULL);
 			glCompileShader(geometry);
 			if (!CheckCompileErrors(geometry, "GEOMETRY"))
+			{
+				printf("failed to compile geometry shader\n");
 				return false;
+			}
 		}
 
 		// shader Program
@@ -61,7 +70,10 @@ public:
 
 		glLinkProgram(handle);
 		if (!CheckCompileErrors(handle, "PROGRAM"))
+		{
+			printf("failed to link shader programs\n");
 			return false;
+		}
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
 		if (gShaderCode)

@@ -64,7 +64,7 @@ public:
 		glBindTexture(type, 0);
 	}
 
-	virtual void Update(void* data) = 0;
+	virtual void Update() = 0;
 
 	void SetWarpS(unsigned int warpS_)
 	{
@@ -270,7 +270,11 @@ public:
 		return Texture::Create();
 	}
 
-	virtual void Update(void* data)
+	virtual void Update()
+	{
+	}
+
+	void UpdateData(void* data)
 	{
 		glBindTexture(GL_TEXTURE_2D, this->handle);
 		
@@ -322,25 +326,25 @@ public:
 	{
 	}
 
-	bool Create(const std::string& path, bool vflip = false)
+	bool Create(const std::string& path_, bool vflip_)
 	{
-		bool isHDR = stbi_is_hdr(path.c_str());
+		bool isHDR = stbi_is_hdr(path_.c_str());
 
 		int width, height, nrComponents;
 
 		void* data = nullptr;
 		if (isHDR)
 		{
-			data = stbi_loadf(path.c_str(), &width, &height, &nrComponents, 0);
+			data = stbi_loadf(path_.c_str(), &width, &height, &nrComponents, 0);
 		}
 		else
 		{
-			data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+			data = stbi_load(path_.c_str(), &width, &height, &nrComponents, 0);
 		}
 
 		if (data)
 		{
-			bool result = Texture2D::Create(width, height, nrComponents, isHDR, data, vflip);
+			bool result = Texture2D::Create(width, height, nrComponents, isHDR, data, vflip_);
 
 			stbi_image_free(data);
 
@@ -415,7 +419,11 @@ public:
 		}
 	}
 
-	virtual void Update(void* data)
+	virtual void Update()
+	{
+	}
+
+	virtual void UpdateData(void* data)
 	{
 		unsigned char* dataPtr = (unsigned char*)data;
 
@@ -459,20 +467,20 @@ public:
 	{
 	}
 
-	bool Create(const std::string& path)
+	bool Create(const std::string& path_, bool vflip_)
 	{
-		bool isHDR = stbi_is_hdr(path.c_str());
+		bool isHDR = stbi_is_hdr(path_.c_str());
 
 		int width, height, nrComponents;
 		void* data = nullptr;
 		if (isHDR)
-			data = stbi_loadf(path.c_str(), &width, &height, &nrComponents, 0);
+			data = stbi_loadf(path_.c_str(), &width, &height, &nrComponents, 0);
 		else
-			data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+			data = stbi_load(path_.c_str(), &width, &height, &nrComponents, 0);
 
 		if (data)
 		{
-			bool result = TextureCubeMap::Create(width, nrComponents, isHDR, data);
+			bool result = TextureCubeMap::Create(width, nrComponents, isHDR, data, vflip_);
 
 			stbi_image_free(data);
 

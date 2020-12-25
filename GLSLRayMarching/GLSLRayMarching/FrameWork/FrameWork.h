@@ -191,13 +191,11 @@ private:
 		{
 			if (oldMouseButtonStatus != instance->mouseButtonStatus)
 			{
-				printf("mouse click\n");
 				instance->mouse.Z() = 1;
 				instance->mouse.W() = 1;
 			}
 			else
 			{
-				printf("mouse down\n");
 				instance->mouse.Z() = 1;
 				instance->mouse.W() = 0;
 			}
@@ -209,11 +207,11 @@ private:
 		{
 			if (oldMouseButtonStatus != instance->mouseButtonStatus)
 			{
-				printf("mouse unclick\n");
+				//printf("mouse unclick\n");
 			}
 			else
 			{
-				printf("mouse release\n");
+				//printf("mouse release\n");
 			}
 
 			instance->mouse.Z() = -1;

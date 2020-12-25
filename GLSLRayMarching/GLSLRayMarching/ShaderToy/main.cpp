@@ -17,12 +17,18 @@ using namespace rapidjson;
 #define SCR_WIDTH 800
 #define SCR_HEIGHT 400
 
+#include <Windows.h>
+#include <WinUser.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 class KeyboardTexture : public Texture2D
 {
 public:
 	KeyboardTexture()
 		: Texture2D()
-		, buffer(256)
+		, buffer(256*3)
 	{
 	}
 
@@ -32,12 +38,69 @@ public:
 
 	bool Create()
 	{
-		return Texture2D::Create(256, 1, 1, false, &buffer[0]);
+		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
+			return false;
+		
+		SetMinFilter(GL_NEAREST);
+		SetMagFilter(GL_NEAREST);
+		SetWarpS(GL_CLAMP);
+		SetWarpR(GL_CLAMP);
+		SetWarpT(GL_CLAMP);
+
+		return true;
+	}
+
+	void UpdateKey(int key)
+	{
+		char* keydown = &buffer[256 * 0];
+		char* keyclick = &buffer[256 * 1];
+		char* keytoggle = &buffer[256 * 2];
+
+		int oldKeydown = keydown[key];
+
+		int keyState = GetAsyncKeyState(key);
+		keydown[key] = (keyState & 0x8000) != 0;
+		keyclick[key] = (keydown[key] != oldKeydown) && keydown[key];
+		keytoggle[key] = (keyState & 0x0001) != 0;
+
+		/*
+		bool release = (keydown[key] != oldKeydown) && !keydown[key];
+		if (key == 38)
+		{
+			//printf("%d %d %d\n", keydown[key], keyclick[key], keytoggle[key]);
+			if (keyclick[key])
+			{
+				int a = 1;
+			}
+		}
+		*/
 	}
 
 	virtual void Update()
 	{
-		Texture2D::Update(&buffer[0]);
+		for (int i = 'a'; i < 'z'; i++)
+		{
+			UpdateKey(i);
+		}
+
+		for (int i = 'A'; i < 'Z'; i++)
+		{
+			UpdateKey(i);
+		}
+
+		UpdateKey(VK_LEFT);
+		UpdateKey(VK_UP);
+		UpdateKey(VK_RIGHT);
+		UpdateKey(VK_DOWN);
+		UpdateKey(VK_PRIOR);
+		UpdateKey(VK_NEXT);
+		UpdateKey(VK_END);
+		UpdateKey(VK_HOME);
+		UpdateKey(VK_SHIFT);
+		UpdateKey(VK_CONTROL);
+		UpdateKey(VK_MENU);
+
+		Texture2D::UpdateData(&buffer[0]);
 	}
 private:
 private:
@@ -57,14 +120,14 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Create(bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, false, &buffer[0]);
+		return Texture2D::Create(1280, 720, 4, false, &buffer[0], vflip_);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::Update(&buffer[0]);
+		Texture2D::UpdateData(&buffer[0]);
 	}
 private:
 private:
@@ -91,7 +154,7 @@ public:
 
 	virtual void Update()
 	{
-		Texture2D::Update(&buffer[0]);
+		Texture2D::UpdateData(&buffer[0]);
 	}
 private:
 private:
@@ -111,14 +174,14 @@ public:
 	{
 	}
 
-	bool Create(const std::string& url)
+	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(512, 2, 1, false, &buffer[0]);
+		return Texture2D::Create(512, 2, 1, false, &buffer[0], vflip_);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::Update(&buffer[0]);
+		Texture2D::UpdateData(&buffer[0]);
 	}
 private:
 private:
@@ -138,14 +201,14 @@ public:
 	{
 	}
 
-	bool Create(const std::string& url)
+	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, false, &buffer[0]);
+		return Texture2D::Create(1280, 720, 4, false, &buffer[0], vflip_);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::Update(&buffer[0]);
+		Texture2D::UpdateData(&buffer[0]);
 	}
 private:
 private:
@@ -260,7 +323,7 @@ public:
 
 	virtual void Destroy()
 	{
-		for(int i=0;i<2; i++)
+		for (int i = 0; i < 2; i++)
 			texture[i].Destroy();
 
 		return FlipFrameBuffer::Destroy();
@@ -376,9 +439,13 @@ public:
 
 	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
+		int facecount = 1;
 		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 1.0);
 		if (frameBuffer)
 		{
+			if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
+				facecount = 6;
+			
 			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
 			frameBuffer->Bind();
 		}
@@ -386,14 +453,10 @@ public:
 		{
 			FrameBuffer::UnBind();
 		}
-		
+
 		glViewport(0, 0, resolution[0], resolution[1]);
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0, 0, resolution[0], resolution[1]);
-		//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		//glClearDepth(1.0f);
-		//glClearStencil(0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform3f("iResolution", resolution[0], resolution[1], resolution[2]);
@@ -402,7 +465,9 @@ public:
 		shaderProgram.SetUniform1f("iFrameRate", 60.0f);
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
 		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
-		shaderProgram.SetUniform4f("iDate", 0.0, 0.0, 0.0, 0.0);
+		SYSTEMTIME lt = { 0 };
+		GetLocalTime(&lt);
+		shaderProgram.SetUniform4f("iDate", lt.wYear-1, lt.wMonth-1, lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
 		vec3 channelResolutions[4];
@@ -512,7 +577,7 @@ public:
 		this->iChannels[i].frameBuffer = nullptr;
 	}
 
-	void SetChannelTexture(int i, FlipFrameBuffer* frameBuffer_)
+	void SetChannelFrameBuffer(int i, FlipFrameBuffer* frameBuffer_)
 	{
 		this->iChannels[i].texture = nullptr;
 		this->iChannels[i].frameBuffer = frameBuffer_;
@@ -598,6 +663,9 @@ public:
 			"uniform vec4 iDate;\n"
 			"uniform float iSampleRate;\n"
 			"uniform vec3 iChannelResolution[4];\n";
+			"uniform float isliders[8];\n";
+			"uniform bool icheckboxes[8];\n";
+			"uniform vec3 ivec3[8];\n";
 
 		std::string fShaderChannels = "";
 		for (int i = 0; i < iChannels.size(); i++)
@@ -620,7 +688,7 @@ public:
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 		}
-		
+
 		std::string fShaderMain =
 			"void main()\n"
 			"{\n"
@@ -638,6 +706,7 @@ public:
 			url += fShaderURL_;
 			if (!LoadShader(url.c_str(), fShaderCode))
 			{
+				printf("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
@@ -651,11 +720,12 @@ public:
 			url += commonShaderURL_;
 			if (!LoadShader(url.c_str(), commonShaderCode))
 			{
+				printf("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
 
-		std::string fShader = fShaderHeader + "\n" + 
+		std::string fShader = fShaderHeader + "\n" +
 			fShaderChannels + "\n" +
 			commonShaderCode + "\n" +
 			fShaderCode + "\n" +
@@ -688,18 +758,18 @@ class MacShaderDemo
 {
 public:
 	MacShaderDemo()
-	: textures()
-	, black()
-	, soundFrameBuffer()
-	, bufferAFrameBuffer()
-	, bufferBFrameBuffer()
-	, bufferCFrameBuffer()
-	, bufferDFrameBuffer()
-	, cubeMapAFrameBuffer()
-	, cubeMapBFrameBuffer()
-	, cubeMapCFrameBuffer()
-	, cubeMapDFrameBuffer()
-	, passes()
+		: textures()
+		, black()
+		, soundFrameBuffer()
+		, bufferAFrameBuffer()
+		, bufferBFrameBuffer()
+		, bufferCFrameBuffer()
+		, bufferDFrameBuffer()
+		, cubeMapAFrameBuffer()
+		, cubeMapBFrameBuffer()
+		, cubeMapCFrameBuffer()
+		, cubeMapDFrameBuffer()
+		, passes()
 	{
 	}
 
@@ -795,6 +865,112 @@ public:
 			return nullptr;
 	}
 
+	Texture* AddKeyboardTexture()
+	{
+		KeyboardTexture* texture = new KeyboardTexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create())
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddWebcamTexture(bool vflip_)
+	{
+		WebcamTexture* texture = new WebcamTexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create(vflip_))
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddMicrophoneTexture()
+	{
+		MicrophoneTexture* texture = new MicrophoneTexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create())
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddSoundCloudTexture(const char* url_, bool vflip_)
+	{
+		SoundCloudTexture* texture = new SoundCloudTexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create(url_, vflip_))
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddTexture2D(const char* path, bool vflip_)
+	{
+		Texture2DFile* texture = new Texture2DFile();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create(path, vflip_))
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddTextureCubemap(const char* path, bool vflip_)
+	{
+		TextureCubeMapFile* texture = new TextureCubeMapFile();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create(path, vflip_))
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	Texture* AddVideoTexture(const char* path, bool vflip_)
+	{
+		VideoTexture* texture = new VideoTexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create(path, vflip_))
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+
+	/*
 	Texture* GetTexture(const char* folder_, const char* file_, const char* type_)
 	{
 		std::string folder;
@@ -804,17 +980,7 @@ public:
 		std::string file = ToLower(file_);
 		if (file == "keyboard")
 		{
-			KeyboardTexture* texture = new KeyboardTexture();
-			if (!texture)
-				return nullptr;
-			if (!texture->Create())
-			{
-				delete texture;
-				return nullptr;
-			}
 
-			textures.push_back(texture);
-			return texture;
 		}
 		else if (file == "webcam")
 		{
@@ -905,19 +1071,25 @@ public:
 			}
 		}
 	}
+	*/
+
+	void DebugLog(const char* msg)
+	{
+		printf("Error: %s\n", msg);
+	}
 
 	bool CreateScene(const char* folder_, const char* scenefile_)
 	{
 		std::string folder = folder_;
 
 		// 1. retrieve the vertex/fragment source code from filePath
+		std::string url;
 		std::string shaderToyCode;
 		std::ifstream shaderToyFile;
 		// ensure ifstream objects can throw exceptions:
 		shaderToyFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try
 		{
-			std::string url;
 			url = folder;
 			url += "/";
 			url += scenefile_;
@@ -937,6 +1109,7 @@ public:
 		}
 		catch (std::ifstream::failure&)
 		{
+			printf("Failed to Open %s\n", url.c_str());
 			return false;
 		}
 
@@ -962,14 +1135,38 @@ public:
 				for (int i = 0; i < passes.size(); i++)
 				{
 					if (!passes[i].Create())
+					{
+						printf("Failed to Create Pass %d\n", i);
 						return false;
+					}
 
 					Value& passJson = passesJson[i];
 					if (passJson.IsObject())
 					{
 						if (passJson.HasMember("rendertarget"))
 						{
-							passes[i].SetFrameBuffer(GetFrameBuffer(passJson["rendertarget"].GetString()));
+							std::string rendertargetname = passJson["rendertarget"].GetString();
+
+							if (rendertargetname != "image")
+							{
+								FlipFrameBuffer* rendertarget = GetFrameBuffer(rendertargetname.c_str());
+								if (!rendertarget)
+								{
+									printf("rendertarget=%s not supported\n", rendertargetname.c_str());
+									return false;
+								}
+
+								passes[i].SetFrameBuffer(rendertarget);
+							}
+							else
+							{
+								passes[i].SetFrameBuffer(nullptr);
+							}
+						}
+						else
+						{
+							printf("Pass must have Render Target\n");
+							return false;
 						}
 
 						for (int j = 0; j < 4; j++)
@@ -999,21 +1196,106 @@ public:
 										bool vFlip = channelJson["vflip"].GetBool();
 										passes[i].SetVFlip(j, vFlip);
 									}
-									if (channelJson.HasMember("url"))
+
+									if (channelJson.HasMember("keyboard"))
 									{
-										std::string url = channelJson["url"].GetString();
-										std::string type = "2d";
-										if(channelJson.HasMember("type"))
-											type = channelJson["type"].GetString();
-										
-										FlipFrameBuffer* frameBuffer = GetFrameBuffer(url.c_str());
-										Texture* texture = GetTexture(folder.c_str(), url.c_str(), type.c_str());
-										if (texture)
-											passes[i].SetChannelTexture(j, texture);
-										else if (frameBuffer)
-											passes[i].SetChannelTexture(j, frameBuffer);
-										else
+										Texture* texture = AddKeyboardTexture();
+										if (!texture)
 											return false;
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("webcam"))
+									{
+										Texture* texture = AddWebcamTexture(passes[i].GetChannel(j).vFlip);
+										if (!texture)
+											return false;
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("microphone"))
+									{
+										Texture* texture = AddMicrophoneTexture();
+										if (!texture)
+											return false;
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("soundcloud"))
+									{
+										std::string url = channelJson["soundcloud"].GetString();
+
+										Texture* texture = AddSoundCloudTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
+										if (!texture)
+										{
+											printf("channel %d: failed to load soundcloud %s\n", j, url.c_str());
+											return false;
+										}
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("texture2d"))
+									{
+										std::string url = folder;
+										url += "/";
+										url += channelJson["texture2d"].GetString();
+
+										Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
+										if (!texture)
+										{
+											printf("channel %d: failed to load texture2d %s\n", j, url.c_str());
+											return false;
+										}
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("texturecubemap"))
+									{
+										std::string url = folder;
+										url += "/";
+										url += channelJson["texturecubemap"].GetString();
+
+										Texture* texture = AddTextureCubemap(url.c_str(), passes[i].GetChannel(j).vFlip);
+										if (!texture)
+										{
+											printf("channel %d: failed to load texturecubemap %s\n", j, url.c_str());
+											return false;
+										}
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("texturevideo"))
+									{
+										std::string url = folder;
+										url += "/";
+										url += channelJson["texturevideo"].GetString();
+
+										Texture* texture = AddVideoTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
+										if (!texture)
+										{
+											printf("channel %d: failed to load texture video %s\n", j, url.c_str());
+											return false;
+										}
+
+										passes[i].SetChannelTexture(j, texture);
+									}
+									else if (channelJson.HasMember("buffer"))
+									{
+										std::string buffername = channelJson["buffer"].GetString();
+
+										FlipFrameBuffer* fb = GetFrameBuffer(buffername.c_str());
+										if (!fb)
+										{
+											printf("channel %d: buffer=%s is not supported\n", j, buffername.c_str());
+											return false;
+										}
+
+										passes[i].SetChannelFrameBuffer(j, fb);
+									}
+									else
+									{
+										printf("channel%d: must have texture or frame buffer specified or texture type is not supported\n", j);
+										return false;
 									}
 								}
 							}
@@ -1022,7 +1304,13 @@ public:
 						{
 							const char* shaderURL = passJson["shader"].GetString();
 							if (!passes[i].SetShader(folder.c_str(), shaderURL, commonShaderURL))
+							{
 								return false;
+							}
+						}
+						else
+						{
+							printf("channel%d: must have shader specified\n", i);
 						}
 					}
 				}
@@ -1072,6 +1360,13 @@ public:
 			if (!pass.Update(time, deltaTime, mouse, mouseDelta, frameCounter))
 				return false;
 		}
+
+		for (auto& texture : textures)
+		{
+			texture->Update();
+		}
+
+		std::vector<Texture*> textures;
 
 		return true;
 	}
@@ -1136,22 +1431,29 @@ public:
 	virtual bool OnCreate() override
 	{
 		//return macShaderDemo.Create("default");
-		//return macShaderDemo.Create("Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Atmospheric scattering explained");
 		//return macShaderDemo.Create("Atmospheric Scattering Fog");
-		return macShaderDemo.Create("Elevated");
-		//return macShaderDemo.Create("Path tracing cornellbox with MIS");
 		//return macShaderDemo.Create("Bidirectional path tracing");
 		//return macShaderDemo.Create("Demofox Path Tracing 1");
 		//return macShaderDemo.Create("Demofox Path Tracing 2");
+		//return macShaderDemo.Create("Elevated");
+		//return macShaderDemo.Create("Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Greek Temple");
 		//return macShaderDemo.Create("Hexagonal Grid Traversal - 3D");
 		//return macShaderDemo.Create("Post process - SSAO");
 		//return macShaderDemo.Create("Lake in highland");
 		//return macShaderDemo.Create("MO");
+		//return macShaderDemo.Create("Path Tracer MIS");
 		//return macShaderDemo.Create("PBR Material Gold");
-		return macShaderDemo.Create("Path Tracer MIS");
+		//return macShaderDemo.Create("Sirenian Dawn");
+		//return macShaderDemo.Create("Cloudy Terrain");
+		//return macShaderDemo.Create("Rainforest");
+		//return macShaderDemo.Create("Canyon");
+		//return macShaderDemo.Create("Demos/Cloudy Terrain/CloudFight");
 		//return macShaderDemo.Create("testmouse");
+		//return macShaderDemo.Create("Very fast procedural ocean");
+		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
+		return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
 	}
 
 	virtual bool OnUpdate() override
