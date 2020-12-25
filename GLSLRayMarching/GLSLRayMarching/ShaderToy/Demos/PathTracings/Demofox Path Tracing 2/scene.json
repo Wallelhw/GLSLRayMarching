@@ -1,0 +1,32 @@
+{
+  "common": {
+    "shader": "common.glsl"
+  },
+  "passes": [
+    {
+      "shader": "buffera.glsl",
+      "ichannel0": {
+        "buffer": "buffera",
+        "filter": "linear",
+        "wrap": "clamp"
+      },
+      "ichannel1": {
+        "texturecubemap": "env1.png",
+        "filter": "mipmap",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "buffera"
+    },
+    {
+      "shader": "image.glsl",
+      "ichannel0": {
+        "buffer": "buffera",
+        "filter": "linear",
+        "wrap": "clamp",
+        "vflip": false
+      },
+      "rendertarget": "image"
+    }
+  ]
+}
