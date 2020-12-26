@@ -29,7 +29,7 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		if (!simpleMap.Create("../assets/alpha.png"))
+		if (!simpleMap.Create("../assets/alpha.png", false))
 		{
 			return false;
 		}
@@ -103,7 +103,7 @@ public:
 		vertexArrayObject.Destroy();
 	}
 private:
-	Texture2D simpleMap;
+	Texture2DFile simpleMap;
 	ShaderProgram proprocessingShaderProgram;
 	VertexArrayObject vertexArrayObject;
 
