@@ -1,6 +1,7 @@
 #include "FrameWork.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
+#include "FrameBuffer.h"
 #include "VertexArrayObject.h"
 #include "Vector2.h"
 #include "Vector3.h"
@@ -39,7 +40,7 @@ public:
 			return false;
 		}
 
-		if (!envMap.Create("../assets/env1.png"))
+		if (!envMap.Create("../assets/env1.png", false))
 		{
 			return false;
 		}
@@ -112,7 +113,7 @@ public:
 		*/
 
 		//////////////////////////////////////////////////////
-		frameBufferTexture.BindFrameBuffer();
+		frameBufferTexture.Bind();
 
 		envMap.Bind(0);
 
@@ -132,9 +133,9 @@ public:
 		vertexArrayObject.Draw(GL_TRIANGLES, 6);
 
 		//////////////////////////////////////////////////////
-		frameBufferTexture.UnBindFrameBuffer();
+		frameBufferTexture.UnBind();
 
-		frameBufferTexture.Bind(0);
+		frameBufferTexture.GetColorAttachment(GL_COLOR_ATTACHMENT0)->Bind(0);
 		proprocessingShaderProgram.Bind();
 		proprocessingShaderProgram.SetUniform2f("screenSize", SCR_WIDTH, SCR_HEIGHT);
 		proprocessingShaderProgram.SetUniform1i("frameBufferTexture", 0);
@@ -157,9 +158,9 @@ public:
 		vertexArrayObject.Destroy();
 	}
 private:
-	RenderTarget2D frameBufferTexture;
+	Texture2DFrameBuffer frameBufferTexture;
 
-	TextureCubeMap envMap;
+	TextureCubeMapFile envMap;
 	ShaderProgram pathTraceShaderProgram;
 
 	ShaderProgram proprocessingShaderProgram;

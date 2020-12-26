@@ -4,10 +4,10 @@
 #define LENS_SIZE			0.3		//depth of field
 #define CLAMP_VALUE			16.0		//biased rendering
 //#define CLAMP_CAUSTICS				//biased rendering
-#define TEXTURES			//uncomment to enable textures
-#define NORMAL_MAPS		//uncomment to enable normal mapping(textures are necessery for normal mapping)
+//#define TEXTURES			//uncomment to enable textures
+//#define NORMAL_MAPS		//uncomment to enable normal mapping(textures are necessery for normal mapping)
 
-#define SPHERE_LIGHT
+//#define SPHERE_LIGHT
 //#define CONCENTRIC_DISK
 
 const vec3 backgroundColor = vec3( 0.0 );
@@ -35,29 +35,34 @@ bool is_inf(float val) {
 // random number generator **********
 // taken from iq :)
 float seed;	//seed initialized in main
-float rnd() { return fract(sin(seed++)*43758.5453123); }
+float rnd() 
+{ 
+    return fract(sin(seed++)*43758.5453123); 
+}
 //***********************************
 
-
-
 //////////////////////////////////////////////////////////////////////////
-
-vec3 toVec3( vec4 v ) {
-    if( IS_ZERO( v.w ) ) {
+vec3 toVec3( vec4 v ) 
+{
+    if( IS_ZERO( v.w ) ) 
+    {
         return v.xyz;
     }
     
     return v.xyz*(1.0/v.w);
 }
 
-mat3 mat3Inverse( in mat3 m ) {
+mat3 mat3Inverse( in mat3 m ) 
+{
     return mat3(	vec3( m[0][0], m[1][0], m[2][0] ),
 					vec3( m[0][1], m[1][1], m[2][1] ),
-                    vec3( m[0][2], m[1][2], m[2][2] ) );
+                    vec3( m[0][2], m[1][2], m[2][2] ) 
+                    );
 }
 
 //fast inverse for orthogonal matrices
-mat4 mat4Inverse( in mat4 m ) {
+mat4 mat4Inverse( in mat4 m ) 
+{
     mat3 rotate_inv = mat3(	vec3( m[0][0], m[1][0], m[2][0] ),
                           	vec3( m[0][1], m[1][1], m[2][1] ),
                           	vec3( m[0][2], m[1][2], m[2][2] ) );
@@ -74,7 +79,6 @@ mat4 mat4Inverse( in mat4 m ) {
 
 #define MTL_LIGHT 		0
 #define MTL_DIFFUSE		1
-    
 
 #define OBJ_PLANE		0
 #define OBJ_SPHERE		1
@@ -83,7 +87,8 @@ mat4 mat4Inverse( in mat4 m ) {
 #define OBJ_DISK		4
 #define OBJ_TORUS		5
     
-struct Object {
+struct Object 
+{
     int type_;
     int mtl_id_;
     mat4 transform_;
@@ -92,27 +97,32 @@ struct Object {
     float params_[6];
 };
 
-//Weighted sum of Lambertian and Blinn brdfs
-struct Material {
+// Weighted sum of Lambertian and Blinn brdfs
+struct Material 
+{
     vec3 diffuse_color_;
     int diffuse_color_tex_;
+
     vec3 specular_color_;
     float specular_roughness_;
+
     int specular_roughness_tex_;
     float specular_weight_;
     int specular_weight_tex_;
+
     int normal_map_;
     float tex_scale_;
 };
     
-struct Light {
+struct Light 
+{
     vec3 color_;
     float intensity_;
 };
     
-
-    
-struct LightSamplingRecord {
+   
+struct LightSamplingRecord 
+{
     vec3 w;
     float d;
     float pdf;
@@ -125,42 +135,38 @@ Object objects[8];
 Camera camera;
 Camera cameraOld;
 //***********************************
-#if __VERSION__ < 300
-Material getMaterial(int i) {
-    if(i==0) return materials[0]; else
-        if(i==1) return materials[1]; else
-            if(i==2) return materials[2]; else
-                if(i==3) return materials[3]; else
-                    if(i==4) return materials[4]; else
-                        if(i==5) return materials[5]; else
-                            return materials[6];
+Material getMaterial(int i) 
+{ 
+    return materials[i]; 
 }
 
-Light getLight(int i) {
-    if(i==0) return lights[0]; else
-        return lights[1];
-    //return lights[i];
+Light getLight(int i) 
+{ 
+    return lights[i]; 
 }
-#else
-Material getMaterial(int i) { return materials[i]; }
-Light getLight(int i) { return lights[i]; }
-#endif
 
-
-vec3 getColor(vec2 uv, int tex) {
+vec3 getColor(vec2 uv, int tex) 
+{
 #ifdef TEXTURES
-    if(tex==0)	return /*(int(mod((uv.x+uv.y)*10.0,2.0)) == 1)? vec3(0.05) : vec3(1.0);//*/texture( iChannel0, uv).xyz; else
-    if(tex==1)	return texture( iChannel1, uv).xyz; else
-    			return texture( iChannel2, uv).xyz;
+    if(tex==0)	
+        return texture( iChannel0, uv).xyz; 
+    else if(tex==1)	
+        return texture( iChannel1, uv).xyz; 
+    else
+        return texture( iChannel2, uv).xyz;
 #else
-    if(tex==0)	return vec3(0.8, 0.5, 0.3);
-    if(tex==1)	return vec3(0.5, 0.5, 0.6);
-				return vec3(0.7, 0.7, 0.7);
+    if(tex==0)	
+        return vec3(0.8, 0.5, 0.3);
+    else if(tex==1)	
+        return vec3(0.5, 0.5, 0.6);
+	else 
+        return vec3(0.7, 0.7, 0.7);
 #endif
 }
 
 #define GET_COLORS(smplr, idx) duv = vec2(1.0) / iChannelResolution[idx].xy; c = getColor(uv , smplr); c1 = getColor( uv + vec2(duv.x, 0.0), smplr); c2 = getColor(uv - vec2(duv.x, 0.0),  smplr); c3 = getColor(uv + vec2(0.0, duv.y), smplr); c4 = getColor(uv - vec2(0.0, duv.y), smplr);
-vec3 getNormal(vec2 uv, int tex ) {
+vec3 getNormal(vec2 uv, int tex) 
+{
 #ifdef NORMAL_MAPS
     float heightScale = 0.004;
     float dHdU, dHdV;
@@ -169,21 +175,12 @@ vec3 getNormal(vec2 uv, int tex ) {
     vec3 c, c1, c2, c3, c4;
     vec2 duv;
     
-#if __VERSION__ < 300
-    if(tex==0){
-        GET_COLORS(0, 0);
-    } else if(tex==1) {
-        GET_COLORS(1, 1);
-    } else {
-        GET_COLORS(2, 2);
-    }
-#else
-    switch(tex){
+    switch(tex)
+    {
         case 0: {GET_COLORS(0, 0);}
         case 1: {GET_COLORS(1, 1);}
         case 2: {GET_COLORS(2, 2);}
     }
-#endif
     
     h0	= heightScale * dot(c , vec3(1.0/3.0));
     hpx = heightScale * dot(c1, vec3(1.0/3.0));
@@ -199,8 +196,9 @@ vec3 getNormal(vec2 uv, int tex ) {
 #endif
 }
 
-vec3 getRadiance(vec2 uv) {
-    return /*getColor(uv, 2)*lights[0].color_**/vec3(1.0, 1.0, 1.0)*lights[0].intensity_;
+vec3 getRadiance(vec2 uv) 
+{
+    return vec3(1.0, 1.0, 1.0) * lights[0].intensity_;
 }
 
 void createMaterial(vec3 diff,
@@ -212,7 +210,8 @@ void createMaterial(vec3 diff,
                     int weight_tex,
                     int normal_map,
                     float tex_scale,
-                    out Material mtl) {
+                    out Material mtl) 
+{
     mtl.diffuse_color_ = diff;
     mtl.diffuse_color_tex_ = diff_tex;
     mtl.specular_color_ = spec;
@@ -224,14 +223,17 @@ void createMaterial(vec3 diff,
     mtl.tex_scale_ = tex_scale;
 }
 
-void createLight(vec3 color, float intensity, out Light light) {
+void createLight(vec3 color, float intensity, out Light light) 
+{
     light.color_ = color;
     light.intensity_ = intensity;
 }
 
-void createAABB( mat4 transform, vec3 bound_min, vec3 bound_max, int mtl, out Object obj) {
+void createAABB( mat4 transform, vec3 bound_min, vec3 bound_max, int mtl, out Object obj) 
+{
     vec3 xAcis = normalize( vec3( 0.9, 0.0, 0.2 ) );
     vec3 yAcis = vec3( 0.0, 1.0, 0.0 );
+
     obj.type_ = OBJ_AABB;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -244,9 +246,11 @@ void createAABB( mat4 transform, vec3 bound_min, vec3 bound_max, int mtl, out Ob
     obj.params_[5] = bound_max.z;
 }
 
-void createTorus( mat4 transform, float R, float r, int mtl, out Object obj) {
+void createTorus( mat4 transform, float R, float r, int mtl, out Object obj) 
+{
     vec3 xAcis = normalize( vec3( 0.9, 0.0, 0.2 ) );
     vec3 yAcis = vec3( 0.0, 1.0, 0.0 );
+
     obj.type_ = OBJ_TORUS;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -255,7 +259,8 @@ void createTorus( mat4 transform, float R, float r, int mtl, out Object obj) {
     obj.params_[1] = r*r;
 }
 
-void createPlane(mat4 transform, float minX, float minY, float maxX, float maxY, int mtl, out Object obj) {
+void createPlane(mat4 transform, float minX, float minY, float maxX, float maxY, int mtl, out Object obj) 
+{
     obj.type_ = OBJ_PLANE;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -264,11 +269,12 @@ void createPlane(mat4 transform, float minX, float minY, float maxX, float maxY,
     obj.params_[1] = minY;			//min y
     obj.params_[2] = maxX;			//max x
     obj.params_[3] = maxY;			//max y
-    obj.params_[4] = 0.0;		//not used
-    obj.params_[5] = 0.0;		//not used
+    obj.params_[4] = 0.0;		    //not used
+    obj.params_[5] = 0.0;		    //not used
 }
 
-void createDisk(mat4 transform, float r, float R, int mtl, out Object obj) {
+void createDisk(mat4 transform, float r, float R, int mtl, out Object obj) 
+{
     obj.type_ = OBJ_DISK;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -277,7 +283,8 @@ void createDisk(mat4 transform, float r, float R, int mtl, out Object obj) {
     obj.params_[1] = R*R;
 }
 
-void createSphere(mat4 transform, float r, int mtl, out Object obj) {
+void createSphere(mat4 transform, float r, int mtl, out Object obj) 
+{
     obj.type_ = OBJ_SPHERE;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -290,7 +297,8 @@ void createSphere(mat4 transform, float r, int mtl, out Object obj) {
     obj.params_[5] = 0.0;		//not used
 }
 
-void createCylinder(mat4 transform, float r, float minZ, float maxZ, float maxTheta, int mtl, out Object obj) {
+void createCylinder(mat4 transform, float r, float minZ, float maxZ, float maxTheta, int mtl, out Object obj) 
+{
     obj.type_ = OBJ_CYLINDER;
     obj.mtl_id_ = mtl;
     obj.transform_ = transform;
@@ -303,7 +311,8 @@ void createCylinder(mat4 transform, float r, float minZ, float maxZ, float maxTh
     obj.params_[5] = 0.0;		//not used
 }
 
-mat4 createCS(vec3 p, vec3 z, vec3 x) {
+mat4 createCS(vec3 p, vec3 z, vec3 x) 
+{
     z = normalize(z);
     vec3 y = normalize(cross(z,x));
     x = cross(y,z);
@@ -315,11 +324,13 @@ mat4 createCS(vec3 p, vec3 z, vec3 x) {
 }
 
 // ************************   Scattering functions  *************************
-bool sameHemisphere(in vec3 n, in vec3 a, in vec3 b){
+bool sameHemisphere(in vec3 n, in vec3 a, in vec3 b)
+{
 	return ((dot(n,a)*dot(n,b))>0.0);
 }
 
-bool sameHemisphere(in vec3 a, in vec3 b){
+bool sameHemisphere(in vec3 a, in vec3 b)
+{
 	return (a.z*b.z>0.0);
 }
 
@@ -336,7 +347,8 @@ float sinPhi(vec3 w) { float sin_Theta = sinTheta(w); return (sin_Theta == 0.0) 
 float cosPhi2(vec3 w) { return cosPhi(w) * cosPhi(w); }
 float sinPhi2(vec3 w) { return sinPhi(w) * sinPhi(w); }
 
-float ggx_eval(vec3 wh, float alphax, float alphay) {
+float ggx_eval(vec3 wh, float alphax, float alphay) 
+{
     float tan2Theta = tanTheta2(wh);
     if (is_inf(tan2Theta)) return 0.;
     float cos4Theta = cosTheta2(wh) * cosTheta2(wh);
@@ -344,12 +356,13 @@ float ggx_eval(vec3 wh, float alphax, float alphay) {
     return 1.0 / (PI * (alphax * alphay) * cos4Theta * (1.0 + e) * (1.0 + e));
 }
 
-//Here we sample only visible normals, so it takes view direction wi
-//Visible normal sampling was first presented here: https://hal.archives-ouvertes.fr/hal-01509746
-//We use method which first converts everything is space where alpha is 1 
-//does uniform sampling of visible hemisphere and converts sample back
-//https://hal.archives-ouvertes.fr/hal-01509746
-vec3 ggx_sample(vec3 wi, float alphax, float alphay, vec2 xi) {
+// Here we sample only visible normals, so it takes view direction wi
+// Visible normal sampling was first presented here: https://hal.archives-ouvertes.fr/hal-01509746
+// We use method which first converts everything is space where alpha is 1 
+// does uniform sampling of visible hemisphere and converts sample back
+// https://hal.archives-ouvertes.fr/hal-01509746
+vec3 ggx_sample(vec3 wi, float alphax, float alphay, vec2 xi) 
+{
     //stretch view
     vec3 v = normalize(vec3(wi.x * alphax, wi.y * alphay, wi.z));
 
@@ -371,8 +384,8 @@ vec3 ggx_sample(vec3 wi, float alphax, float alphay, vec2 xi) {
     return normalize(vec3(n.x * alphax, n.y * alphay, n.z));
 }
 
-
-float ggx_lambda(vec3 w, float alphax, float alphay) {
+float ggx_lambda(vec3 w, float alphax, float alphay) 
+{
     float absTanTheta = abs(tanTheta(w));
     if (is_inf(absTanTheta)) return 0.;
     // Compute _alpha_ for direction _w_
@@ -381,23 +394,28 @@ float ggx_lambda(vec3 w, float alphax, float alphay) {
     return (-1.0 + sqrt(1.0 + alpha2Tan2Theta)) / 2.0;
 }
 
-float ggx_g1(vec3 w, float alphax, float alphay) {
+float ggx_g1(vec3 w, float alphax, float alphay) 
+{
     return 1.0 / (1.0 + ggx_lambda(w, alphax, alphay));
 }
 
-float ggx_g(vec3 wo, vec3 wi, float alphax, float alphay) {
+float ggx_g(vec3 wo, vec3 wi, float alphax, float alphay) 
+{
     return 1.0 / (1.0 + ggx_lambda(wo, alphax, alphay) + ggx_lambda(wi, alphax, alphay));
 }
 
-float ggx_pdf(vec3 wi, vec3 wh, float alphax, float alphay) {
+float ggx_pdf(vec3 wi, vec3 wh, float alphax, float alphay) 
+{
     return ggx_eval(wh, alphax, alphay) * ggx_g1(wi, alphax, alphay) * abs(dot(wi, wh)) / abs(wi.z);
 }
 
-float SchlickFresnel(in float Rs, float cosTheta) {
+float SchlickFresnel(in float Rs, float cosTheta) 
+{
     return Rs + pow(1.0 - cosTheta, 5.) * (1. - Rs);
 }
 
-vec3 mtlEval(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L) {
+vec3 mtlEval(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L) 
+{
     mat3 trans = mat3FromNormal(Ns);
     mat3 inv_trans = mat3Inverse( trans );
     
@@ -432,16 +450,19 @@ vec3 mtlEval(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L) {
     return 	mix(diff_refl, spec_Refl, mtl.specular_weight_);
 }
 
-float pdfDiffuse(in vec3 L_local) {
+float pdfDiffuse(in vec3 L_local) 
+{
     return INV_PI * L_local.z;
 }
 
-float pdfSpecular(in float alphau, in float alphav, in vec3 E_local, in vec3 L_local) {
+float pdfSpecular(in float alphau, in float alphav, in vec3 E_local, in vec3 L_local) 
+{
     vec3 wh = normalize(E_local + L_local);
     return ggx_pdf(E_local, wh, alphau, alphav) / (4.0 * dot(E_local, wh));
 }
 
-vec3 mtlSample(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec2 xi, out vec3 L, out float pdf, out float spec) {
+vec3 mtlSample(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec2 xi, out vec3 L, out float pdf, out float spec)
+{
     float alpha = mtl.specular_roughness_;
     mat3 trans = mat3FromNormal(Ns);
     mat3 inv_trans = mat3Inverse( trans );
@@ -472,7 +493,8 @@ vec3 mtlSample(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec2 xi, out 
     return mtlEval(mtl, Ng, Ns, E, L);
 }
 
-float mtlPdf(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L) {
+float mtlPdf(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L)
+{
     mat3 trans = mat3FromNormal(Ns);
     mat3 inv_trans = mat3Inverse( trans );
     float alpha = mtl.specular_roughness_;
@@ -492,7 +514,8 @@ float mtlPdf(Material mtl, in vec3 Ng, in vec3 Ns, in vec3 E, in vec3 L) {
     return mix(diff_pdf, spec_pdf, mtl.specular_weight_);
 }
 
-bool rayObjectIntersect( in Ray ray, in Object obj, in float distMin, in float distMax, in bool forShadowTest, out SurfaceHitInfo hit, out float dist ) {
+bool rayObjectIntersect( in Ray ray, in Object obj, in float distMin, in float distMax, in bool forShadowTest, out SurfaceHitInfo hit, out float dist ) 
+{
     bool hitResult = false;
     float t;
     SurfaceHitInfo currentHit;
@@ -531,7 +554,8 @@ bool rayObjectIntersect( in Ray ray, in Object obj, in float distMin, in float d
 }
 
 #define CHECK_OBJ( obj ) { SurfaceHitInfo currentHit; float currDist; if( rayObjectIntersect( ray, obj, distMin, nearestDist, forShadowTest, currentHit, currDist ) && ( currDist < nearestDist ) ) { nearestDist = currDist; hit = currentHit; } }
-bool raySceneIntersection( in Ray ray, in float distMin, in bool forShadowTest, out SurfaceHitInfo hit, out float nearestDist ) {
+bool raySceneIntersection( in Ray ray, in float distMin, in bool forShadowTest, out SurfaceHitInfo hit, out float nearestDist ) 
+{
     nearestDist = 10000.0;
     
     CHECK_OBJ( objects[0] )
@@ -546,11 +570,13 @@ bool raySceneIntersection( in Ray ray, in float distMin, in bool forShadowTest, 
     return ( nearestDist < 1000.0 );
 }
 
-void initScene() {
+void initScene() 
+{
     float time = 100.0;//iTime;
     
     //create lights
-    createLight(vec3(1.0, 1.0, 0.9), 40.0, lights[0]);
+    createLight(vec3(1.0, 0.0, 0.0), 40.0, lights[0]);
+    createLight(vec3(0.0, 1.0, 0.0), 40.0, lights[1]);
     
     //Create materials
     createMaterial(vec3(0.6, 1.0, 0.6), -1, vec3(0.5, 1.0, 0.5), 0.15, -1, 0.6, -1, 2, 1.0, materials[0]);
@@ -653,39 +679,16 @@ void initCamera( 	in vec3 pos,
 }
 
 
-Ray genRay( in Camera c, in vec2 uv, in vec2 xi ) {
+Ray genRay( in Camera c, in vec2 uv) 
+{
     Ray ray;
     
     vec2 ixy = (uv-0.5)*c.iPlaneSize;
 	vec3 dirLocal = normalize(vec3(ixy, -1.0));
     vec3 posGlobal = c.pos;//cs_.posToGlobal(vec3(0.0));
 	vec3 dirGlobal = c.rotate*dirLocal;
-	return Ray(posGlobal, dirGlobal);
-
-    /*
-	vec2 ixy = (uv - 0.5) * c.iPlaneSize;
-    
-    if( c.lensSize > EPSILON ) {
-        vec2 uv = uniformPointWithinCircle( c.lensSize, xi );
-        vec3 newPos = c.pos + c.rotate[0]*uv.x*c.lensSize + c.rotate[1]*uv.y*c.lensSize;
-        vec3 focusPoint = c.pos - c.focusDist*c.rotate[2];
-        vec3 newBack = normalize(newPos - focusPoint);
-        vec3 newRight = normalize( cross( c.rotate[1], newBack ) );
-        vec3 newUp = cross( newBack, newRight );
-        mat3 newRotate;
-        newRotate[0] = newRight;
-        newRotate[1] = newUp;
-        newRotate[2] = newBack;
-
-
-        ray.origin = newPos;
-        ray.dir = newRotate*normalize(vec3(ixy.x,ixy.y,-1.0));
-    } else {
-        ray.origin = c.pos;
-        ray.dir = c.rotate*normalize(vec3(ixy.x,ixy.y,-1.0));
-    }
-
-	return ray;*/
+	
+    return Ray(posGlobal, dirGlobal);
 }
 
 vec2 getPixel(in Camera c, in vec3 pos) {
@@ -813,8 +816,11 @@ bool isVisible(in vec3 from, in vec3 to) {
 }
 
 Light pickOneLight(out float lightPickingPdf) {
-    lightPickingPdf = 1.0;
-    return lights[0];
+    lightPickingPdf = 0.5;
+    if(rnd()>0.5)
+        return lights[0];
+    else
+        return lights[1];
 }
 
 void fixMtl(inout Material mtl, vec2 uv, out vec3 ns) {
@@ -912,17 +918,19 @@ vec3 sampleBSDF(	in vec3 x,
     return Lo*(1.0/float(DL_SAMPLES));
 }
 
-vec3 salmpleLight(	in vec3 x,
+vec3 sampleLight(	in vec3 x,
                   	in vec3 ng,
                   	in vec3 ns,
                   	in vec3 wi,
                   	in Material mtl,
                   	in bool useMIS,
                   	in int strataCount,
-                  	in int strataIndex ) {
+                  	in int strataIndex ) 
+{
     vec3 Lo = vec3(0.0);	//outgoing radiance
 
-    for(int i=0; i<DL_SAMPLES; i++) {
+    for(int i=0; i<DL_SAMPLES; i++) 
+    {
         float lightPickingPdf;
         Light light = pickOneLight(lightPickingPdf);
 
@@ -944,14 +952,18 @@ vec3 salmpleLight(	in vec3 x,
 
         float dotNWo = dot(wo, ns);
 
-        if ((dot(wo, ng) > 0.0) && (dotNWo > 0.0) && (lightPdfW > EPSILON)) {
+        if ((dot(wo, ng) > 0.0) && (dotNWo > 0.0) && (lightPdfW > EPSILON)) 
+        {
             vec3 fr = mtlEval(mtl, ng, ns, wi, wo);
-            if(dot(fr,fr)>0.0) {
+            if(dot(fr,fr)>0.0) 
+            {
                 Ray shadowRay = Ray(x, wo);
-                if (isLightVisible( shadowRay )) {
+                if (isLightVisible( shadowRay )) 
+                {
                     vec3 contribution = (Li * fr * dotNWo) / lightPdfW;
 
-                    if (useMIS /*&& !(light->isSingular())*/) {
+                    if (useMIS /*&& !(light->isSingular())*/) 
+                    {
                         float brdfPdfW = mtlPdf(mtl, ng, ns, wi, wo);
                         contribution *= misWeight(lightPdfW, brdfPdfW);
                     }
@@ -965,7 +977,8 @@ vec3 salmpleLight(	in vec3 x,
     return Lo*(1.0/float(DL_SAMPLES));
 }
 
-vec3 Radiance( in Ray r, int strataCount, int strataIndex ) {
+vec3 Radiance( in Ray r, int strataCount, int strataIndex ) 
+{
     vec3 Lo = vec3(0.0), fr, directLight, pathWeight = vec3(1.0, 1.0, 1.0);
     vec3 wo;
     float woPdf;
@@ -977,30 +990,36 @@ vec3 Radiance( in Ray r, int strataCount, int strataIndex ) {
     SurfaceHitInfo event;
     SurfaceHitInfo nextEvent;
     float dist = -1.0;
-    if(!raySceneIntersection( ray, 0.0, false, event, dist )) {
+    if(!raySceneIntersection( ray, 0.0, false, event, dist )) 
+    {
         return Lo;
-    } else {
-        //We have to add emmision component on first hit
-        if( event.mtl_id_ >= LIGHT_ID_BASE ) {
+    } 
+    else 
+    {
+        // We have to add emmision component on first hit
+        if( event.mtl_id_ >= LIGHT_ID_BASE ) 
+        {
             Light light = getLight(event.mtl_id_ - LIGHT_ID_BASE);
-            float cosAtLight = dot(event.normal_, -ray.dir);
-            if(cosAtLight > 0.0) {
+            float cosAtLight = dot(event.normal_, - ray.dir);
+            if(cosAtLight > 0.0)
+            {
                 Lo = getRadiance(event.uv_);
-                //Lo = light.color_*light.intensity_;
             }
         }
     }
     
     float prev_spec;
-
-    for (int i = 0; i < MAX_DEPTH; i++) {
-        if(event.mtl_id_>=LIGHT_ID_BASE){
+    for (int i = 0; i < MAX_DEPTH; i++) 
+    {
+        if(event.mtl_id_>=LIGHT_ID_BASE)
+        {
         	break;
     	}
         
         vec3 x = event.position_;
         vec3 wi = -ray.dir;
-        if(dot(wi, event.normal_) < 0.0) {
+        if(dot(wi, event.normal_) < 0.0) 
+        {
             event.normal_ *= -1.0;
         }
         
@@ -1014,9 +1033,13 @@ vec3 Radiance( in Ray r, int strataCount, int strataIndex ) {
         frame[2] = ng;
         ns = frame*ns;
         
-        if (dot(wi,ns) < 0.0) { break; }
+        if (dot(wi,ns) < 0.0) 
+        { 
+            break; 
+        }
         
-        if(i!=0) {
+        if(i!=0) 
+        {
             strataCount = 1; strataIndex = 0;
         }
         
@@ -1027,12 +1050,13 @@ vec3 Radiance( in Ray r, int strataCount, int strataIndex ) {
         //see page 252 "glossy highlights from area light sources" in Eric Veachs thesis
 		//https://graphics.stanford.edu/papers/veach_thesis/thesis-bw.pdf
         //In addition BSDF sampling determines next hit event where we want to continue path
-       	directLight  = salmpleLight (x, ng, ns, wi, mtl, true, strataCount, strataIndex);
-        directLight += sampleBSDF   (x, ng, ns, wi, mtl, true, strataCount, strataIndex, wo, woPdf, fr, hitResult, nextEvent, spec);
-       
+       	directLight  = sampleLight(x, ng, ns, wi, mtl, true, strataCount, strataIndex);
+        directLight += sampleBSDF(x, ng, ns, wi, mtl, true, strataCount, strataIndex, wo, woPdf, fr, hitResult, nextEvent, spec);
 #ifdef CLAMP_CAUSTICS
-        if(i!=0) {
-            if(prev_spec < spec) {
+        if(i!=0) 
+        {
+            if(prev_spec < spec) 
+            {
                 break;
             }
         }
@@ -1043,8 +1067,15 @@ vec3 Radiance( in Ray r, int strataCount, int strataIndex ) {
         
         Lo += directLight*pathWeight; 
 
-        if (!hitResult || (dotWoN = dot(event.normal_, wo))<0.0) { break; }
-        if (woPdf == 0.0) { break; }
+        if (!hitResult || (dotWoN = dot(event.normal_, wo))<0.0) 
+        { 
+            break; 
+        }
+        if (woPdf == 0.0) 
+        { 
+            break; 
+        }
+
         pathWeight *= fr*dotWoN / woPdf;
 
         //Update values for next iteration
@@ -1063,28 +1094,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 camera_pos = (iFrame == 0)? vec3( 0.3, 3.0,  4.8 ) : LoadVec4(camera_pos_uv).xyz;
     vec3 camera_dir = (iFrame == 0)? vec3( 1.0, 0.4, -5.0 ) : LoadVec4(camera_dir_uv).xyz;
     
-    initCamera(camera_pos, camera_dir, fov, LENS_SIZE, 9.2, cameraOld);
-    
-    /*
-    if(iMouse.w > 0.0) {
-        //slider
-        const vec2 slider_pos = vec2(30.0, 30.0);
-        const float slider_size = 200.0;
-    	const float slider_width = 8.0;
-        
-        if (iMouse.x > slider_pos.x &&
-            iMouse.x < slider_pos.x + slider_size &&
-            iMouse.y > slider_pos.y - slider_width &&
-            iMouse.y < slider_pos.y + slider_width ) {
-        	float slider = (iMouse.x - slider_pos.x) / slider_size;
-            
-            slider -= 0.5; //(-0.5, 0.5)
-            
-            camera_pos += vec3(1.0, 0.0, 0.0) * slider * 0.3;
-        }
-    }
-    */
-    
     initCamera(camera_pos, camera_dir, fov, LENS_SIZE, 9.2, camera);
     initScene();
 
@@ -1092,28 +1101,41 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float oneOverSPP = 1.0/float(PIXEL_SAMPLES);
     float strataSize = oneOverSPP;
 
-    for( int si=0; si<PIXEL_SAMPLES; ++si ){
-        vec2 uv = (fragCoord.xy + vec2( strataSize*( float(si) + rnd() ), rnd() )) / iResolution.xy;
-        Ray ray = genRay( camera, uv, vec2(rnd(), rnd()) );
+    for( int si=0; si<PIXEL_SAMPLES; ++si )
+    {
+        vec2 uv = (fragCoord.xy + vec2(strataSize * (float(si) + rnd()), rnd() )) / iResolution.xy;
+        Ray ray = genRay( camera, uv );
 
         vec3 Li = Radiance( ray, PIXEL_SAMPLES, si );
         accumulatedColor += clamp(Li, vec3(.0), vec3(CLAMP_VALUE));
     }
-    accumulatedColor = accumulatedColor*oneOverSPP;
+    accumulatedColor = accumulatedColor * oneOverSPP;
 
     vec3 col_acc;
     vec2 coord = floor(fragCoord.xy);
-    if(all(equal(coord.xy, acc_start_uv))) {
+    if(all(equal(coord.xy, acc_start_uv))) 
+    {
         col_acc = vec3(getAccStart());
-    } else if(all(equal(coord.xy, camera_pos_uv))) {//camera_pos_uv
+    } 
+    else if(all(equal(coord.xy, camera_pos_uv))) 
+    {
+        //camera_pos_uv
         col_acc = camera_pos;
-    } else if(all(equal(coord.xy, camera_dir_uv))) {//camera_pos_uv
+    } 
+    else if(all(equal(coord.xy, camera_dir_uv))) 
+    {
+        //camera_pos_uv
         col_acc = camera_dir;
-    } else {
-        if(iFrame == 0) {
+    } 
+    else 
+    {
+        if(iFrame == 0) 
+        {
             col_acc = accumulatedColor;
-        } else {
-            int frame_start = getAccStart();//int(texture( iChannel3, vec2(0.5, 0.5) / iResolution.xy ).x);
+        } 
+        else 
+        {
+            int frame_start = getAccStart();
             int spp1 = iMouse.z > 0.0 ? 0 : iFrame - frame_start;
             int spp2 = 1;
             vec3 col_new = accumulatedColor;
