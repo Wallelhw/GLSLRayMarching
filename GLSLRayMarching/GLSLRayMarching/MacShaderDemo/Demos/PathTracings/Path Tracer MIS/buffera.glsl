@@ -4,8 +4,8 @@
 #define LENS_SIZE			0.3		//depth of field
 #define CLAMP_VALUE			16.0		//biased rendering
 //#define CLAMP_CAUSTICS				//biased rendering
-//#define TEXTURES			//uncomment to enable textures
-//#define NORMAL_MAPS		//uncomment to enable normal mapping(textures are necessery for normal mapping)
+#define TEXTURES			            //uncomment to enable textures
+#define NORMAL_MAPS		                //uncomment to enable normal mapping(textures are necessery for normal mapping)
 
 //#define SPHERE_LIGHT
 //#define CONCENTRIC_DISK
@@ -640,7 +640,7 @@ void initScene()
     createSphere(trans, 1.0, SURFACE_ID_BASE+3, objects[5] );
     
     //box
-    trans = createCS(	vec3(-1.5, -1.0, -3.0),
+    trans = createCS(	vec3(-1.5, 0.0, -3.0),
                      	vec3(0.0, 1.0, 0.0),
                      	vec3(0.2, 0.0, -0.7));
     createAABB( trans, -vec3(0.5, 0.5, 0.0), vec3(0.5, 0.5, 2.5), SURFACE_ID_BASE+0, objects[6]);
@@ -648,9 +648,9 @@ void initScene()
     trans = mat4( 	vec4( 1.0, 0.0, 0.0, 0.0 ),
                     vec4( 0.0, 1.0, 0.0, 0.0 ),
                     vec4( 0.0, 0.0, 1.0, 0.0 ),
-                    vec4( 3.5, 0.5, -4.2, 1.0 ));
+                    vec4( 3.7, 0.5, -3.2, 1.0 ));
 
-    createSphere(trans, 1.5, SURFACE_ID_BASE+4, objects[7] );
+    createSphere(trans, 2.5, SURFACE_ID_BASE+4, objects[7] );
     /*
     //torus
     trans = createCS(	vec3(3.0, 1.0, -4.0),
