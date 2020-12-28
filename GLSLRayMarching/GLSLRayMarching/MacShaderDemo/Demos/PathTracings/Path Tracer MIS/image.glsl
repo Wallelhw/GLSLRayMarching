@@ -28,6 +28,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     col *= 0.5 + 0.5*pow( 16.0*uv.x*uv.y*(1.0-uv.x)*(1.0-uv.y), 0.1 );
     
+    /*
     const vec2 slider_pos = vec2(30.0, 30.0);
     const float slider_size = 200.0;
     const float slider_width = 8.0;
@@ -38,6 +39,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
              ) {
         col = vec3(0.3, 0.3, 0.3);
     }
+    */
     
     fragColor = vec4( col, 1.0 );
 }

@@ -454,14 +454,19 @@ public:
 			1.0f,  1.0f, 0.0f,  // top right
 			1.0f, -1.0f, 0.0f,  // bottom right
 			-1.0f, -1.0f, 0.0f,  // bottom left
+
+			-1.0f, -1.0f, 0.0f,  // bottom left
+			1.0f,  1.0f, 0.0f,  // top right
 			-1.0f,  1.0f, 0.0f   // top left 
 		};
-		unsigned int indices[] = {  // note that we start from 0!
-			0, 1, 3,   // first triangle
-			1, 2, 3    // second triangle
-		};
 
-		if (!vertexArrayObject.Create(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])))
+		bool success =
+			vertexArrayObject
+			.Begin()
+			.Attribute(0, 3, VertexAttribute::FLOAT, false)
+			.FillVertices(vertices, sizeof(vertices) / sizeof(vertices[0]))
+			.End();
+		if(!success)
 		{
 			return false;
 		}

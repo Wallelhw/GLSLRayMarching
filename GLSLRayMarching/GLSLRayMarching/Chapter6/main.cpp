@@ -55,7 +55,13 @@ public:
 			return false;
 		}
 
-		if (!vertexArrayObject.Create(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])))
+		bool success =
+			vertexArrayObject
+			.Begin()
+			.Attribute(0, 3, VertexAttribute::FLOAT, false)
+			.FillVerticesAndIndices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]))
+			.End();
+		if (!success)
 		{
 			return false;
 		}

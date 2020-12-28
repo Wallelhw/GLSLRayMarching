@@ -8,6 +8,23 @@ float Math::TwoPi = Math::OnePi * 2.0f;
 
 float Math::Deg2Rad = (Math::OnePi / 180.f);
 float Math::Rad2Deg = (180.f / Math::OnePi);
+float Math::ZeroTolerance = 1e-6;
+float Math::Epison = 1e-6;
+
+float Math::Abs(float v)
+{
+	return abs(v);
+}
+
+float Math::Sqrt(float v)
+{
+	return sqrt(v);
+}
+
+float Math::Sqr(float v)
+{
+	return v * v;
+}
 
 float Math::Sin(float radian)
 {
