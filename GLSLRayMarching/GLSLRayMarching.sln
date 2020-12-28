@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MacShaderDemo", "GLSLRayMarching\MacShaderDemo\MacShaderDemo.vcxproj", "{7E70114A-BFC1-4B7D-956B-438373E29D51}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chapter0", "GLSLRayMarching\Chapter0\Chapter0.vcxproj", "{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chapter1", "GLSLRayMarching\Chapter1\Chapter1.vcxproj", "{311BA67B-D313-43F8-BA5C-F2306E4DCF9D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chapter2", "GLSLRayMarching\Chapter2\Chapter2.vcxproj", "{09243002-1F6E-4436-8D4C-F6C586590961}"
@@ -22,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chapter7", "GLSLRayMarching\Chapter7\Chapter7.vcxproj", "{B6DA56A8-E91E-4C20-B461-FA3C6248859F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameWork", "GLSLRayMarching\FrameWork\FrameWork.vcxproj", "{2B49EED1-EA44-44B2-B730-8F4F05F4FB67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeometryTexture", "GLSLRayMarching\GeometryTexture\GeometryTexture.vcxproj", "{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,14 +39,6 @@ Global
 		{7E70114A-BFC1-4B7D-956B-438373E29D51}.Release|x64.Build.0 = Release|x64
 		{7E70114A-BFC1-4B7D-956B-438373E29D51}.Release|x86.ActiveCfg = Release|Win32
 		{7E70114A-BFC1-4B7D-956B-438373E29D51}.Release|x86.Build.0 = Release|Win32
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x64.ActiveCfg = Debug|x64
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x64.Build.0 = Debug|x64
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x86.ActiveCfg = Debug|Win32
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x86.Build.0 = Debug|Win32
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x64.ActiveCfg = Release|x64
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x64.Build.0 = Release|x64
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x86.ActiveCfg = Release|Win32
-		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x86.Build.0 = Release|Win32
 		{311BA67B-D313-43F8-BA5C-F2306E4DCF9D}.Debug|x64.ActiveCfg = Debug|x64
 		{311BA67B-D313-43F8-BA5C-F2306E4DCF9D}.Debug|x64.Build.0 = Debug|x64
 		{311BA67B-D313-43F8-BA5C-F2306E4DCF9D}.Debug|x86.ActiveCfg = Debug|Win32
@@ -111,6 +103,14 @@ Global
 		{2B49EED1-EA44-44B2-B730-8F4F05F4FB67}.Release|x64.Build.0 = Release|x64
 		{2B49EED1-EA44-44B2-B730-8F4F05F4FB67}.Release|x86.ActiveCfg = Release|Win32
 		{2B49EED1-EA44-44B2-B730-8F4F05F4FB67}.Release|x86.Build.0 = Release|Win32
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x64.ActiveCfg = Debug|x64
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x64.Build.0 = Debug|x64
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x86.ActiveCfg = Debug|Win32
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Debug|x86.Build.0 = Debug|Win32
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x64.ActiveCfg = Release|x64
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x64.Build.0 = Release|x64
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x86.ActiveCfg = Release|Win32
+		{CBC6B03C-67CB-46C1-A86C-C39505FA5EE4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
