@@ -242,11 +242,27 @@ public:
 		);
 	}
 
-	Vector3 Normalize() const
+	float Normalize()
 	{
-		float length = Length();
+		float sqrLength = SqrLength();
 
-		return *this / length;
+		if (sqrLength < Math::ZeroTolerance)
+		{
+			m[0] = 0;
+			m[1] = 0;
+			m[2] = 0;
+
+			return 0;
+		}
+		else
+		{
+			float length = Math::Sqrt(sqrLength);
+			m[0] = m[0] / length;
+			m[1] = m[1] / length;
+			m[2] = m[2] / length;
+
+			return length;
+		}
 	}
 
 	friend Vector3 Normalize(const Vector3& v)

@@ -6,6 +6,10 @@
 class Math
 {
 public:
+	static float Abs(float v);
+	static float Sqrt(float v);
+	static float Sqr(float v);
+
 	static float Sin(float radian);
 	static float Cos(float radian);
 	static float Tan(float radian);
@@ -23,6 +27,8 @@ public:
 
 	static float Deg2Rad;
 	static float Rad2Deg;
+	static float ZeroTolerance;
+	static float Epison;
 };
 
 #endif
