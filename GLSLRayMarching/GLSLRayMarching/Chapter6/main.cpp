@@ -58,8 +58,8 @@ public:
 		bool success =
 			vertexArrayObject
 			.Begin()
-			.Attribute(0, 3, VertexAttribute::FLOAT, false)
-			.FillVerticesAndIndices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]))
+			.FillVertices(0, 3, VertexAttribute::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]))
+			.FillIndices(indices, sizeof(indices) / sizeof(indices[0]))
 			.End();
 		if (!success)
 		{

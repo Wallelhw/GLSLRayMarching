@@ -10,7 +10,7 @@
 #define SCR_WIDTH 800
 #define SCR_HEIGHT 400
 
-#define GEOMETRY_TEXTURE_SIZE 257
+#define GEOMETRY_TEXTURE_SIZE 256
 #define NORMAL_TEXTURE_SIZE 512
 
 class GeometryTexture : public FrameWork
@@ -70,49 +70,20 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		/*
 		float vertices[] =
-		{
-			0.0f, 0.0f,
-			0.0f, 1.0f,
-			1.0f, 0.0f,
+		{ 
+			0.0, 0.0, 
+			0.0, 1.0,
+			1.0, 0.0,
 
-			1.0f, 0.0f,
-			0.0f, 1.0f,
-			1.0f, 1.0f
+			1.0, 0.0,
+			0.0, 1.0,
+			1.0, 1.0
 		};
-		bool success = vertexArrayObject
-			.Begin()
-			.Attribute(0, 2, VertexAttribute::FLOAT, false)
-			.FillVertices(vertices, sizeof(vertices) / sizeof(vertices[0]))
-			.End();
-		*/
-
-		#define VERTEX(x, y) (((y)*GEOMETRY_TEXTURE_SIZE) + (x))
-		#define QUAD(i, j) \
-			VERTEX((0 + (i))%GEOMETRY_TEXTURE_SIZE, (0 + (j))%GEOMETRY_TEXTURE_SIZE), \
-			VERTEX((0 + (i))%GEOMETRY_TEXTURE_SIZE, (1 + (j))%GEOMETRY_TEXTURE_SIZE), \
-			VERTEX((1 + (i))%GEOMETRY_TEXTURE_SIZE, (0 + (j))%GEOMETRY_TEXTURE_SIZE), \
-			VERTEX((1 + (i))%GEOMETRY_TEXTURE_SIZE, (0 + (j))%GEOMETRY_TEXTURE_SIZE), \
-			VERTEX((0 + (i))%GEOMETRY_TEXTURE_SIZE, (1 + (j))%GEOMETRY_TEXTURE_SIZE), \
-			VERTEX((1 + (i))%GEOMETRY_TEXTURE_SIZE, (1 + (j))%GEOMETRY_TEXTURE_SIZE)
-
-		std::vector<float> vertices;
-		for (int i = 0; i < GEOMETRY_TEXTURE_SIZE-1; i++)
-		{
-			for (int j = 0; j < GEOMETRY_TEXTURE_SIZE - 1; j++)
-			{
-				float a[] = { QUAD(i, j) };
-				
-				for(int k=0; k<6; k++)
-					vertices.push_back(a[k]);
-			}
-		}
 
 		bool success = vertexArrayObject
 			.Begin()
-			.Attribute(0, 1, VertexAttribute::FLOAT, false)
-			.FillVertices(&vertices[0], vertices.size())
+			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices)/sizeof(vertices[0]))
 			.End();
 		if (!success)
 		{
@@ -125,9 +96,9 @@ public:
 		}
 		geometryTexture.SetMinFilter(GL_NEAREST);
 		geometryTexture.SetMagFilter(GL_NEAREST);
-		geometryTexture.SetWarpS(GL_CLAMP);
-		geometryTexture.SetWarpR(GL_CLAMP);
-		geometryTexture.SetWarpT(GL_CLAMP);
+		geometryTexture.SetWarpS(GL_REPEAT);
+		geometryTexture.SetWarpR(GL_REPEAT);
+		geometryTexture.SetWarpT(GL_REPEAT);
 
 		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
 		{
@@ -135,9 +106,9 @@ public:
 		}
 		normalTexture.SetMinFilter(GL_NEAREST);
 		normalTexture.SetMagFilter(GL_NEAREST);
-		normalTexture.SetWarpS(GL_CLAMP);
-		normalTexture.SetWarpR(GL_CLAMP);
-		normalTexture.SetWarpT(GL_CLAMP);
+		normalTexture.SetWarpS(GL_REPEAT);
+		normalTexture.SetWarpR(GL_REPEAT);
+		normalTexture.SetWarpT(GL_REPEAT);
 
 		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
 		{
@@ -151,6 +122,32 @@ public:
 	{
 		static float test1 = 0.0f;
 		test1 += 1;
+		static int start = 1024;
+
+		if (IsKeyPressed('A'))
+		{
+			if(start<1024)
+				start += 1;
+			else
+				start += 1024;
+			if (start > GEOMETRY_TEXTURE_SIZE* GEOMETRY_TEXTURE_SIZE)
+				start = GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE;
+
+			printf("%d\n", start);
+		}
+		if (IsKeyPressed('D'))
+		{
+			if (start < 1024)
+				start -= 1;
+			else
+				start -= 1024;
+
+			if (start < 0)
+				start = 0;
+
+			printf("%d\n", start);
+		}
+
 		//worldTransform.SetTranslate(test1, 0, 0);
 		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 3.0);
 		camera.SetWorldTransform(worldTransform);
@@ -177,14 +174,13 @@ public:
 		geometryTextureShaderProgram.Bind();
 		geometryTextureShaderProgram.SetUniform1i("geometryTexture", 0);
 		geometryTextureShaderProgram.SetUniform1i("normalTexture", 1);
-		geometryTextureShaderProgram.SetUniform2f("geometryTextureSize", GEOMETRY_TEXTURE_SIZE, GEOMETRY_TEXTURE_SIZE);
-		geometryTextureShaderProgram.SetUniform2f("normalTextureSize", NORMAL_TEXTURE_SIZE, NORMAL_TEXTURE_SIZE);
 		geometryTextureShaderProgram.SetUniformMatrix4fv("worldTransform", 1, worldTransform);
 		geometryTextureShaderProgram.SetUniformMatrix4fv("viewTransform", 1, camera.GetViewTransform());
 		geometryTextureShaderProgram.SetUniformMatrix4fv("projTransform", 1, camera.GetProjectionTransform());
+		geometryTextureShaderProgram.SetUniform1i("start", start);
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.Draw(GL_TRIANGLES);
+		vertexArrayObject.DrawInstanced(GL_TRIANGLES, GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE - start);
 
 		return true;
 	}
