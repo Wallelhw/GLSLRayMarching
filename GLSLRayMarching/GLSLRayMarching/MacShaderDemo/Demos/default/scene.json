@@ -2,7 +2,7 @@
   "passes": [
     {
       "shader": "image.glsl",
-      "renderTarget": "image"
+      "rendertarget": "image"
     }
   ]
 }

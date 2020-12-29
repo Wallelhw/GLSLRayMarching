@@ -480,12 +480,12 @@ public:
 
 	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
-		int facecount = 1;
+		//int facecount = 1;
 		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 1.0);
 		if (frameBuffer)
 		{
-			if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
-				facecount = 6;
+			//if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
+				//facecount = 6;
 			
 			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
 			frameBuffer->Bind();
@@ -1485,32 +1485,35 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		//return macShaderDemo.Create("default");
-		//return macShaderDemo.Create("Atmospheric scattering explained");
-		//return macShaderDemo.Create("Atmospheric Scattering Fog");
+		//return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
+		//return macShaderDemo.Create("Demos/Clouds/Cloud");//
+		//return macShaderDemo.Create("Demos/Clouds/CloudFight");//
+		//return macShaderDemo.Create("Demos/default");
+		//return macShaderDemo.Create("Demos/Greek Temple");
+		//return macShaderDemo.Create("Demos/JustForFuns/Hexagonal Grid Traversal - 3D");		
+		//return macShaderDemo.Create("Demos/JustForFuns/MO");
 		//return macShaderDemo.Create("Demos/PathTracings/Bidirectional path tracing");
 		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 1");
 		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 2");
-		//return macShaderDemo.Create("Elevated");
-		//return macShaderDemo.Create("Fast Atmospheric Scattering");
-		//return macShaderDemo.Create("Greek Temple");
-		//return macShaderDemo.Create("Hexagonal Grid Traversal - 3D");
-		//return macShaderDemo.Create("Post process - SSAO");
-		//return macShaderDemo.Create("Lake in highland");
-		//return macShaderDemo.Create("MO");
-		//return macShaderDemo.Create("Path Tracer MIS");
-		//return macShaderDemo.Create("PBR Material Gold");
-		//return macShaderDemo.Create("Sirenian Dawn");
-		//return macShaderDemo.Create("Cloudy Terrain");
-		//return macShaderDemo.Create("Rainforest");
-		//return macShaderDemo.Create("Canyon");
-		//return macShaderDemo.Create("Demos/Cloudy Terrain/CloudFight");
-		//return macShaderDemo.Create("testmouse");
-		//return macShaderDemo.Create("Very fast procedural ocean");
-		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
-		return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
+		//return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
+		//return macShaderDemo.Create("Demos/PathTracings/PBR Material Gold");
 		//return macShaderDemo.Create("Demos/PathTracings/Room DI");
-		//return macShaderDemo.Create("Demos/PathTracings/Path tracing testing");
+		//return macShaderDemo.Create("Demos/Post process - SSAO");
+		
+		//return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
+		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");//
+		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
+		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
+		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
+		//return macShaderDemo.Create("Demos/Terrains/Elevated");
+		//return macShaderDemo.Create("Demos/Terrains/Lake in highland");
+		//return macShaderDemo.Create("Demos/Terrains/Mountains");
+		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
+		//return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
+
+		//return macShaderDemo.Create("Demos/Waters/Ocean");
+		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
+		return macShaderDemo.Create("Demos/Waters/Water World");
 	}
 
 	virtual bool OnUpdate() override
