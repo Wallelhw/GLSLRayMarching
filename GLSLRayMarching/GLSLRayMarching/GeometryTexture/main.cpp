@@ -122,7 +122,7 @@ public:
 	{
 		static float test1 = 0.0f;
 		test1 += 1;
-		static int start = 1024;
+		static int start = 0;
 
 		if (IsKeyPressed('A'))
 		{
