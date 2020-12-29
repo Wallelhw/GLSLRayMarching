@@ -174,7 +174,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 		WATER_LEVEL = iMouse.x*.003; 
     float deepwater_fadedepth   = 0.5 + coast2water_fadedepth;
     if (iMouse.z>0.)
-	  deepwater_fadedepth = iMouse.y*0.003 + coast2water_fadedepth;
+	    deepwater_fadedepth = iMouse.y*0.003 + coast2water_fadedepth;
     
     float height = height_map( uv );
     vec3 col;
