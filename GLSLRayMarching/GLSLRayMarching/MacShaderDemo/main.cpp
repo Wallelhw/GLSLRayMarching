@@ -111,8 +111,8 @@ class GUITexture : public Texture2D
 {
 public:
 	GUITexture()
-		: Texture2D()
-		, buffer(256 * 3)
+	: Texture2D()
+	, buffer(256 * 3)
 	{
 	}
 
@@ -136,10 +136,124 @@ public:
 
 	virtual void Update()
 	{
+		static int test = 0;
+		if (ImGui::Begin("SuperGameObject"))
+		{
+			for (auto& v : bValues)
+			{
+				ImGui::Checkbox(v.first, &v.second);
+			}
+
+			for (auto& v : iValues)
+			{
+				ImGui::SliderInt(v.first, &v.second.value, v.second.min, v.second.max);
+			}
+
+			for (auto& v : fValues)
+			{
+				ImGui::SliderFloat(v.first, &v.second.value, v.second.min, v.second.max);
+			}
+
+			for (auto& v : vec4Values)
+			{
+				float vvv[4] = { v.second.value[0], v.second.value[1], v.second.value[2], v.second.value[3] };
+
+				ImGui::SliderFloat4(v.first, vvv, v.second.min, v.second.max);
+			}
+		}
+
+		ImGui::End();
+
 		Texture2D::UpdateData(&buffer[0]);
+	}
+
+	void AddValue(const char* name_, bool v)
+	{
+		bValues[name_] = v;
+	}
+
+	void SetValue(const char* name_, bool v_)
+	{
+		bValues[name_] = v_;
+	}
+
+	void GetValue(const char* name_, bool& value_)
+	{
+		value_ = bValues[name_];
+	}
+
+	void AddValue(const char* name_, int v_, int min_, int max_)
+	{
+		iValues[name_] = { v_, min_, max_ };
+	}
+
+	void SetValue(const char* name_, int v_)
+	{
+		iValues[name_].value = v_;
+	}
+
+	void GetValue(const char* name_, int& value_)
+	{
+		value_ = iValues[name_].value;
+	}
+
+	void AddValue(const char* name_, float v_, float min_, float max_)
+	{
+		fValues[name_] = { v_, min_, max_ };
+	}
+
+	void SetValue(const char* name_, float v_)
+	{
+		fValues[name_].value = v_;
+	}
+
+	void GetValue(const char* name_, float& value_)
+	{
+		value_ = fValues[name_].value;
+	}
+
+	void AddValue(const char* name_, vec4 v_, float min_, float max_)
+	{
+		vec4Values[name_] = { v_, min_, max_ };
+	}
+
+	void SetValue(const char* name_, vec4 v_)
+	{
+		vec4Values[name_].value = v_;
+	}
+
+	void GetValue(const char* name_, vec4& value_)
+	{
+		value_ = vec4Values[name_].value;
 	}
 private:
 private:
+	struct IValue
+	{
+		int value;
+		int min;
+		int max;
+	};
+
+	struct FValue
+	{
+		float value;
+		float min;
+		float max;
+	};
+
+	struct Vec4Value
+	{
+		vec4 value;
+		float min;
+		float max;
+	};
+
+	std::map<const char*, bool> bValues;
+	std::map<const char*, IValue> iValues;
+	std::map<const char*, FValue> fValues;
+	std::map<const char*, Vec4Value> vec4Values;
+
 	std::vector<char> buffer;
 };
 
@@ -390,6 +504,8 @@ private:
 #define CUBEMAP_A 5
 #define IMAGE 6
 
+#define CHANNEL_COUNT 4
+
 class Pass
 {
 public:
@@ -438,7 +554,7 @@ public:
 		: enabled(true)
 		, vertexArrayObject()
 		, shaderProgram()
-		, iChannels(4)
+		, iChannels(CHANNEL_COUNT)
 		, frameBuffer(nullptr)
 	{
 	}
@@ -513,8 +629,8 @@ public:
 		shaderProgram.SetUniform4f("iDate", lt.wYear-1, lt.wMonth-1, lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
-		vec3 channelResolutions[4];
-		float channelTimes[4];
+		std::vector<vec3> channelResolutions(CHANNEL_COUNT);
+		std::vector<float> channelTimes(CHANNEL_COUNT);
 		for (int i = 0; i < iChannels.size(); i++)
 		{
 			Texture* texture = nullptr;
@@ -566,12 +682,16 @@ public:
 			}
 		}
 
-		shaderProgram.SetUniform3fv("iChannelResolution", 4, &channelResolutions[0][0]);
-		shaderProgram.SetUniform1fv("iChannelTime", 4, &channelTimes[0]);
-		shaderProgram.SetUniform1i("iChannel0", 0);
-		shaderProgram.SetUniform1i("iChannel1", 1);
-		shaderProgram.SetUniform1i("iChannel2", 2);
-		shaderProgram.SetUniform1i("iChannel3", 3);
+		shaderProgram.SetUniform3fv("iChannelResolution", CHANNEL_COUNT, &channelResolutions[0][0]);
+		shaderProgram.SetUniform1fv("iChannelTime", CHANNEL_COUNT, &channelTimes[0]);
+
+		for (int i = 0; i < CHANNEL_COUNT; i++)
+		{
+			std::string name = "iChannel";
+			name += ('0' + i);
+
+			shaderProgram.SetUniform1i(name.c_str(), i);
+		}
 
 		vertexArrayObject.Bind();
 		vertexArrayObject.Draw(GL_TRIANGLES, 6);
@@ -713,9 +833,6 @@ public:
 			"uniform vec4 iDate;\n"
 			"uniform float iSampleRate;\n"
 			"uniform vec3 iChannelResolution[4];\n";
-			"uniform float guisliders[8];\n";
-			"uniform bool guicheckboxes[8];\n";
-			"uniform vec3 guivec3[8];\n";
 
 		std::string fShaderChannels = "";
 		for (int i = 0; i < iChannels.size(); i++)
@@ -930,6 +1047,21 @@ public:
 		return texture;
 	}
 
+	GUITexture* AddGUITexture()
+	{
+		GUITexture* texture = new GUITexture();
+		if (!texture)
+			return nullptr;
+		if (!texture->Create())
+		{
+			delete texture;
+			return nullptr;
+		}
+
+		textures.push_back(texture);
+		return texture;
+	}
+	
 	Texture* AddWebcamTexture(bool vflip_)
 	{
 		WebcamTexture* texture = new WebcamTexture();
@@ -1130,6 +1262,30 @@ public:
 
 	bool CreateScene(const char* folder_, const char* scenefile_)
 	{
+		std::vector<char> colors(32 * 32 * 4);
+		memset(&colors[0], 0, (32 * 32 * 4));
+
+		if (!black.Create(32, 32, 4, false, &colors[0], false))
+			return false;
+		if (!soundFrameBuffer.Create(512, 2, 1, true))
+			return false;
+		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+			return false;
+		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+			return false;
+		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+			return false;
+		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+			return false;
+		if (!cubeMapAFrameBuffer.Create(1024, 4, true))
+			return false;
+		if (!cubeMapBFrameBuffer.Create(1024, 4, true))
+			return false;
+		if (!cubeMapCFrameBuffer.Create(1024, 4, true))
+			return false;
+		if (!cubeMapDFrameBuffer.Create(1024, 4, true))
+			return false;
+
 		std::string folder = folder_;
 
 		// 1. retrieve the vertex/fragment source code from filePath
@@ -1255,6 +1411,65 @@ public:
 
 										passes[i].SetChannelTexture(j, texture);
 									}
+									if (channelJson.HasMember("gui"))
+									{
+										Value& guisJson = channelJson["gui"];
+
+										if (guisJson.IsArray())
+										{
+											GUITexture* guiTexture = AddGUITexture();
+											if (!guiTexture)
+												return false;
+											passes[i].SetChannelTexture(j, guiTexture);
+
+											for (int k = 0; k < guisJson.Size(); k++)
+											{
+												if (guisJson[k].IsObject())
+												{
+													if (guisJson[k].HasMember("checkbox"))
+													{
+														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value"))
+														{
+															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetBool());
+														}
+													}
+													else if (guisJson[k].HasMember("intslider"))
+													{
+														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
+														{
+															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetInt(), guisJson[k]["min"].GetInt(), guisJson[k]["max"].GetInt());
+														}
+													}
+													else if (guisJson[k].HasMember("floatslider"))
+													{
+														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
+														{
+															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetFloat(), guisJson[k]["min"].GetFloat(), guisJson[k]["max"].GetFloat());
+														}
+													}
+													else if (guisJson[k].HasMember("vec4slider"))
+													{
+														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
+														{
+															if (guisJson[k]["value"].IsArray() && guisJson[k]["value"].Size()==4)
+															{
+																vec4 v;
+																v[0] = guisJson[k]["value"][0].GetFloat();
+																v[1] = guisJson[k]["value"][1].GetFloat();
+																v[2] = guisJson[k]["value"][2].GetFloat();
+																v[3] = guisJson[k]["value"][3].GetFloat();
+																guiTexture->AddValue(guisJson[k]["name"].GetString(), v, guisJson[k]["min"].GetFloat(), guisJson[k]["max"].GetFloat());
+															}
+														}
+													}
+												}
+											}
+										}
+										else
+										{
+											printf("gui is not an object\n");
+										}
+									}
 									else if (channelJson.HasMember("webcam"))
 									{
 										Texture* texture = AddWebcamTexture(passes[i].GetChannel(j).vFlip);
@@ -1373,30 +1588,6 @@ public:
 
 	bool Create(const char* folder_)
 	{
-		std::vector<char> colors(32 * 32 * 4);
-		memset(&colors[0], 0, (32 * 32 * 4));
-
-		if (!black.Create(32, 32, 4, false, &colors[0], false))
-			return false;
-		if (!soundFrameBuffer.Create(512, 2, 1, true))
-			return false;
-		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
-			return false;
-		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
-			return false;
-		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
-			return false;
-		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
-			return false;
-		if (!cubeMapAFrameBuffer.Create(1024, 4, true))
-			return false;
-		if (!cubeMapBFrameBuffer.Create(1024, 4, true))
-			return false;
-		if (!cubeMapCFrameBuffer.Create(1024, 4, true))
-			return false;
-		if (!cubeMapDFrameBuffer.Create(1024, 4, true))
-			return false;
-
 		if (!CreateScene(folder_, "scene.json"))
 			return false;
 
@@ -1416,11 +1607,6 @@ public:
 				return false;
 
 			pass.Flip();
-		}
-
-		for (auto& pass : passes)
-		{
-			//pass.Flip();
 		}
 
 		return true;
@@ -1505,7 +1691,7 @@ public:
 		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
 		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
-		//return macShaderDemo.Create("Demos/Terrains/Elevated");
+		return macShaderDemo.Create("Demos/Terrains/Elevated");
 		//return macShaderDemo.Create("Demos/Terrains/Lake in highland");
 		//return macShaderDemo.Create("Demos/Terrains/Mountains");
 		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
@@ -1515,7 +1701,7 @@ public:
 		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
 		//return macShaderDemo.Create("Demos/Waters/Water World");
 		//return macShaderDemo.Create("Demos/Wave Propagation Effect");
-		return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
+		//return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
 	}
 
 	virtual bool OnUpdate() override
