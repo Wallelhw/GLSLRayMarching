@@ -7,30 +7,36 @@ uniform mat4 projTransform;
 
 uniform sampler2D geometryTexture;
 uniform sampler2D normalTexture;
-uniform int start;
+uniform int lod;
 
 out vec4 color;
 
 void main()
 {
-	vec2 geometryTextureSize = vec2(textureSize(geometryTexture, 0));
+	vec2 geometryTextureSize = vec2(textureSize(geometryTexture, lod));
 
-	float id = gl_InstanceID + start;
-	float x = mod(id, geometryTextureSize.x);
-	float y = (id / geometryTextureSize.y);
+	float x = mod(gl_InstanceID, geometryTextureSize.x);
+	float y = (gl_InstanceID / geometryTextureSize.y);
 
-	vec2 uv = (uvs + vec2(x, y)) / geometryTextureSize.xy;
-	vec4 position = textureLod(geometryTexture, uv, 0);
-	vec4 normal = textureLod(normalTexture, uv, 0);
+	vec2 uv = (uvs + vec2(x, y)) / (geometryTextureSize.xy);
+	vec4 position = textureLod(geometryTexture, uv, lod);
+	vec4 normal = normalize((textureLod(normalTexture, uv, lod) - 0.5) * 2.0);
 
 	vec4 pos;
 	pos.xyz = (position.xyz - 0.5);
 	pos.w = 1.0;
 	gl_Position = projTransform * viewTransform * worldTransform * pos;
 
-	vec4 ambientColor = vec4(0.2, 0.2, 0.2, 1.0);
-	vec4 lightcolor = vec4(0.6, 0.6, 0.6, 1.0);
-	vec3 light = normalize(vec3(1.0, 1.0, 1.0));
+	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);
+	vec4 lightcolor = vec4(1.0, 1.0, 1.0, 1.0);
+	vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+
+	vec4 diffuseMaterial = vec4(0.8, 0.8, 0.8, 1.0);
 	
-	color = lightcolor * dot(light, normal.xyz) + ambientColor;
+	color = lightcolor * max(dot(lightDir, normal.xyz), 0) + ambientLightColor;
+	color *= diffuseMaterial;
+	
+	//color = normal;
+	//color = vec4(uv.xy, 0.0, 1.0);
+	color.w = 1.0;
 }

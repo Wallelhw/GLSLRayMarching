@@ -10,7 +10,7 @@
 #define SCR_WIDTH 800
 #define SCR_HEIGHT 400
 
-#define GEOMETRY_TEXTURE_SIZE 256
+#define GEOMETRY_TEXTURE_SIZE 1024
 #define NORMAL_TEXTURE_SIZE 512
 
 class GeometryTexture : public FrameWork
@@ -90,12 +90,12 @@ public:
 			return false;
 		}
 
-		if (!geometryTexture.Create("bunny.p65.gim257.fmp.bmp", false))
+		if (!geometryTexture.Create("bunny.p65.gim256.fmp.bmp", false))
 		{
 			return false;
 		}
-		geometryTexture.SetMinFilter(GL_NEAREST);
-		geometryTexture.SetMagFilter(GL_NEAREST);
+		geometryTexture.SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+		geometryTexture.SetMagFilter(GL_LINEAR);
 		geometryTexture.SetWarpS(GL_REPEAT);
 		geometryTexture.SetWarpR(GL_REPEAT);
 		geometryTexture.SetWarpT(GL_REPEAT);
@@ -104,8 +104,8 @@ public:
 		{
 			return false;
 		}
-		normalTexture.SetMinFilter(GL_NEAREST);
-		normalTexture.SetMagFilter(GL_NEAREST);
+		normalTexture.SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+		normalTexture.SetMagFilter(GL_LINEAR);
 		normalTexture.SetWarpS(GL_REPEAT);
 		normalTexture.SetWarpR(GL_REPEAT);
 		normalTexture.SetWarpT(GL_REPEAT);
@@ -120,36 +120,30 @@ public:
 
 	virtual bool OnUpdate() override
 	{
-		static float test1 = 0.0f;
-		test1 += 1;
 		static int start = 0;
 
+		static float lod = 0;
 		if (IsKeyPressed('A'))
 		{
-			if(start<1024)
-				start += 1;
-			else
-				start += 1024;
-			if (start > GEOMETRY_TEXTURE_SIZE* GEOMETRY_TEXTURE_SIZE)
-				start = GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE;
+			lod -= 0.016f;
+			if (lod < 0)
+				lod = 0;
 
-			printf("%d\n", start);
+			printf("%f\n", lod);
 		}
 		if (IsKeyPressed('D'))
 		{
-			if (start < 1024)
-				start -= 1;
-			else
-				start -= 1024;
+			lod += 0.016f;
+			if (lod > 7)
+				lod = 7;
 
-			if (start < 0)
-				start = 0;
-
-			printf("%d\n", start);
+			printf("%f\n", lod);
 		}
 
+		static float test1 = 0.0f;
+		test1 += 1;
 		//worldTransform.SetTranslate(test1, 0, 0);
-		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 3.0);
+		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 6.0);
 		camera.SetWorldTransform(worldTransform);
 
 		mat4 cameraTransform;
@@ -165,6 +159,8 @@ public:
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
@@ -177,10 +173,15 @@ public:
 		geometryTextureShaderProgram.SetUniformMatrix4fv("worldTransform", 1, worldTransform);
 		geometryTextureShaderProgram.SetUniformMatrix4fv("viewTransform", 1, camera.GetViewTransform());
 		geometryTextureShaderProgram.SetUniformMatrix4fv("projTransform", 1, camera.GetProjectionTransform());
-		geometryTextureShaderProgram.SetUniform1i("start", start);
+
+		geometryTextureShaderProgram.SetUniform1i("lod", floor(lod));
+
+		float scale = pow(2.0, floor(lod));
+		int triangleCount = GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale);
+		printf("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.DrawInstanced(GL_TRIANGLES, GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE - start);
+		vertexArrayObject.DrawInstanced(GL_TRIANGLES, triangleCount);
 
 		return true;
 	}
