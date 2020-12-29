@@ -1513,7 +1513,9 @@ public:
 
 		//return macShaderDemo.Create("Demos/Waters/Ocean");
 		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
-		return macShaderDemo.Create("Demos/Waters/Water World");
+		//return macShaderDemo.Create("Demos/Waters/Water World");
+		//return macShaderDemo.Create("Demos/Wave Propagation Effect");
+		return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
 	}
 
 	virtual bool OnUpdate() override
