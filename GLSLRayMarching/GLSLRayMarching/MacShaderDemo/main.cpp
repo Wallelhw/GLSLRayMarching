@@ -463,8 +463,7 @@ public:
 		bool success =
 			vertexArrayObject
 			.Begin()
-			.Attribute(0, 3, VertexAttribute::FLOAT, false)
-			.FillVertices(vertices, sizeof(vertices) / sizeof(vertices[0]))
+			.FillVertices(0, 3, VertexAttribute::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]))
 			.End();
 		if(!success)
 		{

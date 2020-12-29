@@ -1,26 +1,25 @@
 #version 330 core
-layout (location = 0) in float vindices;
+layout (location = 0) in vec2 uvs;
 
 uniform mat4 worldTransform;
 uniform mat4 viewTransform;
 uniform mat4 projTransform;
 
 uniform sampler2D geometryTexture;
-uniform vec2 geometryTextureSize;
-
 uniform sampler2D normalTexture;
-uniform vec2 normalTextureSize;
+uniform int start;
 
 out vec4 color;
 
 void main()
 {
-	//vec2 size = vec2(textureSize(geometryTexture, 0));
-	vec2 size = geometryTextureSize;
+	vec2 geometryTextureSize = vec2(textureSize(geometryTexture, 0));
 
-	float x = mod(vindices, size.x) / size.x;
-	float y = (vindices / size.y) / size.y;
-	vec2 uv = vec2(x, y);
+	float id = gl_InstanceID + start;
+	float x = mod(id, geometryTextureSize.x);
+	float y = (id / geometryTextureSize.y);
+
+	vec2 uv = (uvs + vec2(x, y)) / geometryTextureSize.xy;
 	vec4 position = textureLod(geometryTexture, uv, 0);
 	vec4 normal = textureLod(normalTexture, uv, 0);
 

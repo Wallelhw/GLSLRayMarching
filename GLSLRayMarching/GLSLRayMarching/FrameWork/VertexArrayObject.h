@@ -29,12 +29,13 @@ public:
 	{
 	}
 
-	VertexAttribute(unsigned int index_, int elementCount_, DataType type_, bool normalized_, unsigned int stride_ = 0)
+	VertexAttribute(unsigned int index_, int elementCount_, DataType type_, bool normalized_, unsigned int divisor_ = 0, unsigned int stride_ = 0)
 		: index(index_)
 		, elementCount(elementCount_)
 		, type(type_)
 		, normalized(normalized_)
 		, stride(stride_)
+		, divisor(divisor_)
 	{
 		elementSize = GetSize(type_);
 		if (stride)
@@ -84,8 +85,9 @@ public:
 	DataType type;
 	bool normalized;
 	unsigned int stride;
-
+	unsigned int divisor;
 };
+
 class VertexArrayObject
 {
 public:
@@ -108,27 +110,8 @@ public:
 	{
 		Destroy();
 
-		return *this;	
-	}
-
-	VertexArrayObject& Attribute(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_ = 0)
-	{
-		vertexAttributes.push_back(VertexAttribute(index_, elementCount_, type_, normalized_, stride_));
-
-		return *this;
-	}
-
-	VertexArrayObject& FillVertices(float* vertices_, int verticesCount_)
-	{
 		glGenVertexArrays(1, &VAO);
 		if (VAO == 0)
-		{
-			Destroy();
-			return *this;
-		}
-
-		glGenBuffers(1, &VBO);
-		if (VBO == 0)
 		{
 			Destroy();
 			return *this;
@@ -136,36 +119,11 @@ public:
 
 		glBindVertexArray(VAO);
 
-		for (int i=0; i< vertexAttributes.size(); i++)
-		{
-			VertexAttribute& d = vertexAttributes[i];
-
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, verticesCount_ * sizeof(float), vertices_, GL_STATIC_DRAW);
-
-			//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glVertexAttribPointer(d.index, d.elementCount, d.type, d.normalized, d.elementCount * d.elementSize, (void*)0);
-			glEnableVertexAttribArray(i);
-		}
-
-		glBindVertexArray(0);
-
-		initialized = true;
-		verticesCount = verticesCount_;
-		indicesCount = 0;
-
-		return *this;
+		return *this;	
 	}
 
-	VertexArrayObject& FillVerticesAndIndices(float* vertices_, int verticesCount_, unsigned int* indices_, int indicesCount_)
+	VertexArrayObject& FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, float* vertices_, int verticesCount_)
 	{
-		glGenVertexArrays(1, &VAO);
-		if (VAO == 0)
-		{
-			Destroy();
-			return *this;
-		}
-
 		glGenBuffers(1, &VBO);
 		if (VBO == 0)
 		{
@@ -173,6 +131,24 @@ public:
 			return *this;
 		}
 
+		vertexAttributes.push_back(VertexAttribute(index_, elementCount_, type_, normalized_, divisor_, stride_));
+		VertexAttribute& v = vertexAttributes.back();
+		
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, verticesCount_ * sizeof(float), vertices_, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(v.index);
+		glVertexAttribPointer(v.index, v.elementCount, v.type, v.normalized, v.elementCount * v.elementSize, (void*)0);
+		glVertexAttribDivisor(v.index, v.divisor);
+
+		initialized = true;
+		verticesCount = verticesCount_;
+
+		return *this;
+	}
+
+	VertexArrayObject& FillIndices(unsigned int* indices_, int indicesCount_)
+	{
 		glGenBuffers(1, &EBO);
 		if (EBO == 0)
 		{
@@ -180,33 +156,10 @@ public:
 			return *this;
 		}
 
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, verticesCount_ * sizeof(float), vertices_, GL_STATIC_DRAW);
-
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount_ * sizeof(int), indices_, GL_STATIC_DRAW);
 
-		for (int i = 0; i < vertexAttributes.size(); i++)
-		{
-			VertexAttribute& d = vertexAttributes[i];
-
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(float), vertices_, GL_STATIC_DRAW);
-
-			//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glVertexAttribPointer(d.index, d.elementCount, d.type, d.normalized, d.elementCount * d.elementSize, (void*)0);
-			glEnableVertexAttribArray(i);
-		}
-
-		glBindVertexArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 		initialized = true;
-		verticesCount = verticesCount_;
 		indicesCount = indicesCount_;
 
 		return *this;
@@ -214,6 +167,8 @@ public:
 
 	bool End()
 	{
+		glBindVertexArray(0);
+
 		return initialized;
 	}
 
@@ -254,20 +209,39 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Draw(unsigned int type_, unsigned int count_ = 0)
+	void Draw(unsigned int mode_, unsigned int count_ = 0)
 	{
 		if (EBO)
 		{
 			if (count_ == 0)
 				count_ = indicesCount;
 
-			glDrawElements(type_, count_, GL_UNSIGNED_INT, 0);
+			glDrawElements(mode_, count_, GL_UNSIGNED_INT, 0);
 		}
 		else
 		{
 			if (count_ == 0)
 				count_ = verticesCount;
-			glDrawArrays(type_, 0, count_);
+
+			glDrawArrays(mode_, 0, count_);
+		}
+	}
+
+	void DrawInstanced(unsigned int mode_, unsigned int instancedCount_ = 0, unsigned int count_= 0)
+	{
+		if (EBO)
+		{
+			if (count_ == 0)
+				count_ = indicesCount;
+
+			glDrawElementsInstanced(mode_, count_, GL_UNSIGNED_INT, 0, instancedCount_);
+		}
+		else
+		{
+			if (count_ == 0)
+				count_ = verticesCount;
+			
+			glDrawArraysInstanced(mode_, 0, count_, instancedCount_);
 		}
 	}
 private:
