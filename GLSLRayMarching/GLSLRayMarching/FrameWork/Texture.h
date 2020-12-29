@@ -54,8 +54,8 @@ public:
 			glTexParameteri(type, GL_TEXTURE_WRAP_S, warpS);
 			glTexParameteri(type, GL_TEXTURE_WRAP_T, warpT);
 			glTexParameteri(type, GL_TEXTURE_WRAP_R, warpR);
-			glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
+			glTexParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
 		}
 	}
 
