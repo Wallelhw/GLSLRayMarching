@@ -166,8 +166,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
         // Loop break conditions. Seems to work, but let me
         // know if I've overlooked something.
-        if((td>1.) || d<.001*t || t>80.)break;
-
+        if((td>1.) || d<.001*t || t>80.)
+            break;
 
         sp = ro + rd*t; // Current ray position.
         d = map(sp); // Closest distance to the surface... particle.

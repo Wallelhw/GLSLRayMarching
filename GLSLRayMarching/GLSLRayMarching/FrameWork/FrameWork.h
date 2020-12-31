@@ -167,55 +167,65 @@ public:
 		glfwTerminate();
 	}
 protected:
-	bool IsKeyPressed(char key)
+	bool IsKeyPressed(char key) const
 	{
 		return glfwGetKey(window, GLFW_KEY_0 + key - '0') == GLFW_PRESS;
 	}
 
-	bool IsKeyRelease(char key)
+	bool IsKeyRelease(char key) const
 	{
 		return glfwGetKey(window, GLFW_KEY_0 + key - '0') == GLFW_RELEASE;
 	}
 
-	bool IsKeyRepeat(char key)
+	bool IsKeyRepeat(char key) const
 	{
 		return glfwGetKey(window, GLFW_KEY_0 + key - '0') == GLFW_REPEAT;
 	}
 
-	void GetTheta(float& theta_, float& phi_)
+	void GetTheta(float& theta_, float& phi_) const
 	{
 		theta_ = theta;
 		phi_ = phi;
 	}
 
-	double GetTime()
+	double GetTime() const
 	{
 		return time;
 	}
 
-	double GetDeltaTime()
+	double GetDeltaTime() const
 	{
 		return deltaTime;
 	}
 
-	vec4 GetMouse()
+	vec4 GetMouse() const
 	{
 		return mouse;
 	}
 
-	vec2 GetMouseDelta()
+	vec2 GetMouseDelta() const
 	{
 		return mouseDelta;
 	}
 
-	int GetMouseButtonStatus()
+	int GetMouseButtonStatus() const
 	{
 		return mouseButtonStatus;
 	}
 
-	int GetFrameCounter()
+	int GetFrameCounter() const
 	{
 		return frameCounter;
+	}
+
+	unsigned int GetWidth() const
+	{
+		return width;
+	}
+
+	unsigned int GetHeight() const
+	{
+		return height;
 	}
 
 	virtual bool OnCreate() = 0;
@@ -224,7 +234,8 @@ protected:
 private:
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	{
-		glViewport(0, 0, width, height);
+		instance->width = width;
+		instance->height = height;
 	}
 
 	static void processInput(GLFWwindow* window)
