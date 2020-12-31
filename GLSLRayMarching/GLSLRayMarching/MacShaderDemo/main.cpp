@@ -594,7 +594,7 @@ public:
 		return true;
 	}
 
-	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
+	bool Update(unsigned int width, unsigned height, double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
 		//int facecount = 1;
 		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 1.0);
@@ -605,15 +605,19 @@ public:
 			
 			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
 			frameBuffer->Bind();
+
+			glViewport(0, 0, resolution[0], resolution[1]);
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(0, 0, resolution[0], resolution[1]);
 		}
 		else
 		{
 			FrameBuffer::UnBind();
-		}
 
-		glViewport(0, 0, resolution[0], resolution[1]);
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(0, 0, resolution[0], resolution[1]);
+			glViewport(0, 0, width, height);
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(0, 0, width, height);
+		}
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform3f("iResolution", resolution[0], resolution[1], resolution[2]);
@@ -1594,7 +1598,7 @@ public:
 		return true;
 	}
 
-	bool Update(double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
+	bool Update(unsigned int width, unsigned int height, double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
 	{
 		for (auto& texture : textures)
 		{
@@ -1603,7 +1607,7 @@ public:
 
 		for (auto& pass : passes)
 		{
-			if (!pass.Update(time, deltaTime, mouse, mouseDelta, frameCounter))
+			if (!pass.Update(width, height, time, deltaTime, mouse, mouseDelta, frameCounter))
 				return false;
 
 			pass.Flip();
@@ -1671,7 +1675,8 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		//return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
+		//return macShaderDemo.Create("Demos/Noise/Perlin");//
+		return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
 		//return macShaderDemo.Create("Demos/Clouds/Cloud");//
 		//return macShaderDemo.Create("Demos/Clouds/CloudFight");//
 		//return macShaderDemo.Create("Demos/default");
@@ -1691,7 +1696,7 @@ public:
 		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
 		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
-		return macShaderDemo.Create("Demos/Terrains/Elevated");
+		//return macShaderDemo.Create("Demos/Terrains/Elevated");
 		//return macShaderDemo.Create("Demos/Terrains/Lake in highland");
 		//return macShaderDemo.Create("Demos/Terrains/Mountains");
 		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
@@ -1706,7 +1711,7 @@ public:
 
 	virtual bool OnUpdate() override
 	{
-		return macShaderDemo.Update(GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetFrameCounter());
+		return macShaderDemo.Update(GetWidth(), GetHeight(), GetTime(), GetDeltaTime(), GetMouse(), GetMouseDelta(), GetFrameCounter());
 	}
 
 	void OnDestroy() override
