@@ -1,29 +1,8 @@
 /*
-
-	Cheap Cloud Flythrough 
-	----------------------
-	
-	"Cheap" should probably refer to the quality of the physics in this shader, which is
-	virtually non-existent, but it actually refers to the fake cloud algorithm... if you could 
-	call it that. :)
-	
-	This is merely an attempt to give the impression of a cloud flythrough, whilst maintaining	
-	a reasonably acceptable framerate. The key to that is keeping the distance field as simple 
-	as possible.
-
-	Due to the amount of cost cutting, it's far from  perfect. However, there's still plenty 
-	of room for improvement.
-
-    I've used density based accumulation, which in one way or another, uses concepts from many 
-	volumetric examples, but particularly from the following:
-	
 	Cloudy Spikeball - Duke
     https://www.shadertoy.com/view/MljXDw
     // Port from a demo by Las - Worth watching.
     // http://www.pouet.net/topic.php?which=7920&page=29&x=14&y=9
-    
-    Other shaders worth looking at:
-
 	Clouds - IQ: One of my favorite shaders, and everyone elses, it seems.
 	https://www.shadertoy.com/view/XslGRr
 		
@@ -35,18 +14,13 @@
 
     Emission clouds - Duke: Nice, and straight forward.
     https://www.shadertoy.com/view/ltBXDm
-
-
 */
 
-// Hash function. This particular one probably doesn't disperse things quite 
-// as nicely as some of the others around, but it's compact, and seems to work.
-//
-vec3 hash33(vec3 p){ 
+vec3 hash33(vec3 p)
+{
     float n = sin(dot(p, vec3(7, 157, 113)));    
     return fract(vec3(2097152, 262144, 32768)*n); 
 }
-
 
 // IQ's texture lookup noise... in obfuscated form. There's less writing, so
 // that makes it faster. That's how optimization works, right? :) Seriously,
@@ -54,20 +28,17 @@ vec3 hash33(vec3 p){
 // 
 // By the way, you could replace this with the non-textured version, and the
 // shader should run at almost the same efficiency.
-float pn( in vec3 p ){
-    
+float pn( in vec3 p )
+{
     vec3 i = floor(p); p -= i; p *= p*(3. - 2.*p);
 	p.xy = texture(iChannel0, (p.xy + i.xy + vec2(37, 17)*i.z + .5)/256., -100.).yx;
 	return mix(p.x, p.y, p.z);
 }
 
-
-
 // Basic low quality noise consisting of three layers of rotated, mutated 
 // trigonometric functions. Needs work, but sufficient for this example.
-float trigNoise3D(in vec3 p){
-
-    
+float trigNoise3D(in vec3 p)
+{
     float res = 0., sum = 0.;
     
     // IQ's cheap, texture-lookup noise function. Very efficient, but still 
@@ -91,27 +62,20 @@ float trigNoise3D(in vec3 p){
 }
 
 // Distance function.
-float map(vec3 p) {
-
+float map(vec3 p) 
+{
     return trigNoise3D(p*0.5);
     
     // Three layers of noise, for comparison.
-    //p += iTime;
-    //return pn(p*.75)*0.57 + pn(p*1.875)*0.28 + pn(p*4.6875)*0.15;
+    p += iTime;
+    // return pn(p*.75)*0.57 + pn(p*1.875)*0.28 + pn(p*4.6875)*0.15;
 }
-
-
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {  
-
-    // Unit direction ray vector: Note the absence of a divide term. I came across
-    // this via a comment Shadertoy user "coyote" made. I'm pretty easy to please,
-    // but I thought it was pretty cool.
     vec3 rd = normalize(vec3(fragCoord - iResolution.xy*.5, iResolution.y*.75)); 
 
-    // Ray origin. Moving along the Z-axis.
-    vec3 ro = vec3(0, 0, iTime*4.);
+    vec3 ro = vec3(0, 0, iTime * 0.4);
 
     // Cheap camera rotation.
     //
@@ -125,15 +89,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // Placing a light in front of the viewer and up a little, then rotating it in sync
     // with the camera. I guess a light beam from a flying vehicle would do this.
     vec3 lp = vec3( 0, 1, 4);
-    lp.xy = lp.xy*rM;
-    lp.xz = lp.xz*rM;
+    lp.xy = lp.xy * rM;
+    lp.xz = lp.xz * rM;
     lp += ro;
 
     // The ray is effectively marching through discontinuous slices of noise, so at certain
     // angles, you can see the separation. A bit of randomization can mask that, to a degree.
     // At the end of the day, it's not a perfect process. Note, the ray is deliberately left 
     // unnormalized... if that's a word.
-    //
     // Randomizing the direction.
     rd = (rd + (hash33(rd.zyx)*.006 - .003)); 
     // Randomizing the length also. 
@@ -152,8 +115,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // Initializing the scene color to black, and declaring the surface position vector.
     vec3 col = vec3(0), sp;
 
-
-
     // Particle surface normal.
     //
     // Here's my hacky reasoning. I'd imagine you're going to hit the particle front on, so the normal
@@ -162,8 +123,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 sn = normalize(hash33(rd.yxz)*.03-rd);
 
     // Raymarching loop.
-    for (int i=0; i<64; i++) {
-
+    for (int i=0; i<64; i++) 
+    {
         // Loop break conditions. Seems to work, but let me
         // know if I've overlooked something.
         if((td>1.) || d<.001*t || t>80.)
@@ -218,7 +179,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         // It reminds me a little of of the soft shadows routine.
         t +=  max(d*.5, .02); //
         // t += .2; // t += d*.5;// These also work, but don't seem as efficient.
-
     }
 
     col = max(col, 0.);
@@ -226,8 +186,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // trigNoise3D(rd*1.)
     col = mix(pow(vec3(1.5, 1, 1)*col,  vec3(1, 2, 8)), col, dot(cos(rd*6. +sin(rd.yzx*6.)), vec3(.333))*.35 + .65);
     col = mix(col.zyx, col, dot(cos(rd*9. +sin(rd.yzx*9.)), vec3(.333))*.15 + .85);//xzy
-    
-
     //col = mix(col.zyx, col, dot(rd, vec3(.5))+.5);
 
     fragColor = vec4(sqrt(max(col, 0.)), 1.0);
