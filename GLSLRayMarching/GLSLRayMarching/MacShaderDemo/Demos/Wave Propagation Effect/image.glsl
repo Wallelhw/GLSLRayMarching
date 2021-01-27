@@ -1,24 +1,3 @@
-//
-// A simple water effect by Tom@2016
-//
-// based on PolyCube version:
-//    http://polycu.be/edit/?h=W2L7zN
-//
-// As people give me too much credit for this one,
-// it's based on: http://freespace.virgin.net/hugo.elias/graphics/x_water.htm
-// A very old Hugo Elias water tutorial :)
-//
-// Note:
-//   I could use one buffer only as in https://www.shadertoy.com/view/4sd3WB
-//   with a clever trick to utilize two channels
-//   and keep buffer A in x/r and buffer B in y/g.
-//   However, now I render every second simulation step,
-//   so the animation is more dynamic.
-//
-// Here is 1-buffer version for comparison:
-//   https://www.shadertoy.com/view/4dK3Ww
-//
-
 #define TEXTURED 1
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )

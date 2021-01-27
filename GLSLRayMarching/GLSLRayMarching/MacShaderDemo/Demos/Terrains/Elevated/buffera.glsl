@@ -1,17 +1,4 @@
-// Created by inigo quilez - iq/2013
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-
-// on the derivatives based noise: http://iquilezles.org/www/articles/morenoise/morenoise.htm
-// on the soft shadow technique: http://iquilezles.org/www/articles/rmshadows/rmshadows.htm
-// on the fog calculations: http://iquilezles.org/www/articles/fog/fog.htm
-// on the lighting: http://iquilezles.org/www/articles/outdoorslighting/outdoorslighting.htm
-// on the raymarching: http://iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
-
-
 #define AA 1   // make this 2 or even 3 if you have a really powerful GPU
-
-
 #define SC (250.0)
 
 // value noise, and its analytical derivatives

@@ -135,8 +135,7 @@ public:
 		VertexAttribute& v = vertexAttributes.back();
 		
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, verticesCount_ * sizeof(float), vertices_, GL_STATIC_DRAW);
-
+		glBufferData(GL_ARRAY_BUFFER, verticesCount_ * elementCount_* GetElementSize(type_), vertices_, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(v.index);
 		glVertexAttribPointer(v.index, v.elementCount, v.type, v.normalized, v.elementCount * v.elementSize, (void*)0);
 		glVertexAttribDivisor(v.index, v.divisor);
@@ -209,7 +208,7 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Draw(unsigned int mode_, unsigned int count_ = 0)
+	void Draw(unsigned int mode_, unsigned int first_, unsigned int count_)
 	{
 		if (EBO)
 		{
@@ -223,12 +222,27 @@ public:
 			if (count_ == 0)
 				count_ = verticesCount;
 
-			glDrawArrays(mode_, 0, count_);
+			glDrawArrays(mode_, first_, count_);
 		}
 	}
 
-	void DrawInstanced(unsigned int mode_, unsigned int instancedCount_ = 0, unsigned int count_= 0)
+	void DrawInstanced(unsigned int mode_, unsigned int first_, unsigned int count_, unsigned int instancedCount_)
 	{
+		/*
+		if ( mode or count is invalid )
+		{
+			generate appropriate error
+		}
+		else 
+		{
+			for (int i = 0; i < instancecount ; i++) 
+			{
+				instanceID = i;
+				glDrawArrays(mode, first, count);
+			}
+			instanceID = 0;
+		}
+		*/
 		if (EBO)
 		{
 			if (count_ == 0)
@@ -241,9 +255,57 @@ public:
 			if (count_ == 0)
 				count_ = verticesCount;
 			
-			glDrawArraysInstanced(mode_, 0, count_, instancedCount_);
+			glDrawArraysInstanced(mode_, first_, count_, instancedCount_);
 		}
 	}
+
+	unsigned int GetCount()
+	{
+		if (EBO)
+		{
+			return indicesCount;
+		}
+		else
+		{
+			return verticesCount;
+		}
+	}
+private:
+	unsigned int GetElementSize(unsigned int type_)
+	{
+		switch (type_)
+		{
+		case VertexAttribute::BYTE:
+			return 1;
+		case VertexAttribute::UNSIGNED_BYTE:
+			return 1;
+		case VertexAttribute::SHORT:
+			return 2;
+		case VertexAttribute::UNSIGNED_SHORT:
+			return 2;
+		case VertexAttribute::INT:
+			return 4;
+		case VertexAttribute::UNSIGNED_INT:
+			return 4;
+
+		case VertexAttribute::HALF_FLOAT:
+			return 2;
+		case VertexAttribute::FLOAT:
+			return 4;
+		case VertexAttribute::DOUBLE:
+			return 8;
+		case VertexAttribute::FIXED:
+			return 4;
+		case VertexAttribute::INT_2_10_10_10_REV:
+			return 4;
+		case VertexAttribute::UNSIGNED_INT_2_10_10_10_REV:
+			return 4;
+		case VertexAttribute::UNSIGNED_INT_10F_11F_11F_REV:
+			return 4;
+		}
+	}
+
+
 private:
 	bool initialized;
 	std::vector<VertexAttribute> vertexAttributes;

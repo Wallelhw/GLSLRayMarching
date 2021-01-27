@@ -7,8 +7,8 @@
 #include "Vector4.h"
 #include "Matrix4.h"
 
-#define SCR_WIDTH 800
-#define SCR_HEIGHT 400
+#define SCR_WIDTH (800*2)
+#define SCR_HEIGHT (400*2)
 
 #define GEOMETRY_TEXTURE_SIZE 1024
 #define NORMAL_TEXTURE_SIZE 512
@@ -83,7 +83,7 @@ public:
 
 		bool success = vertexArrayObject
 			.Begin()
-			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices)/sizeof(vertices[0]))
+			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices)/sizeof(vertices[0])/2 )
 			.End();
 		if (!success)
 		{
@@ -96,9 +96,9 @@ public:
 		}
 		geometryTexture.SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 		geometryTexture.SetMagFilter(GL_LINEAR);
-		geometryTexture.SetWarpS(GL_REPEAT);
-		geometryTexture.SetWarpR(GL_REPEAT);
-		geometryTexture.SetWarpT(GL_REPEAT);
+		geometryTexture.SetWarpS(GL_CLAMP);
+		geometryTexture.SetWarpR(GL_CLAMP);
+		geometryTexture.SetWarpT(GL_CLAMP);
 
 		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
 		{
@@ -139,6 +139,11 @@ public:
 
 			printf("%f\n", lod);
 		}
+		static bool wireframe = false;
+		if (IsKeyPressed(' '))
+		{
+			wireframe = !wireframe;
+		}
 
 		static float test1 = 0.0f;
 		test1 += 1;
@@ -159,7 +164,7 @@ public:
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
@@ -181,7 +186,7 @@ public:
 		printf("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.DrawInstanced(GL_TRIANGLES, triangleCount);
+		vertexArrayObject.DrawInstanced(GL_TRIANGLES, 0, vertexArrayObject.GetCount(), triangleCount);
 
 		return true;
 	}
