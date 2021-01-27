@@ -14,8 +14,8 @@ using namespace rapidjson;
 
 // https://shadertoyunofficial.wordpress.com/2016/07/20/special-shadertoy-features/
 
-#define SCR_WIDTH 800
-#define SCR_HEIGHT 400
+#define SCR_WIDTH 800*2
+#define SCR_HEIGHT 400*2
 
 #include <Windows.h>
 #include <WinUser.h>
@@ -579,7 +579,7 @@ public:
 		bool success =
 			vertexArrayObject
 			.Begin()
-			.FillVertices(0, 3, VertexAttribute::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]))
+			.FillVertices(0, 3, VertexAttribute::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]) / 3)
 			.End();
 		if(!success)
 		{
@@ -698,7 +698,7 @@ public:
 		}
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.Draw(GL_TRIANGLES, 6);
+		vertexArrayObject.Draw(GL_TRIANGLES, 0, vertexArrayObject.GetCount());
 
 		if (frameBuffer)
 		{
@@ -1676,7 +1676,7 @@ public:
 	virtual bool OnCreate() override
 	{
 		//return macShaderDemo.Create("Demos/Noise/Perlin");//
-		return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
+		//return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
 		//return macShaderDemo.Create("Demos/Clouds/Cloud");//
 		//return macShaderDemo.Create("Demos/Clouds/CloudFight");//
 		//return macShaderDemo.Create("Demos/default");
@@ -1692,8 +1692,11 @@ public:
 		//return macShaderDemo.Create("Demos/Post process - SSAO");
 		
 		//return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
-		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");//
+		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
 		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
+		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
+		//return macShaderDemo.Create("Demos/Scattering/RayleighMieDayNight");
+		//return macShaderDemo.Create("Demos/Scattering/RealySimpleAtmosphericScatter");
 		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
 		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
 		//return macShaderDemo.Create("Demos/Terrains/Elevated");
@@ -1702,11 +1705,16 @@ public:
 		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
 		//return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
 
+		//return macShaderDemo.Create("Demos/Waters/RiverGo");
+		//return macShaderDemo.Create("Demos/Waters/Oceanic");
 		//return macShaderDemo.Create("Demos/Waters/Ocean");
 		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
 		//return macShaderDemo.Create("Demos/Waters/Water World");
 		//return macShaderDemo.Create("Demos/Wave Propagation Effect");
 		//return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
+		return macShaderDemo.Create("Demos/Scattering/VolumetricIntegration");
+		return macShaderDemo.Create("Demos/Waters/Spout");
+		
 	}
 
 	virtual bool OnUpdate() override

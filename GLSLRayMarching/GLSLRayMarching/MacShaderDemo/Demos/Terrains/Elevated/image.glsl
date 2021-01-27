@@ -1,14 +1,3 @@
-// Created by inigo quilez - iq/2013
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-
-// on the derivatives based noise: http://iquilezles.org/www/articles/morenoise/morenoise.htm
-// on the soft shadow technique: http://iquilezles.org/www/articles/rmshadows/rmshadows.htm
-// on the fog calculations: http://iquilezles.org/www/articles/fog/fog.htm
-// on the lighting: http://iquilezles.org/www/articles/outdoorslighting/outdoorslighting.htm
-// on the raymarching: http://iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
-
-
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = fragCoord/iResolution.xy;

@@ -1,10 +1,3 @@
-//
-// A simple water effect by Tom@2016
-//
-// based on PolyCube version:
-//    http://polycu.be/edit/?h=W2L7zN
-//
-
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
    vec3 e = vec3(vec2(1.)/iResolution.xy,0.);

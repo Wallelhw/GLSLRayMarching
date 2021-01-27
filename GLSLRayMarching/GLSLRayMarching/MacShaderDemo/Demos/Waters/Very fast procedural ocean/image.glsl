@@ -1,5 +1,3 @@
-//afl_ext 2017-2019
-
 #define DRAG_MULT 0.048
 #define ITERATIONS_RAYMARCH 13
 #define ITERATIONS_NORMAL 48
@@ -140,6 +138,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
      	fragColor = vec4( C,1.0);   
         return;
     }
+
 	float lohit = intersectPlane(orig, ray, wfloor, vec3(0.0, 1.0, 0.0));
     vec3 hipos = orig + ray * hihit;
     vec3 lopos = orig + ray * lohit;
