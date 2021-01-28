@@ -8,7 +8,39 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "Matrix4.h"
 
-const Matrix4<float> Matrix4<float>::Zero
+const BMatrix4 BMatrix4::Zero
+(
+    false, false, false, false, 
+    false, false, false, false,
+    false, false, false, false,
+    false, false, false, false
+);
+
+const BMatrix4 BMatrix4::Identity
+(
+     true, false, false, false,
+    false,  true, false, false,
+    false, false,  true, false,
+    false, false, false,  true
+);
+
+const IMatrix4 IMatrix4::Zero
+(
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+);
+
+const IMatrix4 IMatrix4::Identity
+(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+);
+
+const Matrix4 Matrix4::Zero
 (
     0.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 0.0f,
@@ -16,7 +48,7 @@ const Matrix4<float> Matrix4<float>::Zero
     0.0f, 0.0f, 0.0f, 0.0f
 );
 
-const Matrix4<float> Matrix4<float>::Identity
+const Matrix4 Matrix4::Identity
 (
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -24,4 +56,18 @@ const Matrix4<float> Matrix4<float>::Identity
     0.0f, 0.0f, 0.0f, 1.0f
 );
 
-const int Matrix4<float>::RowStartIdxs[4] = { 0, 4, 8, 12 };
+const DMatrix4 DMatrix4::Zero
+(
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0
+);
+
+const DMatrix4 DMatrix4::Identity
+(
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1.0
+);

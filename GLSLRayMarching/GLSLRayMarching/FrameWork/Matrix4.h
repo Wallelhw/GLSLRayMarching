@@ -9,15 +9,17 @@
 #ifndef _Matrix4_h_
 #define _Matrix4_h_
 
-#include "IMath.h"
+#include "Maths.h"
 #include "Vector4.h"
 #include "Vector3.h"
 
+static const int RowStartIdxs[4] = { 0, 4, 8, 12 };
+
 template<class T>
-class Matrix4
+class TMatrix4
 {
 public:
-    Matrix4(bool bZero = true)
+    TMatrix4(bool bZero = true)
     {
         if (bZero)
         {
@@ -29,14 +31,14 @@ public:
         }
     }
 
-    Matrix4(const Matrix4& mat)
+    TMatrix4(const TMatrix4& mat)
     {
         size_t uiSize = 16 * sizeof(T);
 
         memcpy(m, mat.m, uiSize);
     }
 
-    Matrix4(T m00, T m01, T m02, T m03,
+    TMatrix4(T m00, T m01, T m02, T m03,
         T m10, T m11, T m12, T m13,
         T m20, T m21, T m22, T m23,
         T m30, T m31, T m32, T m33)
@@ -59,7 +61,7 @@ public:
         m[15] = m33;
     }
 
-    Matrix4(const T entry[16], bool rowMajor = true)
+    TMatrix4(const T entry[16], bool rowMajor = true)
     {
         if (rowMajor)
         {
@@ -125,7 +127,7 @@ public:
     {
         SetIdentity();
 
-        float radian = angle * Math::Deg2Rad;
+        float radian = angle * Math::Degree2Radian;
         float cosine = Math::Cos(radian);
         float sine = Math::Sin(radian);
 
@@ -139,7 +141,7 @@ public:
     {
         SetIdentity();
 
-        float radian = angle * Math::Deg2Rad;
+        float radian = angle * Math::Degree2Radian;
         float cosine = Math::Cos(radian);
         float sine = Math::Sin(radian);
 
@@ -153,7 +155,7 @@ public:
     {
         SetIdentity();
 
-        float radian = angle * Math::Deg2Rad;
+        float radian = angle * Math::Degree2Radian;
         float cosine = Math::Cos(radian);
         float sine = Math::Sin(radian);
 
@@ -173,11 +175,11 @@ public:
         SetTranslateRotZYXScale(0, 0, 0, zAngle, yAngle, xAngle, 1);
     }
 
-    void SetRotateAxisAngle(const Vector3<T>& axis, float angle)
+    void SetRotateAxisAngle(const TVector3<T>& axis, float angle)
     {
         SetIdentity();
 
-        float radian = angle * Math::Deg2Rad;
+        float radian = angle * Math::Degree2Radian;
         float cos = Math::Cos(-radian);
         float sin = Math::Sin(-radian);
         float oneMinusCos = 1.0f - cos;
@@ -344,7 +346,7 @@ public:
         m[11] = tz;
     }
 
-    void SetTranslateRotateAxisAngleScale(float tx, float ty, float tz, const Vector3<T>& axis, const float angle, float scale)
+    void SetTranslateRotateAxisAngleScale(float tx, float ty, float tz, const TVector3<T>& axis, const float angle, float scale)
     {
         SetRotateAxisAngle(axis, angle);
 
@@ -374,17 +376,17 @@ public:
         m[11] = tz;
     }
 
-    void SetLookAt(const Vector3<T>& position, const Vector3<T>& objective, const Vector3<T>& up)
+    void SetLookAt(const TVector3<T>& position, const TVector3<T>& objective, const TVector3<T>& up)
     {
         SetLookAtScale(position, objective, up, 1);
     }
 
-    void SetLookAtScale(const Vector3<T>& position, const Vector3<T>& objective, const Vector3<T>& up, float scale)
+    void SetLookAtScale(const TVector3<T>& position, const TVector3<T>& objective, const TVector3<T>& up, float scale)
     {
         // Right Hand
-        Vector3<T> zaxis = position - objective; zaxis.Normalize();
-        Vector3<T> yaxis = up - zaxis * up.Dot(zaxis); yaxis.Normalize();
-        Vector3<T> xaxis = yaxis.Cross(zaxis);
+        TVector3<T> zaxis = position - objective; zaxis.Normalize();
+        TVector3<T> yaxis = up - zaxis * up.Dot(zaxis); yaxis.Normalize();
+        TVector3<T> xaxis = yaxis.Cross(zaxis);
 
         xaxis *= scale;
         yaxis *= scale;
@@ -408,12 +410,12 @@ public:
         m[15] = 1;
     }
 
-    void SetStandOn(const Vector3<T>& position, const Vector3<T>& objective, const Vector3<T>& up)
+    void SetStandOn(const TVector3<T>& position, const TVector3<T>& objective, const TVector3<T>& up)
     {
         SetStandOnScale(position, objective, up, 1);
     }
 
-    void SetStandOnScale(const Vector3<T>& position, const Vector3<T>& objective, const Vector3<T>& up, float scale)
+    void SetStandOnScale(const TVector3<T>& position, const TVector3<T>& objective, const TVector3<T>& up, float scale)
     {
         Vector3 yaxis = up; yaxis.Normalize();
         Vector3 zaxis = position - objective;
@@ -451,7 +453,7 @@ public:
     {
         assert(fovY < 180);
 
-        float radianFovY = fovY * Math::Deg2Rad;
+        float radianFovY = fovY * Math::Degree2Radian;
         float tanHalfFovY = Math::Tan(radianFovY / 2);
         float t = n * tanHalfFovY;
         float r = t * aspect;
@@ -577,7 +579,7 @@ public:
         return m[I(row, col)];
     }
 
-    void SetRow(int row, const Vector4<T>& v)
+    void SetRow(int row, const TVector4<T>& v)
     {
         assert(0 <= row && row < 4);
         for (int col = 0, i = RowStartIdxs[row]; col < 4; col++, i++)
@@ -586,7 +588,7 @@ public:
         }
     }
 
-    Vector4<T> GetRow(int row) const
+    TVector4<T> GetRow(int row) const
     {
         assert(0 <= row && row < 4);
         Vector4 v;
@@ -597,7 +599,7 @@ public:
         return v;
     }
 
-    void SetColumn(int col, const Vector4<T>& v)
+    void SetColumn(int col, const TVector4<T>& v)
     {
         assert(0 <= col && col < 4);
         for (int row = 0, i = col; row < 4; row++, i += 4)
@@ -606,7 +608,7 @@ public:
         }
     }
 
-    Vector4<T> GetColumn(int col) const
+    TVector4<T> GetColumn(int col) const
     {
         assert(0 <= col && col < 4);
         Vector4 v;
@@ -628,7 +630,7 @@ public:
         }
     }
 
-    Matrix4& operator= (const Matrix4& mat)
+    TMatrix4& operator= (const TMatrix4& mat)
     {
         size_t uiSize = 16 * sizeof(T);
 
@@ -637,44 +639,44 @@ public:
         return *this;
     }
 
-    int CompareArrays(const Matrix4& mat) const
+    int CompareArrays(const TMatrix4& mat) const
     {
         return memcmp(m, mat.m, 16 * sizeof(T));
     }
 
-    inline bool operator== (const Matrix4& mat) const
+    inline bool operator== (const TMatrix4& mat) const
     {
         return CompareArrays(mat) == 0;
     }
 
-    inline bool operator!= (const Matrix4& mat) const
+    inline bool operator!= (const TMatrix4& mat) const
     {
         return CompareArrays(mat) != 0;
     }
 
-    inline bool operator<  (const Matrix4& mat) const
+    inline bool operator<  (const TMatrix4& mat) const
     {
         return CompareArrays(mat) < 0;
     }
 
-    inline bool operator<= (const Matrix4& mat) const
+    inline bool operator<= (const TMatrix4& mat) const
     {
         return CompareArrays(mat) <= 0;
     }
 
-    inline bool operator>  (const Matrix4& mat) const
+    inline bool operator>  (const TMatrix4& mat) const
     {
         return CompareArrays(mat) > 0;
     }
 
-    inline bool operator>= (const Matrix4& mat) const
+    inline bool operator>= (const TMatrix4& mat) const
     {
         return CompareArrays(mat) >= 0;
     }
 
-    Matrix4 operator+ (const Matrix4& mat) const
+    TMatrix4 operator+ (const TMatrix4& mat) const
     {
-        Matrix4 sum;
+        TMatrix4 sum;
         for (int i = 0; i < 16; i++)
         {
             sum.m[i] = m[i] + mat.m[i];
@@ -682,9 +684,9 @@ public:
         return sum;
     }
 
-    Matrix4 operator- (const Matrix4& mat) const
+    TMatrix4 operator- (const TMatrix4& mat) const
     {
-        Matrix4 sum;
+        TMatrix4 sum;
         for (int i = 0; i < 16; i++)
         {
             sum.m[i] = m[i] - mat.m[i];
@@ -692,9 +694,9 @@ public:
         return sum;
     }
 
-    Matrix4 operator* (const Matrix4& mat) const
+    TMatrix4 operator* (const TMatrix4& mat) const
     {
-        Matrix4 result;
+        TMatrix4 result;
 
         result.m[0] = m[0] * mat.m[0] + m[1] * mat.m[4] + m[2] * mat.m[8] + m[3] * mat.m[12];
         result.m[1] = m[0] * mat.m[1] + m[1] * mat.m[5] + m[2] * mat.m[9] + m[3] * mat.m[13];
@@ -719,9 +721,9 @@ public:
         return result;
     }
 
-    Matrix4 operator* (T scale) const
+    TMatrix4 operator* (T scale) const
     {
-        Matrix4 result;
+        TMatrix4 result;
         for (int i = 0; i < 16; i++)
         {
             result.m[i] = scale * m[i];
@@ -729,9 +731,9 @@ public:
         return result;
     }
 
-    Matrix4 operator/ (T scale) const
+    TMatrix4 operator/ (T scale) const
     {
-        Matrix4 result;
+        TMatrix4 result;
         int i;
 
         if (scale != (float)0.0)
@@ -753,9 +755,9 @@ public:
         return result;
     }
 
-    Matrix4 operator- () const
+    TMatrix4 operator- () const
     {
-        Matrix4 result;
+        TMatrix4 result;
         for (int i = 0; i < 16; i++)
         {
             result.m[i] = -m[i];
@@ -763,7 +765,7 @@ public:
         return result;
     }
 
-    Matrix4& operator+= (const Matrix4& mat)
+    TMatrix4& operator+= (const TMatrix4& mat)
     {
         for (int i = 0; i < 16; i++)
         {
@@ -772,7 +774,7 @@ public:
         return *this;
     }
 
-    Matrix4& operator-= (const Matrix4& mat)
+    TMatrix4& operator-= (const TMatrix4& mat)
     {
         for (int i = 0; i < 16; i++)
         {
@@ -781,7 +783,7 @@ public:
         return *this;
     }
 
-    Matrix4& operator*= (T scalar)
+    TMatrix4& operator*= (T scalar)
     {
         for (int i = 0; i < 16; i++)
         {
@@ -790,7 +792,7 @@ public:
         return *this;
     }
 
-    Matrix4& operator/= (T scalar)
+    TMatrix4& operator/= (T scalar)
     {
         int i;
 
@@ -813,7 +815,7 @@ public:
         return *this;
     }
 
-    Vector4<T> operator* (const Vector4<T>& v) const
+    TVector4<T> operator* (const TVector4<T>& v) const
     {
         Vector4 result;
         result[0] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * v[3];
@@ -824,7 +826,7 @@ public:
         return result;
     }
 
-    Vector3<T> operator* (const Vector3<T>& v) const
+    TVector3<T> operator* (const TVector3<T>& v) const
     {
         Vector3 result;
         result[0] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * v[3];
@@ -834,7 +836,7 @@ public:
         return result;
     }
 
-    Vector3<T> TimesPositionVector(const Vector3<T>& v) const
+    TVector3<T> TimesPositionVector(const TVector3<T>& v) const
     {
         Vector3 result;
         result[0] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * v[3];
@@ -844,7 +846,7 @@ public:
         return result;
     }
 
-    Vector3<T> TimesDirectionVector(const Vector3<T>& v) const
+    TVector3<T> TimesDirectionVector(const TVector3<T>& v) const
     {
         Vector3 result;
         result[0] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2];
@@ -854,9 +856,9 @@ public:
         return result;
     }
 
-    Matrix4 Transpose() const
+    TMatrix4 Transpose() const
     {
-        Matrix4 transpose;
+        TMatrix4 transpose;
         for (int row = 0; row < 4; row++)
         {
             for (int col = 0; col < 4; col++)
@@ -867,9 +869,9 @@ public:
         return transpose;
     }
 
-    Matrix4 TransposeTimes(const Matrix4& mat) const
+    TMatrix4 TransposeTimes(const TMatrix4& mat) const
     {
-        Matrix4 result;
+        TMatrix4 result;
 
         for (int row = 0; row < 4; row++)
         {
@@ -886,7 +888,7 @@ public:
         return result;
     }
 
-    Matrix4 Inverse() const
+    TMatrix4 Inverse() const
     {
         float fA0 = m[0] * m[5] - m[1] * m[4];
         float fA1 = m[0] * m[6] - m[2] * m[4];
@@ -904,10 +906,10 @@ public:
         float fDet = fA0 * fB5 - fA1 * fB4 + fA2 * fB3 + fA3 * fB2 - fA4 * fB1 + fA5 * fB0;
         if (Math::Sin(fDet) <= Math::ZeroTolerance)
         {
-            return Matrix4::Zero;
+            return TMatrix4::Zero;
         }
 
-        Matrix4 kInv;
+        TMatrix4 kInv;
         kInv[0][0] = +m[5] * fB5 - m[6] * fB4 + m[7] * fB3;
         kInv[1][0] = -m[4] * fB5 + m[6] * fB2 - m[7] * fB1;
         kInv[2][0] = +m[4] * fB4 - m[5] * fB2 + m[7] * fB0;
@@ -937,7 +939,7 @@ public:
         return kInv;
     }
 
-    Matrix4 Adjoint() const
+    TMatrix4 Adjoint() const
     {
         float fA0 = m[0] * m[5] - m[1] * m[4];
         float fA1 = m[0] * m[6] - m[2] * m[4];
@@ -952,7 +954,7 @@ public:
         float fB4 = m[9] * m[15] - m[11] * m[13];
         float fB5 = m[10] * m[15] - m[11] * m[14];
 
-        Matrix4 kAdj;
+        TMatrix4 kAdj;
         kAdj[0][0] = +m[5] * fB5 - m[6] * fB4 + m[7] * fB3;
         kAdj[1][0] = -m[4] * fB5 + m[6] * fB2 - m[7] * fB1;
         kAdj[2][0] = +m[4] * fB4 - m[5] * fB2 + m[7] * fB0;
@@ -991,35 +993,35 @@ public:
         return fDet;
     }
 
-    T QForm(const Vector4<T>& u, const Vector4<T>& v) const
+    T QForm(const TVector4<T>& u, const TVector4<T>& v) const
     {
         return u.Dot((*this) * v);
     }
 
     void SetRotationXYZ(T xAngle, T yAngle, T zAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
                       0.0, fCos, -fSin, 0.0,
                       0.0, fSin, fCos, 0.0,
                       0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
                       0.0, 1.0, 0.0, 0.0,
                      -fSin, 0.0, fCos, 0.0,
                       0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1029,28 +1031,28 @@ public:
 
     void SetRotationXZY(T xAngle, T zAngle, T yAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
             0.0, fCos, -fSin, 0.0,
             0.0, fSin, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
             0.0, 1.0, 0.0, 0.0,
             -fSin, 0.0, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1062,28 +1064,28 @@ public:
 
     void SetRotationYXZ(T yAngle, T xAngle, T zAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
             0.0, fCos, -fSin, 0.0,
             0.0, fSin, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
             0.0, 1.0, 0.0, 0.0,
             -fSin, 0.0, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1095,28 +1097,28 @@ public:
 
     void SetRotationYZX(T yAngle, T zAngle, T xAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
             0.0, fCos, -fSin, 0.0,
             0.0, fSin, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
             0.0, 1.0, 0.0, 0.0,
             -fSin, 0.0, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1128,28 +1130,28 @@ public:
 
     void SetRotationZXY(T zAngle, T xAngle, T yAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
             0.0, fCos, -fSin, 0.0,
             0.0, fSin, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
             0.0, 1.0, 0.0, 0.0,
             -fSin, 0.0, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1159,28 +1161,28 @@ public:
 
     void SetRotationZYX(T zAngle, T yAngle, T xAngle)
     {
-        xAngle *= Math::Deg2Rad;
-        yAngle *= Math::Deg2Rad;
-        zAngle *= Math::Deg2Rad;
+        xAngle *= Math::Degree2Radian;
+        yAngle *= Math::Degree2Radian;
+        zAngle *= Math::Degree2Radian;
 
         float fCos, fSin;
         fCos = Math::Cos(xAngle);
         fSin = Math::Sin(xAngle);
-        Matrix4 kXMat(1.0, 0.0, 0.0, 0.0,
+        TMatrix4 kXMat(1.0, 0.0, 0.0, 0.0,
             0.0, fCos, -fSin, 0.0,
             0.0, fSin, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(yAngle);
         fSin = Math::Sin(yAngle);
-        Matrix4 kYMat(fCos, 0.0, fSin, 0.0,
+        TMatrix4 kYMat(fCos, 0.0, fSin, 0.0,
             0.0, 1.0, 0.0, 0.0,
             -fSin, 0.0, fCos, 0.0,
             0.0, 0.0, 0.0, 1.0);
 
         fCos = Math::Cos(zAngle);
         fSin = Math::Sin(zAngle);
-        Matrix4 kZMat(fCos, -fSin, 0.0, 0.0,
+        TMatrix4 kZMat(fCos, -fSin, 0.0, 0.0,
             fSin, fCos, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0);
@@ -1197,26 +1199,26 @@ public:
         {
             if (m[2] > -1.0)
             {
-                xAngle = Math::ATan2(-m[6], m[10]) * Math::Deg2Rad;
-                yAngle = Math::ASin(m[2]) * Math::Deg2Rad;
-                zAngle = Math::ATan2(-m[1], m[0]) * Math::Deg2Rad;
+                xAngle = Math::ATan2(-m[6], m[10]) * Math::Degree2Radian;
+                yAngle = Math::ASin(m[2]) * Math::Degree2Radian;
+                zAngle = Math::ATan2(-m[1], m[0]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  XA - ZA = -atan2(r10,r11)
-                xAngle = -Math::ATan2(m[4], m[5]) * Math::Deg2Rad;
-                yAngle = -Math::HalfPi * Math::Deg2Rad;
-                zAngle = 0.0 * Math::Deg2Rad;
+                xAngle = -Math::ATan2(m[4], m[5]) * Math::Degree2Radian;
+                yAngle = -Math::HalfPi * Math::Degree2Radian;
+                zAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  XAngle + ZAngle = atan2(r10,r11)
-            xAngle = Math::ATan2(m[4], m[5]) * Math::Deg2Rad;
-            yAngle = Math::HalfPi * Math::Deg2Rad;
-            zAngle = 0.0 * Math::Deg2Rad;
+            xAngle = Math::ATan2(m[4], m[5]) * Math::Degree2Radian;
+            yAngle = Math::HalfPi * Math::Degree2Radian;
+            zAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
@@ -1230,26 +1232,26 @@ public:
         {
             if (m[1] > -1.0)
             {
-                xAngle = Math::ATan2(m[9], m[5]) * Math::Deg2Rad;
-                zAngle = Math::Asin(-m[1]) * Math::Deg2Rad;
-                yAngle = Math::ATan2(m[2], m[0]) * Math::Deg2Rad;
+                xAngle = Math::ATan2(m[9], m[5]) * Math::Degree2Radian;
+                zAngle = Math::Asin(-m[1]) * Math::Degree2Radian;
+                yAngle = Math::ATan2(m[2], m[0]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  XA - YA = atan2(r20,r22)
-                xAngle = Math::ATan2(m[8], m[10]) * Math::Deg2Rad;
-                zAngle = Math::HalfPi * Math::Deg2Rad;
-                yAngle = 0.0 * Math::Deg2Rad;
+                xAngle = Math::ATan2(m[8], m[10]) * Math::Degree2Radian;
+                zAngle = Math::HalfPi * Math::Degree2Radian;
+                yAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  XA + YA = atan2(-r20,r22)
-            xAngle = Math::ATan2(-m[8], m[10]) * Math::Deg2Rad;
-            zAngle = -Math::HalfPi * Math::Deg2Rad;
-            yAngle = 0.0 * Math::Deg2Rad;
+            xAngle = Math::ATan2(-m[8], m[10]) * Math::Degree2Radian;
+            zAngle = -Math::HalfPi * Math::Degree2Radian;
+            yAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
@@ -1264,26 +1266,26 @@ public:
         {
             if (m[6] > -1.0)
             {
-                yAngle = Math::ATan2(m[2], m[10]) * Math::Deg2Rad;
-                xAngle = Math::ASin(-m[6]) * Math::Deg2Rad;
-                zAngle = Math::ATan2(m[4], m[5]) * Math::Deg2Rad;
+                yAngle = Math::ATan2(m[2], m[10]) * Math::Degree2Radian;
+                xAngle = Math::ASin(-m[6]) * Math::Degree2Radian;
+                zAngle = Math::ATan2(m[4], m[5]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  YA - ZA = atan2(r01,r00)
-                yAngle = Math::ATan2(m[1], m[0]) * Math::Deg2Rad;
-                xAngle = Math::HalfPi * Math::Deg2Rad;
-                zAngle = 0.0 * Math::Deg2Rad;
+                yAngle = Math::ATan2(m[1], m[0]) * Math::Degree2Radian;
+                xAngle = Math::HalfPi * Math::Degree2Radian;
+                zAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  YA + ZA = atan2(-r01,r00)
-            yAngle = Math::ATan2(-m[1], m[0]) * Math::Deg2Rad;
-            xAngle = -Math::HalfPi * Math::Deg2Rad;
-            zAngle = 0.0 * Math::Deg2Rad;
+            yAngle = Math::ATan2(-m[1], m[0]) * Math::Degree2Radian;
+            xAngle = -Math::HalfPi * Math::Degree2Radian;
+            zAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
@@ -1298,26 +1300,26 @@ public:
         {
             if (m[4] > -1.0)
             {
-                yAngle = Math::ATan2(-m[8], m[0]) * Math::Deg2Rad;
-                zAngle = Math::Asin(m[4]) * Math::Deg2Rad;
-                xAngle = Math::ATan2(-m[6], m[5]) * Math::Deg2Rad;
+                yAngle = Math::ATan2(-m[8], m[0]) * Math::Degree2Radian;
+                zAngle = Math::Asin(m[4]) * Math::Degree2Radian;
+                xAngle = Math::ATan2(-m[6], m[5]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  YA - XA = -atan2(r21,r22);
-                yAngle = -Math::ATan2(m[9], m[10]) * Math::Deg2Rad;
-                zAngle = -Math::HalfPi * Math::Deg2Rad;
-                xAngle = 0.0 * Math::Deg2Rad;
+                yAngle = -Math::ATan2(m[9], m[10]) * Math::Degree2Radian;
+                zAngle = -Math::HalfPi * Math::Degree2Radian;
+                xAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  YA + XA = atan2(r21,r22)
-            yAngle = Math::ATan2(m[9], m[10]) * Math::Deg2Rad;
-            zAngle = Math::HalfPi * Math::Deg2Rad;
-            xAngle = 0.0 * Math::Deg2Rad;
+            yAngle = Math::ATan2(m[9], m[10]) * Math::Degree2Radian;
+            zAngle = Math::HalfPi * Math::Degree2Radian;
+            xAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
@@ -1332,26 +1334,26 @@ public:
         {
             if (m[9] > -1.0)
             {
-                zAngle = Math::ATan2(-m[1], m[5]) * Math::Deg2Rad;
-                xAngle = Math::Asin(m[9]) * Math::Deg2Rad;
-                yAngle = Math::ATan2(-m[8], m[10]) * Math::Deg2Rad;
+                zAngle = Math::ATan2(-m[1], m[5]) * Math::Degree2Radian;
+                xAngle = Math::Asin(m[9]) * Math::Degree2Radian;
+                yAngle = Math::ATan2(-m[8], m[10]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  ZA - YA = -atan(r02,r00)
-                zAngle = -Math::ATan2(m[2], m[0]) * Math::Deg2Rad;
-                xAngle = -Math::HalfPi * Math::Deg2Rad;
-                yAngle = 0.0 * Math::Deg2Rad;
+                zAngle = -Math::ATan2(m[2], m[0]) * Math::Degree2Radian;
+                xAngle = -Math::HalfPi * Math::Degree2Radian;
+                yAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  ZA + YA = atan2(r02,r00)
-            zAngle = Math::ATan2(m[2], m[0]) * Math::Deg2Rad;
-            xAngle = Math::HalfPi * Math::Deg2Rad;
-            yAngle = 0.0 * Math::Deg2Rad;
+            zAngle = Math::ATan2(m[2], m[0]) * Math::Degree2Radian;
+            xAngle = Math::HalfPi * Math::Degree2Radian;
+            yAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
@@ -1366,38 +1368,43 @@ public:
         {
             if (m[8] > -1.0)
             {
-                zAngle = Math::ATan2(m[4], m[0]) * Math::Deg2Rad;
-                yAngle = Math::Asin(-m[8]) * Math::Deg2Rad;
-                xAngle = Math::ATan2(m[9], m[10]) * Math::Deg2Rad;
+                zAngle = Math::ATan2(m[4], m[0]) * Math::Degree2Radian;
+                yAngle = Math::Asin(-m[8]) * Math::Degree2Radian;
+                xAngle = Math::ATan2(m[9], m[10]) * Math::Degree2Radian;
                 return true;
             }
             else
             {
                 // WARNING.  Not unique.  ZA - XA = -atan2(r01,r02)
-                zAngle = -Math::ATan2(m[1], m[2]) * Math::Deg2Rad;
-                yAngle = Math::HalfPi * Math::Deg2Rad;
-                xAngle = 0.0 * Math::Deg2Rad;
+                zAngle = -Math::ATan2(m[1], m[2]) * Math::Degree2Radian;
+                yAngle = Math::HalfPi * Math::Degree2Radian;
+                xAngle = 0.0 * Math::Degree2Radian;
                 return false;
             }
         }
         else
         {
             // WARNING.  Not unique.  ZA + XA = atan2(-r01,-r02)
-            zAngle = Math::ATan2(-m[1], -m[2]) * Math::Deg2Rad;
-            yAngle = -Math::HalfPi * Math::Deg2Rad;
-            xAngle = 0.0 * Math::Deg2Rad;
+            zAngle = Math::ATan2(-m[1], -m[2]) * Math::Degree2Radian;
+            yAngle = -Math::HalfPi * Math::Degree2Radian;
+            xAngle = 0.0 * Math::Degree2Radian;
             return false;
         }
     }
 
-    static const Matrix4 Zero;
-    static const Matrix4 Identity;
+    static const TMatrix4 Zero;
+    static const TMatrix4 Identity;
 
-    //void Read(InputStream& is);
-    //void Write(OutputStream& os) const;
+    void Read(InputStream& is)
+    {
+        is.ReadBuffer(&m[0], sizeof(T) * 16);
+    }
+
+    void Write(OutputStream& os) const
+    {
+        os.WriteBuffer(&m[0], sizeof(T) * 16);
+    }
 private:
-    static const int RowStartIdxs[4];
-
     // for indexing into the 1D array of the matrix, iCol+N*iRow
     static int I(int row, int col)
     {
@@ -1410,9 +1417,9 @@ private:
     T m[16];
 };
 
-typedef Matrix4<unsigned int> umat4;
-typedef Matrix4<int> imat4;
-typedef Matrix4<float> mat4;
-typedef Matrix4<double> dmat4;
+typedef TMatrix4<bool> BMatrix4;
+typedef TMatrix4<int> IMatrix4;
+typedef TMatrix4<float> Matrix4;
+typedef TMatrix4<double> DMatrix4;
 
 #endif

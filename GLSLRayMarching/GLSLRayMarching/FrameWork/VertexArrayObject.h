@@ -208,28 +208,99 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Draw(unsigned int mode_, unsigned int first_, unsigned int count_)
+	void DrawArray(unsigned int mode_, int first_, int count_)
 	{
-		if (EBO)
-		{
-			if (count_ == 0)
-				count_ = indicesCount;
-
-			glDrawElements(mode_, count_, GL_UNSIGNED_INT, 0);
-		}
-		else
-		{
-			if (count_ == 0)
-				count_ = verticesCount;
-
-			glDrawArrays(mode_, first_, count_);
-		}
+		glDrawArrays(mode_, first_, count_);
 	}
 
-	void DrawInstanced(unsigned int mode_, unsigned int first_, unsigned int count_, unsigned int instancedCount_)
+	void DrawArrayInstanced(unsigned int mode_, int first_, int count_, unsigned int instancedCount_)
 	{
 		/*
 		if ( mode or count is invalid )
+		{
+			generate appropriate error
+		}
+		else
+		{
+			for (int i = 0; i < instancecount ; i++)
+			{
+				instanceID = i;
+				glDrawArrays(mode, first, count);
+			}
+			instanceID = 0;
+		}
+		*/
+		glDrawArraysInstanced(mode_, first_, count_, instancedCount_);
+	}
+
+	void DrawArrayInstancedBaseInstance(unsigned int mode_, int first_, int count_, unsigned int instancedCount_, unsigned int baseInstance_)
+	{
+		/*
+		if ( mode or count is invalid )
+		{
+			generate appropriate error
+		}
+		else
+		{
+			for (int i = 0; i < instancecount ; i++)
+			{
+				instanceID = i;
+				glDrawArrays(mode, first, count);
+			}
+			instanceID = 0;
+		}
+		*/
+		glDrawArraysInstancedBaseInstance(mode_, first_, count_, instancedCount_, baseInstance_);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+	void DrawIndices(unsigned int mode_, void* indices_, int count_)
+	{
+		assert((EBO && indices_==0) || !indices_);
+
+		glDrawElements(mode_, count_, GL_UNSIGNED_INT, indices_);
+	}
+
+	void DrawIndicesBaseVertex(unsigned int mode_, void* indices_, int count_, int baseVertex_)
+	{
+		assert((EBO && indices_ == 0) || !indices_);
+
+		glDrawElementsBaseVertex(mode_, count_, GL_UNSIGNED_INT, indices_, baseVertex_);
+	}
+
+	void DrawIndicesInstanced(unsigned int mode_, const void* indices_, int count_, int instancedCount_)
+	{
+		assert((EBO && indices_ == 0) || !indices_);
+		
+		glDrawElementsInstanced(mode_, count_, GL_UNSIGNED_INT, indices_, instancedCount_);
+	}
+
+	void DrawIndicesInstancedBaseVertex(unsigned int mode_, const void* indices_, int count_, int instancedCount_, int baseVertex_)
+	{
+		/*
+		if ( mode or count is invalid )
+		{
+			generate appropriate error
+		}
+		else
+		{
+			for (int i = 0; i < instancecount ; i++)
+			{
+				instanceID = i;
+				glDrawArrays(mode, first, count);
+			}
+			instanceID = 0;
+		}
+		*/
+		assert((EBO && indices_ == 0) || !indices_);
+
+		glDrawElementsInstancedBaseVertex(mode_, count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseVertex_);
+	}
+
+	void DrawIndicesInstancedBaseInstance(unsigned int mode_, const void* indices_, int count_, int instancedCount_, int baseInstance_)
+	{
+		/*
+		if (mode, count, or type is invalid )
 		{
 			generate appropriate error
 		}
@@ -238,25 +309,145 @@ public:
 			for (int i = 0; i < instancecount ; i++) 
 			{
 				instanceID = i;
+				glDrawElements(mode, count, type, indices);
+			}
+			instanceID = 0;
+		}
+		*/
+		assert((EBO && indices_ == 0) || !indices_);
+
+		glDrawElementsInstancedBaseInstance(mode_, count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseInstance_);
+	}
+
+	void DrawIndicesInstancedBaseVertexBaseInstance(unsigned int mode_, const void* indices_, int count_, int instancedCount_, int baseVertex_, int baseInstance_)
+	{
+		/*
+		if ( mode or count is invalid )
+		{
+			generate appropriate error
+		}
+		else
+		{
+			for (int i = 0; i < instancecount ; i++)
+			{
+				instanceID = i;
 				glDrawArrays(mode, first, count);
 			}
 			instanceID = 0;
 		}
 		*/
-		if (EBO)
-		{
-			if (count_ == 0)
-				count_ = indicesCount;
+		assert((EBO && indices_ == 0) || !indices_);
 
-			glDrawElementsInstanced(mode_, count_, GL_UNSIGNED_INT, 0, instancedCount_);
-		}
-		else
+		glDrawElementsInstancedBaseVertexBaseInstance(mode_, count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseVertex_, baseInstance_);
+	}
+
+	void DrawIndicesIndirect(unsigned int mode_, void* indirect_)
+	{
+		/*
+		typedef  struct 
 		{
-			if (count_ == 0)
-				count_ = verticesCount;
-			
-			glDrawArraysInstanced(mode_, first_, count_, instancedCount_);
+			uint  count;
+			uint  instancedCount;
+			uint  first;
+			uint  baseVertex;
+			uint  baseInstance;
+		} DrawElementsIndirectCommand;
+		
+		const DrawElementsIndirectCommand *cmd  = (const DrawElementsIndirectCommand *)indirect;
+		glDrawElementsInstancedBaseVertexBaseInstance(mode,
+													  cmd->count,
+													  type,
+													  cmd->first * size-of-type,
+													  cmd->instancedCount,
+													  cmd->baseVertex,
+													  cmd->baseInstance);
+		*/
+		glDrawElementsIndirect(mode_, GL_UNSIGNED_INT, indirect_);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void MultiDrawArray(unsigned int mode_, int* first_, int* count_, unsigned int mulitDrawCount_)
+	{
+		glMultiDrawArrays(mode_, first_, count_, mulitDrawCount_);
+	}
+
+	void MultiDrawArrayIndirect(unsigned int mode_, const void* indirect_, int mulitDrawCount_, int stride_ = 0)
+	{
+		/*
+		typedef  struct
+		{
+			uint  count;
+			uint  instanceCount;
+			uint  first;
+			uint  baseInstance;
+		} DrawArraysIndirectCommand;
+		GLsizei n;
+		for (n = 0; n < drawcount; n++)
+		{
+			const DrawArraysIndirectCommand* cmd;
+			if (stride != 0)
+			{
+				cmd = (const DrawArraysIndirectCommand*)((uintptr)indirect + n * stride);
+			}
+			else
+			{
+				cmd = (const DrawArraysIndirectCommand*)indirect + n;
+			}
+
+			glDrawArraysInstancedBaseInstance(mode, cmd->first, cmd->count, cmd->instanceCount, cmd->baseInstance);
 		}
+		*/
+		glMultiDrawArraysIndirect(mode_, indirect_, mulitDrawCount_, stride_);
+	}
+
+	void MultiDrawIndices(unsigned int mode_, const void* const* indices_, int* count_, int mulitDrawCount_)
+	{
+		assert((EBO && indices_ == 0) || !indices_);
+
+		glMultiDrawElements(mode_, count_, GL_UNSIGNED_INT, indices_, mulitDrawCount_);
+	}
+
+	void MultiDrawIndicesBaseVertex(unsigned int mode_, const void* const* indices_, int* count_, int* baseVertex_, int mulitDrawCount_)
+	{
+		assert((EBO && indices_ == 0) || !indices_);
+
+		glMultiDrawElementsBaseVertex(mode_, count_, GL_UNSIGNED_INT, indices_, mulitDrawCount_, baseVertex_);
+	}
+
+	void MultiDrawIndicesIndirect(unsigned int mode_, const void* indirect_, int mulitDrawCount_, int stride_)
+	{
+		/*
+		typedef  struct {
+			uint  count;
+			uint  instanceCount;
+			uint  first;
+			uint  baseVertex;
+			uint  baseInstance;
+		} DrawElementsIndirectCommand;
+
+		GLsizei n;
+		for (n = 0; n < drawcount; n++) 
+		{
+			const DrawElementsIndirectCommand *cmd;
+			if (stride != 0) 
+			{
+				cmd = (const DrawElementsIndirectCommand  *)((uintptr)indirect + n * stride);
+			} 
+			else 
+			{
+				cmd = (const DrawElementsIndirectCommand  *)indirect + n;
+			}
+
+			glDrawElementsInstancedBaseVertexBaseInstance(mode,
+														cmd->count,
+														type,
+														cmd->first * size-of-type,
+														cmd->instanceCount,
+														cmd->baseVertex,
+														cmd->baseInstance);
+		}
+		*/
+		glMultiDrawElementsIndirect(mode_, GL_UNSIGNED_INT, indirect_, mulitDrawCount_, stride_);
 	}
 
 	unsigned int GetCount()

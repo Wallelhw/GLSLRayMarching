@@ -126,7 +126,7 @@ public:
 		return handle;
 	}
 
-	virtual void GetResolution(vec3& resolution) const = 0;
+	virtual void GetResolution(Vector3& resolution) const = 0;
 public:
 protected:
 	void SetFormat(unsigned int internalformat, unsigned int format, unsigned int type)
@@ -290,9 +290,9 @@ public:
 		}
 	}
 
-	virtual void GetResolution(vec3& resolution) const
+	virtual void GetResolution(Vector3& resolution) const
 	{
-		resolution = vec3(width, height, 1.0);
+		resolution = Vector3(width, height, 1.0);
 	}
 
 	unsigned int GetWidth() const
@@ -437,9 +437,9 @@ public:
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 
-	virtual void GetResolution(vec3& resolution) const
+	virtual void GetResolution(Vector3& resolution) const
 	{
-		resolution = vec3(size, size, 1.0);
+		resolution = Vector3(size, size, 1.0);
 	}
 
 	unsigned int GetSize() const

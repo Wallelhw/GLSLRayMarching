@@ -198,12 +198,12 @@ protected:
 		return deltaTime;
 	}
 
-	vec4 GetMouse() const
+	Vector4 GetMouse() const
 	{
 		return mouse;
 	}
 
-	vec2 GetMouseDelta() const
+	Vector2 GetMouseDelta() const
 	{
 		return mouseDelta;
 	}
@@ -313,8 +313,8 @@ private:
 	int frameCounter;
 
 	int mouseButtonStatus;
-	vec4 mouse;
-	vec2 mouseDelta;
+	Vector4 mouse;
+	Vector2 mouseDelta;
 };
 
 #endif

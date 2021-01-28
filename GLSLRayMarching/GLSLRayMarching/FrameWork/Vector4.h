@@ -1,50 +1,85 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Copyright(c) 2020, Lin Koon Wing Macgyver, macgyvercct@yahoo.com.hk          //
+//																				//
+// Author : Mac Lin																//
+// Module : Magnum Engine v0.7.0												//
+// Date   : 05/Nov/2020															//
+//																				//
+//////////////////////////////////////////////////////////////////////////////////
 #ifndef _Vector4_h_
 #define _Vector4_h_
 
-#include "IMath.h"
+#include "Platform.h"
+#include "Maths.h"
+#include "InputStream.h"
+#include "OutputStream.h"
 
 template<class T>
-class Vector4
+class TVector4
 {
 public:
-	Vector4()
+	TVector4()
 	{
-		m[0] = 0;
-		m[1] = 0;
-		m[2] = 0;
-		m[3] = 0;
+		// uninitialized for performance in array construction
 	}
 
-	Vector4(T x_, T y_, T z_, T w_)
+	TVector4(T x, T y, T z, T w)
 	{
-		m[0] = x_;
-		m[1] = y_;
-		m[2] = z_;
-		m[3] = w_;
+		m[0] = x;
+		m[1] = y;
+		m[2] = z;
+		m[3] = w;
 	}
 
-	Vector4(T v_)
+	TVector4(const T* values)
 	{
-		m[0] = v_;
-		m[1] = v_;
-		m[2] = v_;
-		m[3] = v_;
+		m[0] = values[0];
+		m[1] = values[1];
+		m[2] = values[2];
+		m[3] = values[3];
 	}
 
-	~Vector4()
+	TVector4(const TVector4& v)
 	{
+		m[0] = v.m[0];
+		m[1] = v.m[1];
+		m[2] = v.m[2];
+		m[3] = v.m[3];
 	}
 
-	T& operator[](int i)
+	void Set(T x, T y, T z, T w)
 	{
-		assert(i >= 0 && i < 4);
+		m[0] = x;
+		m[1] = y;
+		m[2] = z;
+		m[3] = w;
+	}
+
+	operator const T* () const
+	{
+		return m;
+	}
+
+	operator T* ()
+	{
+		return m;
+	}
+
+	T operator[] (int i) const
+	{
+		Assert(0 <= i && i <= 3);
 		return m[i];
 	}
 
-	const T& operator[](int i) const
+	T& operator[] (int i)
 	{
-		assert(i >= 0 && i < 4);
+		Assert(0 <= i && i <= 3);
 		return m[i];
+	}
+
+	T X() const
+	{
+		return m[0];
 	}
 
 	T& X()
@@ -52,9 +87,9 @@ public:
 		return m[0];
 	}
 
-	const T& X() const
+	T Y() const
 	{
-		return m[0];
+		return m[1];
 	}
 
 	T& Y()
@@ -62,9 +97,9 @@ public:
 		return m[1];
 	}
 
-	const T& Y() const
+	T Z() const
 	{
-		return m[1];
+		return m[2];
 	}
 
 	T& Z()
@@ -72,9 +107,9 @@ public:
 		return m[2];
 	}
 
-	const T& Z() const
+	T W() const
 	{
-		return m[2];
+		return m[3];
 	}
 
 	T& W()
@@ -82,159 +117,259 @@ public:
 		return m[3];
 	}
 
-	const T& W() const
+	TVector4& operator= (const TVector4& v)
 	{
-		return m[3];
+		m[0] = v.m[0];
+		m[1] = v.m[1];
+		m[2] = v.m[2];
+		m[3] = v.m[3];
+		return *this;
 	}
 
-	Vector4& operator += (const Vector4& v)
+	int CompareArrays(const TVector4& v) const
+	{
+		return memcmp(m, v.m, 4 * sizeof(T));
+	}
+
+	bool operator== (const TVector4& v) const
+	{
+		return CompareArrays(v) == 0;
+	}
+
+	bool operator!= (const TVector4& v) const
+	{
+		return CompareArrays(v) != 0;
+	}
+
+	bool operator< (const TVector4& v) const
+	{
+		return CompareArrays(v) < 0;
+	}
+
+	bool operator<= (const TVector4& v) const
+	{
+		return CompareArrays(v) <= 0;
+	}
+
+	bool operator> (const TVector4& v) const
+	{
+		return CompareArrays(v) > 0;
+	}
+
+	bool operator>= (const TVector4& v) const
+	{
+		return CompareArrays(v) >= 0;
+	}
+
+	TVector4 operator+ (const TVector4& v) const
+	{
+		return TVector4
+		(
+			m[0] + v.m[0],
+			m[1] + v.m[1],
+			m[2] + v.m[2],
+			m[3] + v.m[3]
+		);
+	}
+
+	TVector4 operator- (const TVector4& v) const
+	{
+		return TVector4
+		(
+			m[0] - v.m[0],
+			m[1] - v.m[1],
+			m[2] - v.m[2],
+			m[3] - v.m[3]
+		);
+	}
+
+	TVector4 operator* (T scalar) const
+	{
+		return TVector4
+		(
+			scalar * m[0],
+			scalar * m[1],
+			scalar * m[2],
+			scalar * m[3]
+		);
+	}
+
+	TVector4 operator/ (T scalar) const
+	{
+		TVector4 quotient;
+
+		if (scalar != 0.0f)
+		{
+			T invScalar = 1.0f / scalar;
+			quotient.m[0] = invScalar * m[0];
+			quotient.m[1] = invScalar * m[1];
+			quotient.m[2] = invScalar * m[2];
+			quotient.m[3] = invScalar * m[3];
+		}
+		else
+		{
+			quotient.m[0] = Math::MaxFloat;
+			quotient.m[1] = Math::MaxFloat;
+			quotient.m[2] = Math::MaxFloat;
+			quotient.m[3] = Math::MaxFloat;
+		}
+
+		return quotient;
+	}
+
+	TVector4 operator- () const
+	{
+		return TVector4
+		(
+			-m[0],
+			-m[1],
+			-m[2],
+			-m[3]
+		);
+	}
+
+	friend TVector4 operator* (T scalar, const TVector4& v)
+	{
+		return TVector4
+		(
+			scalar * v[0],
+			scalar * v[1],
+			scalar * v[2],
+			scalar * v[3]
+		);
+	}
+
+	TVector4& operator+= (const TVector4& v)
 	{
 		m[0] += v.m[0];
 		m[1] += v.m[1];
 		m[2] += v.m[2];
 		m[3] += v.m[3];
-
 		return *this;
 	}
 
-	Vector4& operator -= (const Vector4& v)
+	TVector4& operator-= (const TVector4& v)
 	{
 		m[0] -= v.m[0];
 		m[1] -= v.m[1];
 		m[2] -= v.m[2];
 		m[3] -= v.m[3];
+		return *this;
+	}
+
+	TVector4& operator*= (T scalar)
+	{
+		m[0] *= scalar;
+		m[1] *= scalar;
+		m[2] *= scalar;
+		m[3] *= scalar;
+		return *this;
+	}
+
+	TVector4& operator/= (T scalar)
+	{
+		if (scalar != 0.0f)
+		{
+			T invScalar = 1.0f / scalar;
+			m[0] *= invScalar;
+			m[1] *= invScalar;
+			m[2] *= invScalar;
+			m[3] *= invScalar;
+		}
+		else
+		{
+			m[0] = Math::MaxFloat;
+			m[1] = Math::MaxFloat;
+			m[2] = Math::MaxFloat;
+			m[3] = Math::MaxFloat;
+		}
 
 		return *this;
 	}
 
-	Vector4& operator *= (const Vector4& v)
+	T Length() const
 	{
-		m[0] *= v.m[0];
-		m[1] *= v.m[1];
-		m[2] *= v.m[2];
-		m[3] *= v.m[3];
-
-		return *this;
+		return Math::Sqrt
+		(
+			m[0] * m[0] +
+			m[1] * m[1] +
+			m[2] * m[2] +
+			m[3] * m[3]
+		);
 	}
 
-	Vector4& operator /= (const Vector4& v)
+	T SquaredLength() const
 	{
-		m[0] /= v.m[0];
-		m[1] /= v.m[1];
-		m[2] /= v.m[2];
-		m[3] /= v.m[3];
-
-		return *this;
+		return
+			m[0] * m[0] +
+			m[1] * m[1] +
+			m[2] * m[2] +
+			m[3] * m[3];
 	}
 
-	Vector4& operator += (const T& v)
+	T Dot(const TVector4& v) const
 	{
-		m[0] += v;
-		m[1] += v;
-		m[2] += v;
-		m[3] += v;
-
-		return *this;
+		return
+			m[0] * v.m[0] +
+			m[1] * v.m[1] +
+			m[2] * v.m[2] +
+			m[3] * v.m[3];
 	}
 
-	Vector4& operator -= (const T& v)
+	T Normalize()
 	{
-		m[0] -= v;
-		m[1] -= v;
-		m[2] -= v;
-		m[3] -= v;
+		T length = Length();
 
-		return *this;
+		if (length > Math::ZeroTolerance)
+		{
+			T invLength = 1.0f / length;
+			m[0] *= invLength;
+			m[1] *= invLength;
+			m[2] *= invLength;
+			m[3] *= invLength;
+		}
+		else
+		{
+			length = 0.0f;
+			m[0] = 0.0f;
+			m[1] = 0.0f;
+			m[2] = 0.0f;
+			m[3] = 0.0f;
+		}
+
+		return length;
 	}
 
-	Vector4& operator *= (const T& v)
+	void Read(InputStream& is)
 	{
-		m[0] *= v;
-		m[1] *= v;
-		m[2] *= v;
-		m[3] *= v;
-
-		return *this;
+		is.ReadBuffer(&m[0], sizeof(T) * 4);
 	}
 
-	Vector4& operator /= (const T& v)
+	void Write(OutputStream& os) const
 	{
-		m[0] /= v;
-		m[1] /= v;
-		m[2] /= v;
-		m[3] /= v;
-
-		return *this;
+		os.WriteBuffer(&m[0], sizeof(T) * 4);
 	}
 
-	friend Vector4 operator + (const Vector4& v0, const Vector4& v1)
-	{
-		return Vector4(v0.m[0] + v1.m[0], v0.m[1] + v1.m[1], v0.m[2] + v1.m[2], v0.m[3] + v1.m[3]);
-	}
+	// special vectors
+	static const TVector4 Zero;      // (0,0,0,0)
+	static const TVector4 UnitX;     // (1,0,0,0)
+	static const TVector4 UnitY;     // (0,1,0,0)
+	static const TVector4 UnitZ;     // (0,0,1,0)
+	static const TVector4 UnitW;     // (0,0,0,1)
+	static const TVector4 One;       // (1,1,1,1)
+protected:
+private:
 
-	friend Vector4 operator - (const Vector4& v0, const Vector4& v1)
-	{
-		return Vector4(v0.m[0] - v1.m[0], v0.m[1] - v1.m[1], v0.m[2] - v1.m[2], v0.m[3] - v1.m[3]);
-	}
-
-	friend Vector4 operator * (const Vector4& v0, const Vector4& v1)
-	{
-		return Vector4(v0.m[0] * v1.m[0], v0.m[1] * v1.m[1], v0.m[2] * v1.m[2], v0.m[3] * v1.m[3]);
-	}
-
-	friend Vector4 operator / (const Vector4& v0, const Vector4& v1)
-	{
-		return Vector4(v0.m[0] / v1.m[0], v0.m[1] / v1.m[1], v0.m[2] / v1.m[2], v0.m[3] / v1.m[3]);
-	}
-
-	friend Vector4 operator + (const Vector4& v0, const T& v1)
-	{
-		return Vector4(v0.m[0] + v1, v0.m[1] + v1, v0.m[2] + v1, v0.m[3] + v1);
-	}
-
-	friend Vector4 operator - (const Vector4& v0, const T& v1)
-	{
-		return Vector4(v0.m[0] - v1, v0.m[1] - v1, v0.m[2] - v1, v0.m[3] - v1);
-	}
-
-	friend Vector4 operator * (const Vector4& v0, const T& v1)
-	{
-		return Vector4(v0.m[0] * v1, v0.m[1] * v1, v0.m[2] * v1, v0.m[3] * v1);
-	}
-
-	friend Vector4 operator / (const Vector4& v0, const T& v1)
-	{
-		return Vector4(v0.m[0] / v1, v0.m[1] / v1, v0.m[2] / v1, v0.m[3] / v1);
-	}
-
-	float Dot(const Vector4& v) const
-	{
-		return m[0] * v.m[0] + m[1] * v.m[1] + m[2] * v.m[2] + m[3] * v.m[3];
-	}
-
-	float SqrLength() const
-	{
-		return this->Dot(*this);
-	}
-
-	float Length() const
-	{
-		return sqrt(Length());
-	}
-
-	friend Vector4 Normalize(const Vector4& normal)
-	{
-		float length = Length();
-
-		return normal / length;
-	}
+	//////////////////////////////////////////////////////////////
+public:
+protected:
 private:
 	T m[4];
 };
 
-typedef Vector4<unsigned int> uvec4;
-typedef Vector4<int> ivec4;
-typedef Vector4<float> vec4;
-typedef Vector4<double> dvec4;
+typedef TVector4<bool> BVector4;
+typedef TVector4<int> IVector4;
+typedef TVector4<float> Vector4;
+typedef TVector4<double> DVector4;
 
 #endif

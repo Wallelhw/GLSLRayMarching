@@ -27,40 +27,40 @@ public:
 		{
 		}
 
-		void SetWorldTransform(const mat4& worldTransform_)
+		void SetWorldTransform(const Matrix4& worldTransform_)
 		{
 			worldTransform = worldTransform_;
 
 			viewTransform = worldTransform.Inverse();
 		}
 
-		const mat4& GetWorldTransform() const
+		const Matrix4& GetWorldTransform() const
 		{
 			return worldTransform;
 		}
 
-		const mat4& GetViewTransform() const
+		const Matrix4& GetViewTransform() const
 		{
 			return viewTransform;
 		}
 
-		void SetProjectionTransform(const mat4& projectionTransform_)
+		void SetProjectionTransform(const Matrix4& projectionTransform_)
 		{
 			projectionTransform = projectionTransform_;
 		}
 
-		const mat4& GetProjectionTransform() const
+		const Matrix4& GetProjectionTransform() const
 		{
 			return projectionTransform;
 		}
 
-		mat4 worldTransform;
-		mat4 viewTransform;
-		mat4 projectionTransform;
+		Matrix4 worldTransform;
+		Matrix4 viewTransform;
+		Matrix4 projectionTransform;
 	};
 
 	GeometryTexture()
-	: FrameWork("GeometryTexture")
+		: FrameWork("GeometryTexture")
 	{
 	}
 
@@ -71,8 +71,8 @@ public:
 	virtual bool OnCreate() override
 	{
 		float vertices[] =
-		{ 
-			0.0, 0.0, 
+		{
+			0.0, 0.0,
 			0.0, 1.0,
 			1.0, 0.0,
 
@@ -83,7 +83,7 @@ public:
 
 		bool success = vertexArrayObject
 			.Begin()
-			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices)/sizeof(vertices[0])/2 )
+			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices) / sizeof(vertices[0]) / 2)
 			.End();
 		if (!success)
 		{
@@ -118,32 +118,42 @@ public:
 		return true;
 	}
 
+	void TestGUI(bool& wireframe, int& lod)
+	{
+		static bool enabled1 = false;
+		static bool enabled2 = false;
+		static bool enabled3 = false;
+		static Vector4 c(0, 0, 0, 0);
+
+		if (ImGui::Begin("SuperGameObject"))
+		{
+			if (ImGui::CollapsingHeader("Lod"))
+			{
+				ImGui::SliderInt("Lod", &lod, 0, 7, "LOD %d");
+			}
+			if (ImGui::CollapsingHeader("WireFrame"))
+			{
+				ImGui::Checkbox("WireFrame1", &wireframe);
+			}
+			if (ImGui::CollapsingHeader("Shape and CSG"))
+			{
+				ImGui::Indent(10.0f);
+				ImGui::Checkbox("Render Shape1", &enabled1);
+				ImGui::ColorEdit4("Shape1 Color", &c[0], ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Shape1 Wire", &enabled2);
+				ImGui::Checkbox("Shape1 Solid", &enabled3);
+				ImGui::Unindent(10.0f);
+			}
+		}
+
+		ImGui::End();
+	}
+
 	virtual bool OnUpdate() override
 	{
-		static int start = 0;
-
-		static float lod = 0;
-		if (IsKeyPressed('A'))
-		{
-			lod -= 0.016f;
-			if (lod < 0)
-				lod = 0;
-
-			printf("%f\n", lod);
-		}
-		if (IsKeyPressed('D'))
-		{
-			lod += 0.016f;
-			if (lod > 7)
-				lod = 7;
-
-			printf("%f\n", lod);
-		}
+		static int lod = 0;
 		static bool wireframe = false;
-		if (IsKeyPressed(' '))
-		{
-			wireframe = !wireframe;
-		}
+		TestGUI(wireframe, lod);
 
 		static float test1 = 0.0f;
 		test1 += 1;
@@ -151,11 +161,11 @@ public:
 		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 6.0);
 		camera.SetWorldTransform(worldTransform);
 
-		mat4 cameraTransform;
-		cameraTransform.SetLookAt(vec3(5, 5, 5), vec3(0, 0, 0), vec3(0, 1, 0));
+		Matrix4 cameraTransform;
+		cameraTransform.SetLookAt(Vector3(5, 5, 5), Vector3(0, 0, 0), Vector3(0, 1, 0));
 		camera.SetWorldTransform(cameraTransform);
-		
-		mat4 projectionTransform;
+
+		Matrix4 projectionTransform;
 		projectionTransform.SetPerspectiveFov(45.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
 		camera.SetProjectionTransform(projectionTransform);
 
@@ -164,7 +174,10 @@ public:
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		if(wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
@@ -179,14 +192,14 @@ public:
 		geometryTextureShaderProgram.SetUniformMatrix4fv("viewTransform", 1, camera.GetViewTransform());
 		geometryTextureShaderProgram.SetUniformMatrix4fv("projTransform", 1, camera.GetProjectionTransform());
 
-		geometryTextureShaderProgram.SetUniform1i("lod", floor(lod));
+		geometryTextureShaderProgram.SetUniform1i("lod", lod);
 
 		float scale = pow(2.0, floor(lod));
 		int triangleCount = GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale);
 		printf("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.DrawInstanced(GL_TRIANGLES, 0, vertexArrayObject.GetCount(), triangleCount);
+		vertexArrayObject.DrawArrayInstanced(GL_TRIANGLES, 0, vertexArrayObject.GetCount(), triangleCount);
 
 		return true;
 	}
@@ -205,9 +218,9 @@ private:
 
 	ShaderProgram geometryTextureShaderProgram;
 
-	mat4 worldTransform;
+	Matrix4 worldTransform;
 	Camera camera;
-	
+
 	VertexArrayObject vertexArrayObject;
 };
 
