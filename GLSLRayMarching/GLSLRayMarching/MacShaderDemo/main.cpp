@@ -212,17 +212,17 @@ public:
 		value_ = fValues[name_].value;
 	}
 
-	void AddValue(const char* name_, vec4 v_, float min_, float max_)
+	void AddValue(const char* name_, Vector4 v_, float min_, float max_)
 	{
 		vec4Values[name_] = { v_, min_, max_ };
 	}
 
-	void SetValue(const char* name_, vec4 v_)
+	void SetValue(const char* name_, Vector4 v_)
 	{
 		vec4Values[name_].value = v_;
 	}
 
-	void GetValue(const char* name_, vec4& value_)
+	void GetValue(const char* name_, Vector4& value_)
 	{
 		value_ = vec4Values[name_].value;
 	}
@@ -244,7 +244,7 @@ private:
 
 	struct Vec4Value
 	{
-		vec4 value;
+		Vector4 value;
 		float min;
 		float max;
 	};
@@ -594,10 +594,10 @@ public:
 		return true;
 	}
 
-	bool Update(unsigned int width, unsigned height, double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
+	bool Update(unsigned int width, unsigned height, double time, double deltaTime, Vector4 mouse, Vector2 mouseDelta, int frameCounter)
 	{
 		//int facecount = 1;
-		vec3 resolution = vec3(SCR_WIDTH, SCR_HEIGHT, 1.0);
+		Vector3 resolution = Vector3(SCR_WIDTH, SCR_HEIGHT, 1.0);
 		if (frameBuffer)
 		{
 			//if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
@@ -633,7 +633,7 @@ public:
 		shaderProgram.SetUniform4f("iDate", lt.wYear-1, lt.wMonth-1, lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
-		std::vector<vec3> channelResolutions(CHANNEL_COUNT);
+		std::vector<Vector3> channelResolutions(CHANNEL_COUNT);
 		std::vector<float> channelTimes(CHANNEL_COUNT);
 		for (int i = 0; i < iChannels.size(); i++)
 		{
@@ -681,7 +681,7 @@ public:
 			}
 			else
 			{
-				channelResolutions[i] = vec3(0.0, 0.0, 0.0);
+				channelResolutions[i] = Vector3(0.0, 0.0, 0.0);
 				channelTimes[i] = 0.0;
 			}
 		}
@@ -698,7 +698,7 @@ public:
 		}
 
 		vertexArrayObject.Bind();
-		vertexArrayObject.Draw(GL_TRIANGLES, 0, vertexArrayObject.GetCount());
+		vertexArrayObject.DrawArray(GL_TRIANGLES, 0, vertexArrayObject.GetCount());
 
 		if (frameBuffer)
 		{
@@ -1457,7 +1457,7 @@ public:
 														{
 															if (guisJson[k]["value"].IsArray() && guisJson[k]["value"].Size()==4)
 															{
-																vec4 v;
+																Vector4 v;
 																v[0] = guisJson[k]["value"][0].GetFloat();
 																v[1] = guisJson[k]["value"][1].GetFloat();
 																v[2] = guisJson[k]["value"][2].GetFloat();
@@ -1598,7 +1598,7 @@ public:
 		return true;
 	}
 
-	bool Update(unsigned int width, unsigned int height, double time, double deltaTime, vec4 mouse, vec2 mouseDelta, int frameCounter)
+	bool Update(unsigned int width, unsigned int height, double time, double deltaTime, Vector4 mouse, Vector2 mouseDelta, int frameCounter)
 	{
 		for (auto& texture : textures)
 		{

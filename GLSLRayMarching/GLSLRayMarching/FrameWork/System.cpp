@@ -1,0 +1,10 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Copyright(c) 2020, Lin Koon Wing Macgyver, macgyvercct@yahoo.com.hk          //
+//																				//
+// Author : Mac Lin																//
+// Module : Magnum Engine v0.7.0												//
+// Date   : 05/Nov/2020															//
+//																				//
+//////////////////////////////////////////////////////////////////////////////////
+#include "System.h"
+#include "Platform.h"
