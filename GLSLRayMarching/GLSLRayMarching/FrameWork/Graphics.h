@@ -6,16 +6,12 @@
 // Date   : 05/Nov/2020															//
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
-#ifndef _System_h_
-#define _System_h_
+#ifndef _Graphics_h_
+#define _Graphics_h_
 
 #include "Platform.h"
 
-#include "String.h"
-
-class System
-{
-public:
-};
+#include <glad\glad.h>
+#include <GLFW\glfw3.h>
 
 #endif

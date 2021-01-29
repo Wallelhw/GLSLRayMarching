@@ -6,16 +6,5 @@
 // Date   : 05/Nov/2020															//
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
-#ifndef _System_h_
-#define _System_h_
-
 #include "Platform.h"
-
-#include "String.h"
-
-class System
-{
-public:
-};
-
-#endif
+#include "Graphics.h"

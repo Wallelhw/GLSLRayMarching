@@ -2,7 +2,8 @@
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "FrameBuffer.h"
-#include "VertexArrayObject.h"
+#include "Primitives.h"
+#include "RenderStates.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -11,8 +12,8 @@
 #include "rapidjson/stringbuffer.h"
 using namespace rapidjson;
 #include <iostream>
-
-// https://shadertoyunofficial.wordpress.com/2016/07/20/special-shadertoy-features/
+#include <fstream>
+#include <sstream>
 
 #define SCR_WIDTH 800*2
 #define SCR_HEIGHT 400*2
@@ -20,8 +21,6 @@ using namespace rapidjson;
 #include <Windows.h>
 #include <WinUser.h>
 #include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 class KeyboardTexture : public Texture2D
 {
@@ -41,11 +40,11 @@ public:
 		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
 			return false;
 		
-		SetMinFilter(GL_NEAREST);
-		SetMagFilter(GL_NEAREST);
-		SetWarpS(GL_CLAMP);
-		SetWarpR(GL_CLAMP);
-		SetWarpT(GL_CLAMP);
+		SetMinFilter(Texture::MinFilter::NEAREST);
+		SetMagFilter(Texture::MagFilter::NEAREST);
+		SetWarpS(Texture::Wrap::CLAMP);
+		SetWarpR(Texture::Wrap::CLAMP);
+		SetWarpT(Texture::Wrap::CLAMP);
 
 		return true;
 	}
@@ -125,17 +124,18 @@ public:
 		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
 			return false;
 
-		SetMinFilter(GL_NEAREST);
-		SetMagFilter(GL_NEAREST);
-		SetWarpS(GL_CLAMP);
-		SetWarpR(GL_CLAMP);
-		SetWarpT(GL_CLAMP);
+		SetMinFilter(Texture::MinFilter::NEAREST);
+		SetMagFilter(Texture::MagFilter::NEAREST);
+		SetWarpS(Texture::Wrap::CLAMP);
+		SetWarpR(Texture::Wrap::CLAMP);
+		SetWarpT(Texture::Wrap::CLAMP);
 
 		return true;
 	}
 
 	virtual void Update()
 	{
+		/*
 		static int test = 0;
 		if (ImGui::Begin("SuperGameObject"))
 		{
@@ -163,7 +163,7 @@ public:
 		}
 
 		ImGui::End();
-
+		*/
 		Texture2D::UpdateData(&buffer[0]);
 	}
 
@@ -366,7 +366,6 @@ private:
 	std::vector<char> buffer;
 };
 
-
 class FlipFrameBuffer : public FrameBuffer
 {
 public:
@@ -418,7 +417,7 @@ public:
 		if (!texture[1].Create(width, height, nrComponents, isHDR, nullptr))
 			return false;
 
-		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[0]);
+		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
@@ -439,7 +438,7 @@ public:
 	{
 		FlipFrameBuffer::Flip();
 
-		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
 private:
 	Texture2D texture[2];
@@ -468,7 +467,7 @@ public:
 		if (!texture[1].Create(size, nrComponents, isHDR, nullptr))
 			return false;
 
-		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[0]);
+		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
@@ -489,7 +488,7 @@ public:
 	{
 		FlipFrameBuffer::Flip();
 
-		SetColorAttachment(GL_COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
 private:
 	TextureCubeMap texture[2];
@@ -552,7 +551,7 @@ public:
 
 	Pass()
 		: enabled(true)
-		, vertexArrayObject()
+		, primitives()
 		, shaderProgram()
 		, iChannels(CHANNEL_COUNT)
 		, frameBuffer(nullptr)
@@ -577,9 +576,9 @@ public:
 		};
 
 		bool success =
-			vertexArrayObject
+			primitives
 			.Begin()
-			.FillVertices(0, 3, VertexAttribute::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]) / 3)
+			.FillVertices(0, 3, VertexAttribute::DataType::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]) / 3)
 			.End();
 		if(!success)
 		{
@@ -603,26 +602,32 @@ public:
 			//if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
 				//facecount = 6;
 			
-			frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetResolution(resolution);
+			frameBuffer->GetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
 			frameBuffer->Bind();
 
-			glViewport(0, 0, resolution[0], resolution[1]);
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(0, 0, resolution[0], resolution[1]);
+			renderStates.viewportState.pos = Vector2(0, 0);
+			renderStates.viewportState.size = Vector2(resolution[0], resolution[1]);
+
+			renderStates.scissorTestState.enabled = true;
+			renderStates.scissorTestState.pos = Vector2(0, 0);
+			renderStates.scissorTestState.size = Vector2(resolution[0], resolution[1]);
 		}
 		else
 		{
 			FrameBuffer::UnBind();
 
-			glViewport(0, 0, width, height);
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(0, 0, width, height);
+			renderStates.viewportState.pos = Vector2(0, 0);
+			renderStates.viewportState.size = Vector2(width, height);
+
+			renderStates.scissorTestState.enabled = true;
+			renderStates.scissorTestState.pos = Vector2(0, 0);
+			renderStates.scissorTestState.size = Vector2(width, height);
 		}
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform3f("iResolution", resolution[0], resolution[1], resolution[2]);
-		shaderProgram.SetUniform1f("iTime", time);
-		shaderProgram.SetUniform1f("iTimeDelta", deltaTime);
+		shaderProgram.SetUniform1f("iTime", (float)time);
+		shaderProgram.SetUniform1f("iTimeDelta", (float)deltaTime);
 		shaderProgram.SetUniform1f("iFrameRate", 60.0f);
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
 		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
@@ -630,7 +635,7 @@ public:
 		printf("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 		SYSTEMTIME lt = { 0 };
 		GetLocalTime(&lt);
-		shaderProgram.SetUniform4f("iDate", lt.wYear-1, lt.wMonth-1, lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
+		shaderProgram.SetUniform4f("iDate", (float)lt.wYear-1, (float)lt.wMonth-1, (float)lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
 		std::vector<Vector3> channelResolutions(CHANNEL_COUNT);
@@ -650,31 +655,31 @@ public:
 
 				if (iChannels[i].wrap == Pass::Wrap::Repeat)
 				{
-					texture->SetWarpS(GL_REPEAT);
-					texture->SetWarpR(GL_REPEAT);
-					texture->SetWarpT(GL_REPEAT);
+					texture->SetWarpS(Texture::Wrap::REPEAT);
+					texture->SetWarpR(Texture::Wrap::REPEAT);
+					texture->SetWarpT(Texture::Wrap::REPEAT);
 				}
 				else if (iChannels[i].wrap == Pass::Wrap::Clamp)
 				{
-					texture->SetWarpS(GL_CLAMP_TO_EDGE);
-					texture->SetWarpR(GL_CLAMP_TO_EDGE);
-					texture->SetWarpT(GL_CLAMP_TO_EDGE);
+					texture->SetWarpS(Texture::Wrap::CLAMP);
+					texture->SetWarpR(Texture::Wrap::CLAMP);
+					texture->SetWarpT(Texture::Wrap::CLAMP);
 				}
 
 				if (iChannels[i].filter == Pass::Filter::Nearest)
 				{
-					texture->SetMinFilter(GL_NEAREST);
-					texture->SetMagFilter(GL_NEAREST);
+					texture->SetMinFilter(Texture::MinFilter::NEAREST);
+					texture->SetMagFilter(Texture::MagFilter::NEAREST);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Linear)
 				{
-					texture->SetMinFilter(GL_LINEAR);
-					texture->SetMagFilter(GL_LINEAR);
+					texture->SetMinFilter(Texture::MinFilter::LINEAR);
+					texture->SetMagFilter(Texture::MagFilter::LINEAR);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Mipmap)
 				{
-					texture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-					texture->SetMagFilter(GL_LINEAR);
+					texture->SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
+					texture->SetMagFilter(Texture::MagFilter::LINEAR);
 				}
 
 				texture->Bind(i);
@@ -697,8 +702,8 @@ public:
 			shaderProgram.SetUniform1i(name.c_str(), i);
 		}
 
-		vertexArrayObject.Bind();
-		vertexArrayObject.DrawArray(GL_TRIANGLES, 0, vertexArrayObject.GetCount());
+		primitives.Bind();
+		primitives.DrawArray(Primitives::Mode::TRIANGLES, 0, primitives.GetCount());
 
 		if (frameBuffer)
 		{
@@ -846,16 +851,16 @@ public:
 
 			if (iChannels[i].texture)
 			{
-				if (iChannels[i].texture->GetType() == GL_TEXTURE_2D)
+				if (iChannels[i].texture->GetType() == Texture::Type::TEXTURE_2D)
 					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
-				else if (iChannels[i].texture->GetType() == GL_TEXTURE_CUBE_MAP)
+				else if (iChannels[i].texture->GetType() == Texture::Type::TEXTURE_CUBE_MAP)
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 			else if (iChannels[i].frameBuffer)
 			{
-				if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == GL_TEXTURE_2D)
+				if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::TEXTURE_2D)
 					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
-				else if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == GL_TEXTURE_CUBE_MAP)
+				else if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::TEXTURE_CUBE_MAP)
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 		}
@@ -877,7 +882,7 @@ public:
 			url += fShaderURL_;
 			if (!LoadShader(url.c_str(), fShaderCode))
 			{
-				printf("failed to load shader\n", url.c_str());
+				Platform::Debug("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
@@ -891,7 +896,7 @@ public:
 			url += commonShaderURL_;
 			if (!LoadShader(url.c_str(), commonShaderCode))
 			{
-				printf("failed to load shader\n", url.c_str());
+				Platform::Debug("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
@@ -919,10 +924,11 @@ protected:
 private:
 	bool enabled;
 
-	VertexArrayObject vertexArrayObject;
+	RenderStates renderStates;
 	ShaderProgram shaderProgram;
 	std::vector<Channel> iChannels;
 	FlipFrameBuffer* frameBuffer;
+	Primitives primitives;
 };
 
 class MacShaderDemo
@@ -1155,113 +1161,9 @@ public:
 		textures.push_back(texture);
 		return texture;
 	}
-
-	/*
-	Texture* GetTexture(const char* folder_, const char* file_, const char* type_)
-	{
-		std::string folder;
-		folder = folder_;
-		folder += "/";
-
-		std::string file = ToLower(file_);
-		if (file == "keyboard")
-		{
-
-		}
-		else if (file == "webcam")
-		{
-			WebcamTexture* texture = new WebcamTexture();
-			if (!texture)
-				return nullptr;
-			if (!texture->Create())
-			{
-				delete texture;
-				return nullptr;
-			}
-
-			textures.push_back(texture);
-			return texture;
-		}
-		else if (file == "microphone")
-		{
-			MicrophoneTexture* texture = new MicrophoneTexture();
-			if (!texture)
-				return nullptr;
-			if (!texture->Create())
-			{
-				delete texture;
-				return nullptr;
-			}
-
-			textures.push_back(texture);
-			return texture;
-		}
-		else if (file == "soundcloud")
-		{
-			SoundCloudTexture* texture = new SoundCloudTexture();
-			if (!texture)
-				return nullptr;
-			if (!texture->Create(file))
-			{
-				delete texture;
-				return nullptr;
-			}
-
-			textures.push_back(texture);
-			return texture;
-		}
-		else
-		{
-			std::string type = ToLower(type_);
-			if (type == "cube")
-			{
-				TextureCubeMapFile* texture = new TextureCubeMapFile();
-				if (!texture)
-					return nullptr;
-				if (!texture->Create(folder + file))
-				{
-					delete texture;
-					return nullptr;
-				}
-
-				textures.push_back(texture);
-				return texture;
-			}
-			else if (type == "video")
-			{
-				VideoTexture* texture = new VideoTexture();
-				if (!texture)
-					return nullptr;
-				if (!texture->Create(file))
-				{
-					delete texture;
-					return nullptr;
-				}
-
-				textures.push_back(texture);
-				return texture;
-			}
-			else //if (type == "2d")
-			{
-				Texture2DFile* texture = new Texture2DFile();
-				if (!texture)
-					return nullptr;
-				if (!texture->Create(folder + file))
-				{
-					delete texture;
-					return nullptr;
-				}
-
-				textures.push_back(texture);
-				return texture;
-			}
-		}
-	}
-	*/
-
 	void DebugLog(const char* msg)
 	{
-		printf("Error: %s\n", msg);
+		Platform::Debug("Error: %s\n", msg);
 	}
 
 	bool CreateScene(const char* folder_, const char* scenefile_)
@@ -1426,7 +1328,7 @@ public:
 												return false;
 											passes[i].SetChannelTexture(j, guiTexture);
 
-											for (int k = 0; k < guisJson.Size(); k++)
+											for (unsigned k = 0; k < guisJson.Size(); k++)
 											{
 												if (guisJson[k].IsObject())
 												{

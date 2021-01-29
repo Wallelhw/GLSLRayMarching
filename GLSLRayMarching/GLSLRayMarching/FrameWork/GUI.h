@@ -6,16 +6,13 @@
 // Date   : 05/Nov/2020															//
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
-#ifndef _System_h_
-#define _System_h_
+#ifndef _GUI_h_
+#define _GUI_h_
 
 #include "Platform.h"
 
-#include "String.h"
-
-class System
-{
-public:
-};
+#include "imgui\imgui.h"
+#include "imgui\imgui_impl_glfw.h"
+#include "imgui\imgui_impl_opengl3.h"
 
 #endif

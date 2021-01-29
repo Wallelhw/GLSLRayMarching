@@ -26,7 +26,7 @@
 
 	const char* Platform::Format(const char* format, ...)
 	{
-		char buffer[4096];
+		static char buffer[4096];
 
 		va_list aptr;
 		int ret;
@@ -35,7 +35,7 @@
 		ret = vsprintf(buffer, format, aptr);
 		va_end(aptr);
 
-		return(buffer);
+		return (const char*)buffer;
 	}
 
 	void Platform::Verbose(const char* format, ...)
