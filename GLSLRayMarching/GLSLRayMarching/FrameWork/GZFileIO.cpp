@@ -28,6 +28,8 @@
 #endif
 
 #include <zlib.h>
+
+#if 0
 #include <stdio.h>
 
 static const char hello[] = "hello, hello!";
@@ -110,6 +112,7 @@ void test_gzio(const char* fname, Byte* uncompr, uLong uncomprLen)
 	gzclose(file);
 #endif
 }
+#endif
 
 typedef struct
 {

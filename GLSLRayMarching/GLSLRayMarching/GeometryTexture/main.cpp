@@ -1,11 +1,13 @@
 #include "FrameWork.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
-#include "VertexArrayObject.h"
+#include "Primitives.h"
+#include "RenderStates.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 #include "Matrix4.h"
+#include "GUI.h"
 
 #define SCR_WIDTH (800*2)
 #define SCR_HEIGHT (400*2)
@@ -81,9 +83,9 @@ public:
 			1.0, 1.0
 		};
 
-		bool success = vertexArrayObject
+		bool success = primitives
 			.Begin()
-			.FillVertices(0, 2, VertexAttribute::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices) / sizeof(vertices[0]) / 2)
+			.FillVertices(0, 2, VertexAttribute::DataType::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices) / sizeof(vertices[0]) / 2)
 			.End();
 		if (!success)
 		{
@@ -94,21 +96,21 @@ public:
 		{
 			return false;
 		}
-		geometryTexture.SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-		geometryTexture.SetMagFilter(GL_LINEAR);
-		geometryTexture.SetWarpS(GL_CLAMP);
-		geometryTexture.SetWarpR(GL_CLAMP);
-		geometryTexture.SetWarpT(GL_CLAMP);
+		geometryTexture.SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
+		geometryTexture.SetMagFilter(Texture::MagFilter::LINEAR);
+		geometryTexture.SetWarpS(Texture::Wrap::CLAMP);
+		geometryTexture.SetWarpR(Texture::Wrap::CLAMP);
+		geometryTexture.SetWarpT(Texture::Wrap::CLAMP);
 
 		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
 		{
 			return false;
 		}
-		normalTexture.SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-		normalTexture.SetMagFilter(GL_LINEAR);
-		normalTexture.SetWarpS(GL_REPEAT);
-		normalTexture.SetWarpR(GL_REPEAT);
-		normalTexture.SetWarpT(GL_REPEAT);
+		normalTexture.SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
+		normalTexture.SetMagFilter(Texture::MagFilter::LINEAR);
+		normalTexture.SetWarpS(Texture::Wrap::REPEAT);
+		normalTexture.SetWarpR(Texture::Wrap::REPEAT);
+		normalTexture.SetWarpT(Texture::Wrap::REPEAT);
 
 		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
 		{
@@ -170,17 +172,30 @@ public:
 		camera.SetProjectionTransform(projectionTransform);
 
 		//////////////////////////////////////////////////////
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClearDepth(1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderStates.scissorTestState.enabled = true;
+		renderStates.scissorTestState.pos = Vector2(0, 0);
+		renderStates.scissorTestState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
+		renderStates.viewportState.pos = Vector2(0, 0);
+		renderStates.viewportState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
 
-		if(wireframe)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		renderStates.clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+
+		renderStates.clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+		renderStates.clearState.clearDepth = 1.0f;
+		renderStates.clearState.clearStencil = 0;
+		renderStates.clearState.enableClearColor = true;
+		renderStates.clearState.enableClearDepth = true;
+		renderStates.clearState.enableClearStencil = true;
+
+		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
+		if (wireframe)
+			renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
 		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+		renderStates.depthTestState.enabled = true;
+		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
+		renderStates.Apply();
 
 		geometryTexture.Bind(0);
 		normalTexture.Bind(1);
@@ -194,12 +209,12 @@ public:
 
 		geometryTextureShaderProgram.SetUniform1i("lod", lod);
 
-		float scale = pow(2.0, floor(lod));
-		int triangleCount = GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale);
-		printf("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
+		float scale = powf(2.0f, floor(lod));
+		int triangleCount = (int)(GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale));
+		Platform::Debug("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
 
-		vertexArrayObject.Bind();
-		vertexArrayObject.DrawArrayInstanced(GL_TRIANGLES, 0, vertexArrayObject.GetCount(), triangleCount);
+		primitives.Bind();
+		primitives.DrawArrayInstanced(Primitives::Mode::TRIANGLES, 0, primitives.GetCount(), triangleCount);
 
 		return true;
 	}
@@ -210,18 +225,17 @@ public:
 		normalTexture.Destroy();
 
 		geometryTextureShaderProgram.Destroy();
-		vertexArrayObject.Destroy();
+		primitives.Destroy();
 	}
 private:
-	Texture2DFile geometryTexture;
-	Texture2DFile normalTexture;
-
-	ShaderProgram geometryTextureShaderProgram;
-
 	Matrix4 worldTransform;
 	Camera camera;
 
-	VertexArrayObject vertexArrayObject;
+	Texture2DFile geometryTexture;
+	Texture2DFile normalTexture;
+	ShaderProgram geometryTextureShaderProgram;
+	RenderStates renderStates;
+	Primitives primitives;
 };
 
 int main()

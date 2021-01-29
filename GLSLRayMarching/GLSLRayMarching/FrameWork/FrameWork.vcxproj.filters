@@ -14,6 +14,12 @@
     <Filter Include="Source Files\Maths">
       <UniqueIdentifier>{47ea57a0-863f-4827-83c6-6a7c375d1f1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{b6cea35d-ac59-4129-bc06-6832ec0fdbe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{0b892241-ed44-4780-8c0e-8285fe49ea83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -43,16 +49,10 @@
     <ClCompile Include="ColorRGBA.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
-    <ClCompile Include="InputStream.cpp">
-      <Filter>Source Files\Maths</Filter>
-    </ClCompile>
     <ClCompile Include="Maths.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
     <ClCompile Include="Matrix4.cpp">
-      <Filter>Source Files\Maths</Filter>
-    </ClCompile>
-    <ClCompile Include="OutputStream.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
     <ClCompile Include="Plane3.cpp">
@@ -76,35 +76,56 @@
     <ClCompile Include="Vector4.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
-    <ClCompile Include="Platform.cpp">
-      <Filter>Source Files\Maths</Filter>
-    </ClCompile>
-    <ClCompile Include="System.cpp">
-      <Filter>Source Files\Maths</Filter>
-    </ClCompile>
-    <ClCompile Include="GZFileIO.cpp">
-      <Filter>Source Files\Maths</Filter>
-    </ClCompile>
     <ClCompile Include="IO.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
     <ClCompile Include="FileIO.cpp">
-      <Filter>Source Files\Maths</Filter>
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="GZFileIO.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="InputStream.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputStream.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStates.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Material.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderProgram.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexArrayObject.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imgui.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
@@ -120,12 +141,6 @@
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="FrameWork.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="AABB3.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
@@ -135,16 +150,10 @@
     <ClInclude Include="ColorRGBA.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
-    <ClInclude Include="InputStream.h">
-      <Filter>Source Files\Maths</Filter>
-    </ClInclude>
     <ClInclude Include="Maths.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
     <ClInclude Include="Matrix4.h">
-      <Filter>Source Files\Maths</Filter>
-    </ClInclude>
-    <ClInclude Include="OutputStream.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
     <ClInclude Include="Plane3.h">
@@ -171,23 +180,50 @@
     <ClInclude Include="Vector4.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform.h">
-      <Filter>Source Files\Maths</Filter>
-    </ClInclude>
-    <ClInclude Include="System.h">
-      <Filter>Source Files\Maths</Filter>
-    </ClInclude>
-    <ClInclude Include="GZFileIO.h">
-      <Filter>Source Files\Maths</Filter>
-    </ClInclude>
     <ClInclude Include="IO.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
     <ClInclude Include="FileIO.h">
-      <Filter>Source Files\Maths</Filter>
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="GZFileIO.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStream.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputStream.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStates.h">
+      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
