@@ -2,8 +2,21 @@
 #define _ShaderProgram_h_
 
 #include "Platform.h"
+#include <vector>
+
 class ShaderProgramImpl;
 class Buffer;
+
+class ShaderProgramBinary
+{
+public:
+	ShaderProgramBinary()
+	{
+	}
+
+	unsigned int format;
+	std::vector<unsigned char> buffer;
+};
 
 class ShaderProgram
 {
@@ -11,9 +24,13 @@ public:
 	ShaderProgram();
 	virtual ~ShaderProgram();
 
-	bool CreateFromBuffer(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr);
 	bool Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 	void Destroy();
+	bool CreateFromSource(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr);
+	void GetProgramBinary(ShaderProgramBinary& binary);
+	bool CreateFromBinary(const ShaderProgramBinary& binary);
+	unsigned int GetHandle() const;
+
 	void Bind() const;
 	void Unbind() const;
 	
@@ -37,9 +54,9 @@ public:
 	void SetUniformMatrix3fv(const char* name_, int count_, const float* v_);
 	void SetUniformMatrix4fv(const char* name_, int count_, const float* v_);
 
-	void BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_);
+	void BindShaderStorageBuffer(Buffer& buffer_, /*const char* name_,*/ unsigned int bindingPoint_);
 
-	unsigned int GetHandle() const;
+	static void ReleaseShaderCompiler();
 private:
 	bool CheckCompileErrors(unsigned int shader, std::string type) const;
 

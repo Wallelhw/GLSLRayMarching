@@ -4,13 +4,15 @@
 #include "Platform.h"
 
 #include "Texture.h"
+#include "Rect2.h"
+#include "ColorRGBA.h"
 
 class FrameBufferImpl;
 
 class FrameBuffer
 {
 public:
-	enum class Attachment
+	enum class ColorAttachment
 	{
 		COLOR_ATTACHMENT0 = 0,
 		COLOR_ATTACHMENT1,
@@ -43,7 +45,7 @@ public:
 		COLOR_ATTACHMENT28,
 		COLOR_ATTACHMENT29,
 		COLOR_ATTACHMENT30,
-		COLOR_ATTACHMENT31
+		COLOR_ATTACHMENT31,
 //		DEPTH_ATTACHMENT,
 //		STENCIL_ATTACHMENT
 	};
@@ -54,25 +56,40 @@ public:
 		DontCare
 	};
 
+	enum BlitMask
+	{
+		COLOR_BUFFER_BIT = 0x01, 
+		DEPTH_BUFFER_BIT = 0x02,
+		STENCIL_BUFFER_BIT = 0x04
+	};
+
 	FrameBuffer();
 	virtual ~FrameBuffer();
 	
 	virtual bool Create();
 	virtual void Destroy();
 	
+	friend void Copy(FrameBuffer& src_, const Rect2& srcRect_, FrameBuffer& dst_, const Rect2& dstRect_, BlitMask blitMask_, Texture::MagFilter filter);
+
 	bool Bind();
 	void UnBind();
 
-	void SetColorAttachment(FrameBuffer::Attachment attachment_, Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
+	void SetColorAttachment(FrameBuffer::ColorAttachment colorAttachment_, Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
 	void SetDepthAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
 	void SetStencilAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
 	void SetDepthStencilAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
-	void Invalidate(int x=-1, int y = -1, int w = -1, int h = -1) const;
+	const Texture* GetColorAttachment(FrameBuffer::ColorAttachment colorAttachment_) const;
+	const Texture* GetDepthAttachment() const;
+	const Texture* GetStencilAttachment() const;
+	const Texture* GetDepthStencilAttachment() const;
+	void ClearColorAttachment(FrameBuffer::ColorAttachment colorAttachment_, const ColorRGBA& color_);
+	void ClearDepthAttachment(float clearDepth_);
+	void ClearStencilAttachment(int clearStencil_);
+	void ClearDepthStencilAttachment(float clearDepth_, int clearStencil_);
 
-	virtual const Texture* GetColorAttachment(FrameBuffer::Attachment attachment) const;
-	virtual const Texture* GetDepthAttachment() const;
-	virtual const Texture* GetStencilAttachment() const;
-	virtual const Texture* GetDepthStencilAttachment() const;
+	void Invalidate(int x = -1, int y = -1, int w = -1, int h = -1) const;
+
+	static void EnableDrawBuffers(std::vector<FrameBuffer::ColorAttachment> attachments_);
 protected:
 	bool IsframeBufferComplete() const;
 private:
