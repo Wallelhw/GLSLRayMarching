@@ -83,188 +83,262 @@ static unsigned int texGLPixelFormats[] =
 	GL_UNSIGNED_INT_2_10_10_10_REV
 };
 
+class TextureImpl
+{
+public:
+	TextureImpl(Texture::Type type_)
+		: type(type_)
+		, format(Texture::Format::RGBA)
+		, internalformat(GL_RGBA)
+		, pixelFormat(Texture::PixelFormat::UNSIGNED_BYTE)
+		, handle(0)
+
+		, warpS(Texture::Wrap::REPEAT)
+		, warpT(Texture::Wrap::REPEAT)
+		, warpR(Texture::Wrap::REPEAT)
+		, minFilter(Texture::MinFilter::NEAREST)
+		, magFilter(Texture::MagFilter::NEAREST)
+	{
+	}
+
+	Texture::Type type;
+	Texture::Format format;
+	unsigned internalformat;
+	Texture::PixelFormat pixelFormat;
+	unsigned int handle;
+
+	Texture::Wrap warpS;
+	Texture::Wrap warpR;
+	Texture::Wrap warpT;
+	Texture::MinFilter minFilter;
+	Texture::MagFilter magFilter;
+};
+
 ////////////////////////////////////////////////////////////////////////
 Texture::Texture(Texture::Type type_)
-	: handle(0)
-	, type(type_)
-	, format(Texture::Format::RGBA)
-	, internalformat(GL_RGBA)
-	, pixelFormat(Texture::PixelFormat::UNSIGNED_BYTE)
-
-	, warpS(Texture::Wrap::REPEAT)
-	, warpT(Texture::Wrap::REPEAT)
-	, warpR(Texture::Wrap::REPEAT)
-
-	, minFilter(Texture::MinFilter::NEAREST)
-	, magFilter(Texture::MagFilter::NEAREST)
+: impl(nullptr)
 {
+	impl = new TextureImpl(type_);
 }
 
 Texture::~Texture()
 {
+	Destroy();
+
+	if (impl)
+	{
+		delete impl;
+		impl = nullptr;
+	}
 }
 
 bool Texture::Create()
 {
+	Assert(impl);
+
 	return true;
 }
 
 void Texture::Destroy()
 {
-}
+	Assert(impl);
 
-void Texture::Bind(unsigned int texStage_) const
-{
-	if (handle)
+	if (impl->handle)
 	{
-		glActiveTexture(GL_TEXTURE0 + texStage_);
-		glBindTexture(texGLTypes[(int)type], handle);
+		glDeleteTextures(1, &impl->handle);
 
-		glTexParameteri(texGLTypes[(int)type], GL_TEXTURE_WRAP_S, texGLWraps[(int)warpS]);
-		glTexParameteri(texGLTypes[(int)type], GL_TEXTURE_WRAP_T, texGLWraps[(int)warpT]);
-		glTexParameteri(texGLTypes[(int)type], GL_TEXTURE_WRAP_R, texGLWraps[(int)warpR]);
-		glTexParameteri(texGLTypes[(int)type], GL_TEXTURE_MIN_FILTER, texGLMinFilters[(int)minFilter]);
-		glTexParameteri(texGLTypes[(int)type], GL_TEXTURE_MAG_FILTER, texGLMagFilters[(int)magFilter]);
+		impl->handle = 0;
 	}
 }
 
-void Texture::Unbind() const
+void Texture::Bind(unsigned int texStage_)
 {
-	glBindTexture(texGLTypes[(int)type], 0);
+	Assert(impl);
+
+	if (impl->handle)
+	{
+		glActiveTexture(GL_TEXTURE0 + texStage_);
+		glBindTexture(texGLTypes[(int)impl->type], impl->handle);
+
+		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_S, texGLWraps[(int)impl->warpS]);
+		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_T, texGLWraps[(int)impl->warpT]);
+		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_R, texGLWraps[(int)impl->warpR]);
+		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_MIN_FILTER, texGLMinFilters[(int)impl->minFilter]);
+		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_MAG_FILTER, texGLMagFilters[(int)impl->magFilter]);
+	}
 }
 
-void Texture::SetWarpS(Texture::Wrap warpS_)
+void Texture::Unbind()
 {
-	warpS = warpS_;
-}
+	Assert(impl);
 
-void Texture::SetWarpT(Texture::Wrap warpT_)
-{
-	warpT = warpT_;
-}
-
-void Texture::SetWarpR(Texture::Wrap warpR_)
-{
-	warpR = warpR_;
-}
-
-void Texture::SetMinFilter(Texture::MinFilter minFilter_)
-{
-	minFilter = minFilter_;
-}
-
-void Texture::SetMagFilter(Texture::MagFilter magFilter_)
-{
-	magFilter = magFilter_;
-}
-
-Texture::Wrap Texture::GetWarpS() const
-{
-	return warpS;
-}
-
-Texture::Wrap Texture::GetWarpT() const
-{
-	return warpT;
-}
-
-Texture::Wrap Texture::GetWarpR() const
-{
-	return warpR;
-}
-
-Texture::MinFilter Texture::GetMinFilter() const
-{
-	return minFilter;
-}
-
-Texture::MagFilter Texture::GetMagFilter() const
-{
-	return magFilter;
+	glBindTexture(texGLTypes[(int)impl->type], 0);
 }
 
 Texture::Type Texture::GetType()  const
 {
-	return type;
+	Assert(impl);
+
+	return impl->type;
 }
 
 Texture::Format Texture::GetFormat()  const
 {
-	return format;
+	Assert(impl);
+
+	return impl->format;
 }
 
 Texture::PixelFormat Texture::GetPixelFormat()  const
 {
-	return pixelFormat;
+	Assert(impl);
+
+	return impl->pixelFormat;
 }
 
 unsigned int Texture::GetHandle() const
 {
-	return handle;
+	Assert(impl);
+
+	return impl->handle;
+}
+
+void Texture::SetWarpS(Texture::Wrap warpS_)
+{
+	Assert(impl);
+
+	impl->warpS = warpS_;
+}
+
+void Texture::SetWarpT(Texture::Wrap warpT_)
+{
+	Assert(impl);
+
+	impl->warpT = warpT_;
+}
+
+void Texture::SetWarpR(Texture::Wrap warpR_)
+{
+	Assert(impl);
+
+	impl->warpR = warpR_;
+}
+
+void Texture::SetMinFilter(Texture::MinFilter minFilter_)
+{
+	Assert(impl);
+
+	impl->minFilter = minFilter_;
+}
+
+void Texture::SetMagFilter(Texture::MagFilter magFilter_)
+{
+	Assert(impl);
+
+	impl->magFilter = magFilter_;
+}
+
+Texture::Wrap Texture::GetWarpS() const
+{
+	Assert(impl);
+
+	return impl->warpS;
+}
+
+Texture::Wrap Texture::GetWarpT() const
+{
+	Assert(impl);
+
+	return impl->warpT;
+}
+
+Texture::Wrap Texture::GetWarpR() const
+{
+	Assert(impl);
+
+	return impl->warpR;
+}
+
+Texture::MinFilter Texture::GetMinFilter() const
+{
+	Assert(impl);
+
+	return impl->minFilter;
+}
+
+Texture::MagFilter Texture::GetMagFilter() const
+{
+	Assert(impl);
+
+	return impl->magFilter;
 }
 
 void Texture::SetFormat(unsigned int internalformat, Texture::Format format, Texture::Type type)
 {
-	this->internalformat = internalformat;
-	this->format = format;
-	this->type = type;
+	Assert(impl);
+
+	impl->internalformat = internalformat;
+	impl->format = format;
+	impl->type = type;
 }
 
 void Texture::SetFormat(unsigned int nrComponents, bool isHDR)
 {
+	Assert(impl);
+
 	if (nrComponents == 1)
 	{
-		format = Texture::Format::RED;
+		impl->format = Texture::Format::RED;
 		if (isHDR)
 		{
-			internalformat = GL_R32F;
+			impl->internalformat = GL_R32F;
 		}
 		else
 		{
-			internalformat = GL_R16;
+			impl->internalformat = GL_R16;
 		}
 	}
 	else if (nrComponents == 2)
 	{
-		format = Texture::Format::RG;
+		impl->format = Texture::Format::RG;
 		if (isHDR)
 		{
-			internalformat = GL_RG32F;
+			impl->internalformat = GL_RG32F;
 		}
 		else
 		{
-			internalformat = GL_RG16;
+			impl->internalformat = GL_RG16;
 		}
 	}
 	else if (nrComponents == 3)
 	{
-		format = Texture::Format::RGB;
+		impl->format = Texture::Format::RGB;
 		if (isHDR)
 		{
-			internalformat = GL_RGB32F;
+			impl->internalformat = GL_RGB32F;
 		}
 		else
 		{
-			internalformat = GL_RGB;
+			impl->internalformat = GL_RGB;
 		}
 	}
 	else if (nrComponents == 4)
 	{
-		format = Texture::Format::RGBA;
+		impl->format = Texture::Format::RGBA;
 		if (isHDR)
 		{
-			internalformat = GL_RGBA32F;
+			impl->internalformat = GL_RGBA32F;
 		}
 		else
 		{
-			internalformat = GL_RGBA;
+			impl->internalformat = GL_RGBA;
 		}
 	}
 
 	if (isHDR)
-		pixelFormat = Texture::PixelFormat::FLOAT;
+		impl->pixelFormat = Texture::PixelFormat::FLOAT;
 	else
-		pixelFormat = Texture::PixelFormat::UNSIGNED_BYTE;
+		impl->pixelFormat = Texture::PixelFormat::UNSIGNED_BYTE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -273,27 +347,35 @@ Texture2D::Texture2D()
 	, width(0)
 	, height(0)
 {
+	Assert(impl);
 }
 
 Texture2D::~Texture2D()
 {
+	Assert(impl);
+
+	Destroy();
 }
 
-bool Texture2D::Create(unsigned int width, unsigned int height, unsigned int internalformat, Texture::Format format, Texture::Type type, void* data)
+bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int internalformat_, Texture::Format format_, Texture::Type type_, void* data_)
 {
-	SetFormat(internalformat, format, type);
+	Assert(impl);
 
-	this->width = width;
-	this->height = height;
-	glGenTextures(1, &this->handle);
-	glBindTexture(GL_TEXTURE_2D, this->handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data);
+	SetFormat(internalformat_, format_, impl->type);
+
+	width = width_;
+	height = height_;
+	glGenTextures(1, &impl->handle);
+	glBindTexture(GL_TEXTURE_2D, impl->handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalformat_, width_, height_, 0, texGLFormats[(int)format_], texGLPixelFormats[(int)impl->pixelFormat], data_);
 
 	return Texture::Create();
 }
 
 bool Texture2D::Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR, void* data, bool vflip)
 {
+	Assert(impl);
+
 	SetFormat(nrComponents, isHDR);
 
 	if (isHDR)
@@ -309,9 +391,9 @@ bool Texture2D::Create(unsigned int width, unsigned int height, unsigned int nrC
 
 	this->width = width;
 	this->height = height;
-	glGenTextures(1, &this->handle);
-	glBindTexture(GL_TEXTURE_2D, this->handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data);
+	glGenTextures(1, &this->impl->handle);
+	glBindTexture(GL_TEXTURE_2D, this->impl->handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, impl->internalformat, width, height, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	return Texture::Create();
@@ -319,36 +401,43 @@ bool Texture2D::Create(unsigned int width, unsigned int height, unsigned int nrC
 
 void Texture2D::Update()
 {
+	Assert(impl);
 }
 
 void Texture2D::UpdateData(void* data)
 {
-	glBindTexture(GL_TEXTURE_2D, this->handle);
+	Assert(impl);
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data);
+	glBindTexture(GL_TEXTURE_2D, impl->handle);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data);
 }
 
 void Texture2D::Destroy()
 {
-	if (handle)
-	{
-		glDeleteTextures(1, &handle);
-		handle = 0;
-	}
+	Assert(impl);
+
+	return Texture::Destroy();
 }
 
 void Texture2D::GetResolution(Vector3& resolution) const
 {
-	resolution = Vector3(width, height, 1.0);
+	Assert(impl);
+
+	resolution = Vector3((float)width, (float)height, 1.0f);
 }
 
 unsigned int Texture2D::GetWidth() const
 {
+	Assert(impl);
+
 	return width;
 }
 
 unsigned int Texture2D::GetHeight() const
 {
+	Assert(impl);
+
 	return height;
 }
 
@@ -360,10 +449,15 @@ Texture2DFile::Texture2DFile()
 
 Texture2DFile::~Texture2DFile()
 {
+	Assert(impl);
+
+	Destroy();
 }
 
 bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 {
+	Assert(impl);
+
 	bool isHDR = stbi_is_hdr(path_.c_str());
 
 	int width, height, nrComponents;
@@ -394,11 +488,9 @@ bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 
 void Texture2DFile::Destroy()
 {
-	if (handle)
-	{
-		glDeleteTextures(1, &handle);
-		handle = 0;
-	}
+	Assert(impl);
+
+	return Texture::Destroy();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -411,10 +503,15 @@ TextureCubeMap::TextureCubeMap()
 
 TextureCubeMap::~TextureCubeMap()
 {
+	Assert(impl);
+
+	Destroy();
 }
 
 bool TextureCubeMap::Create(unsigned int size, unsigned int nrComponents, bool isHDR, void* data, bool vflip)
 {
+	Assert(impl);
+
 	this->size = size;
 	SetFormat(nrComponents, isHDR);
 	if (isHDR)
@@ -424,14 +521,14 @@ bool TextureCubeMap::Create(unsigned int size, unsigned int nrComponents, bool i
 
 	unsigned char* dataPtr = (unsigned char*)data;
 
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, internalformat, size, size, 0, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glGenTextures(1, &impl->handle);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
 	return Texture::Create();
@@ -439,38 +536,43 @@ bool TextureCubeMap::Create(unsigned int size, unsigned int nrComponents, bool i
 
 void TextureCubeMap::Destroy()
 {
-	if (handle)
-	{
-		glDeleteTextures(1, &handle);
-		handle = 0;
-	}
+	Assert(impl);
+
+	return Texture::Destroy();
 }
 
 void TextureCubeMap::Update()
 {
+	Assert(impl);
 }
 
 void TextureCubeMap::UpdateData(void* data)
 {
+	Assert(impl);
+
 	unsigned char* dataPtr = (unsigned char*)data;
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)format], texGLPixelFormats[(int)pixelFormat], data); dataPtr += faceDataSize;
+	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
+	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 void TextureCubeMap::GetResolution(Vector3& resolution) const
 {
+	Assert(impl);
+
 	resolution = Vector3(size, size, 1.0);
 }
 
 unsigned int TextureCubeMap::GetSize() const
 {
+	Assert(impl);
+
 	return size;
 }
 
@@ -481,10 +583,15 @@ TextureCubeMapFile::TextureCubeMapFile()
 
 TextureCubeMapFile::~TextureCubeMapFile()
 {
+	Assert(impl);
+
+	Destroy();
 }
 
 bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 {
+	Assert(impl);
+
 	bool isHDR = stbi_is_hdr(path_.c_str());
 
 	int width, height, nrComponents;
@@ -510,9 +617,7 @@ bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 
 void TextureCubeMapFile::Destroy()
 {
-	if (handle)
-	{
-		glDeleteTextures(1, &handle);
-		handle = 0;
-	}
+	Assert(impl);
+
+	return Texture::Destroy();
 }

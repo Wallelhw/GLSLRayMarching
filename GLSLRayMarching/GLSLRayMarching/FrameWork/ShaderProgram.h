@@ -2,8 +2,8 @@
 #define _ShaderProgram_h_
 
 #include "Platform.h"
-
 class ShaderProgramImpl;
+class Buffer;
 
 class ShaderProgram
 {
@@ -14,8 +14,8 @@ public:
 	bool CreateFromBuffer(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr);
 	bool Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 	void Destroy();
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
 	
 	void SetUniform1i(const char* name_, int v0_);
 	void SetUniform2i(const char* name_, int v0_, int v1_);
@@ -36,7 +36,13 @@ public:
 	void SetUniformMatrix2fv(const char* name_, int count_, const float* v_);
 	void SetUniformMatrix3fv(const char* name_, int count_, const float* v_);
 	void SetUniformMatrix4fv(const char* name_, int count_, const float* v_);
+
+	void BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_);
+
+	unsigned int GetHandle() const;
 private:
+	bool CheckCompileErrors(unsigned int shader, std::string type) const;
+
 	ShaderProgramImpl* impl;
 };
 

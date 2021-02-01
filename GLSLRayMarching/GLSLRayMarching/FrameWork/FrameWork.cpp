@@ -43,14 +43,16 @@ public:
 
 FrameWork* FrameWork::instance = nullptr;
 
-//static void framebuffer_size_callback(void* window, int width, int height);
-//static void processInput(void* window);
-
 void FrameWork::framebuffer_size_callback(void* win, int width, int height)
 {
 	GLFWwindow* window = (GLFWwindow*)win;
 	instance->impl->width = width;
 	instance->impl->height = height;
+}
+
+void glfw_error_callback(int error_code, const char* description)
+{
+	Platform::Debug("GLFW Error: [%d] %s\n", error_code, description);
 }
 
 void FrameWork::processInput(void* win)
@@ -157,6 +159,8 @@ bool FrameWork::Create(int width_, int height_)
 
 	glfwMakeContextCurrent(impl->window);
 	glfwSetFramebufferSizeCallback(impl->window, (void (*)(GLFWwindow*, int, int))(framebuffer_size_callback) );
+
+	//glfwSetErrorCallback(glfw_error_callback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{

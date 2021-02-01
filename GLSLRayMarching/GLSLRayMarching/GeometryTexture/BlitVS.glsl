@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 layout (location = 0) in vec2 uvs;
 
 uniform mat4 worldTransform;
@@ -10,6 +10,17 @@ uniform sampler2D normalTexture;
 uniform int lod;
 
 out vec4 color;
+
+struct Vertex4
+{
+	float px[4]; // position x
+    float py[4]; // position y
+};
+
+layout(std430, binding=0) buffer VertexData
+{
+	Vertex4 vertices[];
+};
 
 void main()
 {
@@ -24,7 +35,13 @@ void main()
 
 	vec4 pos;
 	pos.xyz = (position.xyz - 0.5);
+	pos.x += vertices[0].px[0];
+	pos.y += vertices[0].px[1];
+	pos.z += vertices[0].px[2];
 	pos.w = 1.0;
+
+	// vertices[0].px[0] += 0.1;//0.1 * gl_VertexID;
+
 	gl_Position = projTransform * viewTransform * worldTransform * pos;
 
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);

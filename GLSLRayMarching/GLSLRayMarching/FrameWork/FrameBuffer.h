@@ -5,6 +5,8 @@
 
 #include "Texture.h"
 
+class FrameBufferImpl;
+
 class FrameBuffer
 {
 public:
@@ -46,28 +48,36 @@ public:
 //		STENCIL_ATTACHMENT
 	};
 
+	enum PixelStorage
+	{
+		Store = 0,
+		DontCare
+	};
+
 	FrameBuffer();
 	virtual ~FrameBuffer();
 	
 	virtual bool Create();
 	virtual void Destroy();
 	
-	virtual void Bind();
-	static void UnBind();
+	bool Bind();
+	void UnBind();
 
-	virtual void SetColorAttachment(FrameBuffer::Attachment attachment, Texture* texture);
-	virtual void SetDepthAttachment(Texture* texture);
-	virtual void SetStencilAttachment(Texture* texture);
-	
-	virtual Texture* GetColorAttachment(FrameBuffer::Attachment attachment);
-	virtual Texture* GetDepthAttachment();
-	virtual Texture* GetStencilAttachment();
+	void SetColorAttachment(FrameBuffer::Attachment attachment_, Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
+	void SetDepthAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
+	void SetStencilAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
+	void SetDepthStencilAttachment(Texture* texture_, PixelStorage pixelStorage_ = FrameBuffer::PixelStorage::Store);
+	void Invalidate(int x=-1, int y = -1, int w = -1, int h = -1) const;
+
+	virtual const Texture* GetColorAttachment(FrameBuffer::Attachment attachment) const;
+	virtual const Texture* GetDepthAttachment() const;
+	virtual const Texture* GetStencilAttachment() const;
+	virtual const Texture* GetDepthStencilAttachment() const;
+protected:
+	bool IsframeBufferComplete() const;
 private:
 private:
-	unsigned int fbo;
-	std::map<FrameBuffer::Attachment, Texture*> colorAttachments;
-	Texture* depthAttachment;
-	Texture* stencilAttachment;
+	FrameBufferImpl* impl;
 };
 
 class Texture2DFrameBuffer : public FrameBuffer
@@ -80,6 +90,7 @@ public:
 	virtual void Destroy();
 	
 	Texture* GetTexture();
+	const Texture* GetTexture() const;
 private:
 	Texture2D texture;
 };
@@ -94,6 +105,7 @@ public:
 	virtual void Destroy();
 
 	Texture* GetTexture();
+	const Texture* GetTexture() const;
 private:
 	TextureCubeMap texture;
 };

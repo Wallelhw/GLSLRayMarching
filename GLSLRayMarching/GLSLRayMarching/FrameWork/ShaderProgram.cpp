@@ -1,42 +1,13 @@
 #include "Platform.h"
-#include "ShaderProgram.h"
 #include "Graphics.h"
+#include "ShaderProgram.h"
+#include "Buffer.h"
 
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
-static bool CheckCompileErrors(unsigned int shader, std::string type)
-{
-	GLint success = 0;
-	GLchar infoLog[1024];
-	if (type != "PROGRAM")
-	{
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-
-			return false;
-		}
-	}
-	else
-	{
-		glGetProgramiv(shader, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-
-			return false;
-		}
-	}
-
-	return true;
-}
 
 class ShaderProgramImpl
 {
@@ -58,6 +29,8 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
+	Assert(impl);
+
 	Destroy();
 
 	if (impl)
@@ -70,6 +43,8 @@ ShaderProgram::~ShaderProgram()
 bool ShaderProgram::CreateFromBuffer(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode)
 {
 	Assert(impl);
+
+	Destroy();
 
 	// 2. compile shaders
 	unsigned int vertex, fragment, geometry;
@@ -199,15 +174,15 @@ void ShaderProgram::Destroy()
 	}
 }
 
-void ShaderProgram::Bind()
+void ShaderProgram::Bind() const
 {
 	Assert(impl);
+	Assert(impl->handle);
 
-	if (impl->handle)
-		glUseProgram(impl->handle);
+	glUseProgram(impl->handle);
 }
 
-void ShaderProgram::Unbind()
+void ShaderProgram::Unbind() const
 {
 	Assert(impl);
 
@@ -383,4 +358,50 @@ void ShaderProgram::SetUniformMatrix4fv(const char* name_, int count_, const flo
 	int idx = glGetUniformLocation(impl->handle, name_);
 
 	glUniformMatrix4fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)
+{
+	Assert(impl);
+
+	buffer_.BindShaderStorage(*this, name_, bindingPoint_);
+}
+
+unsigned int ShaderProgram::GetHandle() const
+{
+	Assert(impl);
+
+	return impl->handle;
+}
+
+bool ShaderProgram::CheckCompileErrors(unsigned int shader, std::string type) const
+{
+	Assert(impl);
+
+	GLint success = 0;
+	GLchar infoLog[1024];
+	if (type != "PROGRAM")
+	{
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+			Platform::Debug("ERROR::SHADER_COMPILATION_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
+
+			return false;
+		}
+	}
+	else
+	{
+		glGetProgramiv(shader, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+			Platform::Debug("ERROR::PROGRAM_LINKING_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
+
+			return false;
+		}
+	}
+
+	return true;
 }

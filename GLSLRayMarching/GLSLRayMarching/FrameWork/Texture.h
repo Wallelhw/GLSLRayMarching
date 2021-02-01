@@ -4,6 +4,8 @@
 #include "Platform.h"
 #include "Vector3.h"
 
+class TextureImpl;
+
 class Texture
 {
 public:
@@ -90,10 +92,13 @@ public:
 	virtual bool Create();
 	virtual void Destroy();
 
-	void Bind(unsigned int texStage_) const;
-	void Unbind() const;
-
-	virtual void Update() = 0;
+	void Bind(unsigned int texStage_);
+	void Unbind();
+	
+	Texture::Type GetType()  const;
+	Texture::Format GetFormat()  const;
+	Texture::PixelFormat GetPixelFormat()  const;
+	unsigned int GetHandle() const;
 
 	void SetWarpS(Texture::Wrap warpS_);
 	void SetWarpT(Texture::Wrap warpT_);
@@ -105,12 +110,8 @@ public:
 	Texture::Wrap GetWarpR() const;
 	Texture::MinFilter GetMinFilter() const;
 	Texture::MagFilter GetMagFilter() const;
-	Texture::Type GetType()  const;
-	Texture::Format GetFormat()  const;
-	Texture::PixelFormat GetPixelFormat()  const;
 
-	unsigned int GetHandle() const;
-
+	virtual void Update() = 0;
 	virtual void GetResolution(Vector3& resolution) const = 0;
 public:
 protected:
@@ -119,18 +120,7 @@ protected:
 private:
 public:
 protected:
-	unsigned int handle;
-
-	Texture::Type type;
-	Texture::Format format;
-	unsigned internalformat;
-	Texture::PixelFormat pixelFormat;
-
-	Texture::Wrap warpS;
-	Texture::Wrap warpR;
-	Texture::Wrap warpT;
-	Texture::MinFilter minFilter;
-	Texture::MagFilter magFilter;
+	TextureImpl* impl;
 private:
 };
 

@@ -2,6 +2,7 @@
 #define _Primitives_h_
 
 #include "Platform.h"
+#include <map>
 
 class VertexAttribute
 {
@@ -90,11 +91,10 @@ public:
 	unsigned int GetCount();
 private:
 private:
-	bool initialized;
-	std::vector<VertexAttribute> vertexAttributes;
-	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int EBO;
+	std::map<int, VertexAttribute> vertexAttributes;
+	std::map<int, unsigned int> vbos;
+	unsigned int vao;
+	unsigned int ebo;
 	unsigned int verticesCount;
 	unsigned int indicesCount;
 };
