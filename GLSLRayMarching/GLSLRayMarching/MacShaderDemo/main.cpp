@@ -487,7 +487,8 @@ public:
 	virtual void Flip()
 	{
 		FlipFrameBuffer::Flip();
-
+		
+		//Invalidate();
 		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
 private:
@@ -601,9 +602,9 @@ public:
 		{
 			//if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
 				//facecount = 6;
-			
-			frameBuffer->GetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
 			frameBuffer->Bind();
+
+			frameBuffer->GetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
 
 			renderStates.viewportState.pos = Vector2(0, 0);
 			renderStates.viewportState.size = Vector2(resolution[0], resolution[1]);
@@ -614,8 +615,6 @@ public:
 		}
 		else
 		{
-			FrameBuffer::UnBind();
-
 			renderStates.viewportState.pos = Vector2(0, 0);
 			renderStates.viewportState.size = Vector2(width, height);
 
@@ -1616,7 +1615,6 @@ public:
 		//return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
 		return macShaderDemo.Create("Demos/Scattering/VolumetricIntegration");
 		return macShaderDemo.Create("Demos/Waters/Spout");
-		
 	}
 
 	virtual bool OnUpdate() override

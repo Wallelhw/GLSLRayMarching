@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB3.cpp" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Capsule3.cpp" />
     <ClCompile Include="ColorRGBA.cpp" />
     <ClCompile Include="FileIO.cpp" />
@@ -212,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB3.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="Capsule3.h" />
     <ClInclude Include="ColorRGBA.h" />
     <ClInclude Include="FileIO.h" />

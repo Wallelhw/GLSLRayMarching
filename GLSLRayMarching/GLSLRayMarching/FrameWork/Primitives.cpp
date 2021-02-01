@@ -70,11 +70,10 @@ static int primModes[] =
 };
 
 Primitives::Primitives()
-: initialized(false)
+: vao(0)
 , vertexAttributes()
-, VAO(0)
-, VBO(0)
-, EBO(0)
+, vbos()
+, ebo(0)
 , verticesCount(0)
 , indicesCount(0)
 {
@@ -82,35 +81,42 @@ Primitives::Primitives()
 
 Primitives::~Primitives()
 {
+	Destroy();
 }
 
 Primitives& Primitives::Begin()
 {
 	Destroy();
 
-	glGenVertexArrays(1, &VAO);
-	Assert(VAO);
+	glGenVertexArrays(1, &vao);
+	Assert(vao);
 
-	glBindVertexArray(VAO);
+	glBindVertexArray(vao);
 
 	return *this;	
 }
 
 Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, float* vertices_, int verticesCount_)
 {
-	glGenBuffers(1, &VBO);
-	Assert(VBO);
+	if (vbos.find(index_) == vbos.end())
+	{
+		vbos.erase(index_);
+		vertexAttributes.erase(index_);
+	}
 
-	vertexAttributes.push_back(VertexAttribute(index_, elementCount_, type_, normalized_, divisor_, stride_));
-	VertexAttribute& v = vertexAttributes.back();
+	glGenBuffers(1, &vbos[index_]);
+	Assert(vbos[index_]);
+	unsigned int& vbo = vbos[index_];
+
+	vertexAttributes[index_] = VertexAttribute(index_, elementCount_, type_, normalized_, divisor_, stride_);
+	VertexAttribute& v = vertexAttributes[index_];
 		
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, verticesCount_ * elementCount_* vaElementSizes[(int)v.dataType], vertices_, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(v.index);
 	glVertexAttribPointer(v.index, v.elementCount, vaDataTypes[(int)v.dataType], v.normalized, v.elementCount * v.elementSize, (void*)0);
 	glVertexAttribDivisor(v.index, v.divisor);
 
-	initialized = true;
 	verticesCount = verticesCount_;
 
 	return *this;
@@ -118,13 +124,12 @@ Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, Ver
 
 Primitives& Primitives::FillIndices(unsigned int* indices_, int indicesCount_)
 {
-	glGenBuffers(1, &EBO);
-	Assert(EBO);
+	glGenBuffers(1, &ebo);
+	Assert(ebo);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount_ * sizeof(int), indices_, GL_STATIC_DRAW);
 
-	initialized = true;
 	indicesCount = indicesCount_;
 
 	return *this;
@@ -134,38 +139,40 @@ bool Primitives::End()
 {
 	glBindVertexArray(0);
 
-	return initialized;
+	return vao;
 }
 
 void Primitives::Destroy()
 {
-	initialized = false;
 	vertexAttributes.clear();
 
-	if (VAO)
+	if (vao)
 	{
-		if (VBO)
+		for (auto& vbo : vbos)
 		{
-			glDeleteBuffers(1, &VBO);
-			VBO = 0;
+			if (vbo.second)
+			{
+				glDeleteBuffers(1, &vbo.second);
+				vbo.second = 0;
+			}
 		}
 
-		if (EBO)
+		if (ebo)
 		{
-			glDeleteBuffers(1, &EBO);
-			EBO = 0;
+			glDeleteBuffers(1, &ebo);
+			ebo = 0;
 		}
 
-		glDeleteVertexArrays(1, &VAO);
-		VAO = 0;
+		glDeleteVertexArrays(1, &vao);
+		vao = 0;
 	}
 }
 
 void Primitives::Bind()
 {
-	if (VAO)
+	if (vao)
 	{
-		glBindVertexArray(VAO);
+		glBindVertexArray(vao);
 	}
 }
 
@@ -222,21 +229,21 @@ void Primitives::DrawArrayInstancedBaseInstance(Primitives::Mode mode_, int firs
 ////////////////////////////////////////////////////////////////////////////////////
 void Primitives::DrawIndices(Primitives::Mode mode_, void* indices_, int count_)
 {
-	assert((EBO && indices_==0) || !indices_);
+	assert((ebo && indices_==0) || !indices_);
 
 	glDrawElements(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_);
 }
 
 void Primitives::DrawIndicesBaseVertex(Primitives::Mode mode_, void* indices_, int count_, int baseVertex_)
 {
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glDrawElementsBaseVertex(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, baseVertex_);
 }
 
 void Primitives::DrawIndicesInstanced(Primitives::Mode mode_, const void* indices_, int count_, int instancedCount_)
 {
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 		
 	glDrawElementsInstanced(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, instancedCount_);
 }
@@ -258,7 +265,7 @@ void Primitives::DrawIndicesInstancedBaseVertex(Primitives::Mode mode_, const vo
 		instanceID = 0;
 	}
 	*/
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glDrawElementsInstancedBaseVertex(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseVertex_);
 }
@@ -280,7 +287,7 @@ void Primitives::DrawIndicesInstancedBaseInstance(Primitives::Mode mode_, const 
 		instanceID = 0;
 	}
 	*/
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glDrawElementsInstancedBaseInstance(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseInstance_);
 }
@@ -302,7 +309,7 @@ void Primitives::DrawIndicesInstancedBaseVertexBaseInstance(Primitives::Mode mod
 		instanceID = 0;
 	}
 	*/
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glDrawElementsInstancedBaseVertexBaseInstance(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, instancedCount_, baseVertex_, baseInstance_);
 }
@@ -368,14 +375,14 @@ void Primitives::MultiDrawArrayIndirect(Primitives::Mode mode_, const void* indi
 
 void Primitives::MultiDrawIndices(Primitives::Mode mode_, const void* const* indices_, int* count_, int mulitDrawCount_)
 {
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glMultiDrawElements(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, mulitDrawCount_);
 }
 
 void Primitives::MultiDrawIndicesBaseVertex(Primitives::Mode mode_, const void* const* indices_, int* count_, int* baseVertex_, int mulitDrawCount_)
 {
-	assert((EBO && indices_ == 0) || !indices_);
+	assert((ebo && indices_ == 0) || !indices_);
 
 	glMultiDrawElementsBaseVertex(primModes[(int)mode_], count_, GL_UNSIGNED_INT, indices_, mulitDrawCount_, baseVertex_);
 }
@@ -418,7 +425,7 @@ void Primitives::MultiDrawIndicesIndirect(Primitives::Mode mode_, const void* in
 
 unsigned int Primitives::GetCount()
 {
-	if (EBO)
+	if (ebo)
 	{
 		return indicesCount;
 	}
