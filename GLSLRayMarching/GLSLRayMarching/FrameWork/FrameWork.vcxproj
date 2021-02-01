@@ -200,6 +200,7 @@
     <ClCompile Include="Plane3.cpp" />
     <ClCompile Include="Platform.cpp" />
     <ClCompile Include="Ray3.cpp" />
+    <ClCompile Include="Rect2.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Segment3.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="Platform.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Ray3.h" />
+    <ClInclude Include="Rect2.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Segment3.h" />
     <ClInclude Include="ShaderProgram.h" />

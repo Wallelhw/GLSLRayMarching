@@ -40,7 +40,7 @@ ShaderProgram::~ShaderProgram()
 	}
 }
 
-bool ShaderProgram::CreateFromBuffer(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode)
+bool ShaderProgram::CreateFromSource(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode)
 {
 	Assert(impl);
 
@@ -83,6 +83,9 @@ bool ShaderProgram::CreateFromBuffer(const char* vShaderCode, const char* fShade
 
 	// shader Program
 	impl->handle = glCreateProgram();
+	if (impl->handle == 0)
+		return false;
+
 	glAttachShader(impl->handle, vertex);
 	glAttachShader(impl->handle, fragment);
 	if (gShaderCode)
@@ -101,6 +104,40 @@ bool ShaderProgram::CreateFromBuffer(const char* vShaderCode, const char* fShade
 	if (gShaderCode)
 	{
 		glDeleteShader(geometry);
+	}
+
+	return true;
+}
+
+void ShaderProgram::GetProgramBinary(ShaderProgramBinary& shaderProgramBinary)
+{
+	Assert(impl);
+	Assert(impl->handle);
+
+	int inBufLength = 0;
+	int outBufLength = 0;
+	glGetProgramiv(impl->handle, GL_PROGRAM_BINARY_LENGTH, &inBufLength);
+
+	shaderProgramBinary.buffer.resize(inBufLength);
+	glGetProgramBinary(impl->handle, inBufLength, &outBufLength, &shaderProgramBinary.format, &shaderProgramBinary.buffer[0]);
+}
+
+bool ShaderProgram::CreateFromBinary(const ShaderProgramBinary& shaderProgramBinary)
+{
+	Assert(impl);
+
+	Destroy();
+
+	// shader Program
+	impl->handle = glCreateProgram();
+	if(impl->handle==0)
+		return false;
+
+	glProgramBinary(impl->handle, shaderProgramBinary.format, &shaderProgramBinary.buffer[0], shaderProgramBinary.buffer.size());
+	if (!CheckCompileErrors(impl->handle, "PROGRAM"))
+	{
+		printf("failed to load binary program\n");
+		return false;
 	}
 
 	return true;
@@ -159,7 +196,7 @@ bool ShaderProgram::Create(const char* vertexPath, const char* fragmentPath, con
 	if (!geometryPath)
 		gShaderCode = nullptr;
 
-	return CreateFromBuffer(vShaderCode, fShaderCode, gShaderCode);
+	return CreateFromSource(vShaderCode, fShaderCode, gShaderCode);
 }
 
 void ShaderProgram::Destroy()
@@ -169,8 +206,9 @@ void ShaderProgram::Destroy()
 	if (impl->handle)
 	{
 		glDeleteProgram(impl->handle);
-
 		impl->handle = 0;
+
+		Platform::MemSet(impl, 0, sizeof(*impl));
 	}
 }
 
@@ -360,11 +398,11 @@ void ShaderProgram::SetUniformMatrix4fv(const char* name_, int count_, const flo
 	glUniformMatrix4fv(idx, count_, true, v_);
 }
 
-void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)
+void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, /*const char* name_, */unsigned int bindingPoint_)
 {
 	Assert(impl);
 
-	buffer_.BindShaderStorage(*this, name_, bindingPoint_);
+	buffer_.BindShaderStorage(*this, /*name_,*/ bindingPoint_);
 }
 
 unsigned int ShaderProgram::GetHandle() const
@@ -404,4 +442,9 @@ bool ShaderProgram::CheckCompileErrors(unsigned int shader, std::string type) co
 	}
 
 	return true;
+}
+
+void ShaderProgram::ReleaseShaderCompiler()
+{
+	glReleaseShaderCompiler();
 }

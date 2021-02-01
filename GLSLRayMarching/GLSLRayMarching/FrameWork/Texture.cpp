@@ -34,10 +34,6 @@ static unsigned int texGLMagFilters[] =
 {
 	GL_NEAREST,
 	GL_LINEAR,
-	GL_NEAREST_MIPMAP_NEAREST,
-	GL_LINEAR_MIPMAP_NEAREST,
-	GL_NEAREST_MIPMAP_LINEAR,
-	GL_LINEAR_MIPMAP_LINEAR
 };
 
 static unsigned int texGLFormats[] =
@@ -146,8 +142,9 @@ void Texture::Destroy()
 	if (impl->handle)
 	{
 		glDeleteTextures(1, &impl->handle);
-
 		impl->handle = 0;
+
+		Platform::MemSet(impl, 0, sizeof(*impl));
 	}
 }
 

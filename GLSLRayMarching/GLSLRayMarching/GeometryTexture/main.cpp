@@ -151,8 +151,8 @@ public:
 			return false;
 		}
 
-		//buffer.BindShader(geometryTextureShaderProgram, "VertexData", 0);
-		geometryTextureShaderProgram.BindShaderStorageBuffer(buffer, "VertexData", 0);
+		//buffer.BindShaderStorage(geometryTextureShaderProgram, 0);
+		geometryTextureShaderProgram.BindShaderStorageBuffer(buffer, 0);
 
 		return true;
 	}

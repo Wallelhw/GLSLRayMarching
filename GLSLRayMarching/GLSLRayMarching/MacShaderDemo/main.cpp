@@ -417,7 +417,7 @@ public:
 		if (!texture[1].Create(width, height, nrComponents, isHDR, nullptr))
 			return false;
 
-		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[0]);
+		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
@@ -438,7 +438,7 @@ public:
 	{
 		FlipFrameBuffer::Flip();
 
-		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
 private:
 	Texture2D texture[2];
@@ -467,7 +467,7 @@ public:
 		if (!texture[1].Create(size, nrComponents, isHDR, nullptr))
 			return false;
 
-		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[0]);
+		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
@@ -489,7 +489,7 @@ public:
 		FlipFrameBuffer::Flip();
 		
 		//Invalidate();
-		SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
+		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
 private:
 	TextureCubeMap texture[2];
@@ -604,7 +604,7 @@ public:
 				//facecount = 6;
 			frameBuffer->Bind();
 
-			frameBuffer->GetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
+			frameBuffer->GetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
 
 			renderStates.viewportState.pos = Vector2(0, 0);
 			renderStates.viewportState.size = Vector2(resolution[0], resolution[1]);
@@ -913,7 +913,7 @@ public:
 				fclose(fptr);
 			}
 		}
-		return shaderProgram.CreateFromBuffer(vShaderCode.c_str(), fShader.c_str());
+		return shaderProgram.CreateFromSource(vShaderCode.c_str(), fShader.c_str());
 	}
 protected:
 private:

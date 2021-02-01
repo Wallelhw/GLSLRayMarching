@@ -27,20 +27,14 @@ Buffer
 3.0
 //glBindBufferRange
 //glBindBufferBase
-//glFlushMappedBufferRange
-//glMapBufferRange
-//glUnmapBuffer
-glClearBuffer
-glClearBufferfi
-glClearBufferfv
-glClearBufferiv
-glClearBufferuiv
-glCopyBufferSubData
+glFlushMappedBufferRange
+glMapBufferRange
+glUnmapBuffer
+//glCopyBufferSubData
 getter
-glGetBufferParameter
-glGetBufferParameteri64v
-glGetBufferParameteriv
-glGetBufferPointerv
+- glGetBufferParameteri64v
+- glGetBufferParameteriv
+- glGetBufferPointerv
 
 ////////////////////////////////////////////
 Frame Buffer
@@ -51,21 +45,25 @@ Frame Buffer
 // glIsFramebuffer
 // glCheckFramebufferStatus
 // glFramebufferTexture2D
-glBindRenderbuffer
-glFramebufferRenderbuffer
+*  glBindRenderbuffer
+*  glFramebufferRenderbuffer
 3.0
-glDrawBuffers
+*  glDrawBuffers
+// glClearBufferfi
+// glClearBufferfv
+// glClearBufferiv
+// glClearBufferuiv
 // glFramebufferTextureLayer
 // glInvalidateFramebuffer
 // glInvalidateSubFramebuffer
-glBlitFramebuffer
+// glBlitFramebuffer
 3.1
-glFramebufferParameteri
+-  glFramebufferParameteri
 3.2
-glFramebufferTexture
+-  glFramebufferTexture
 getter
-glGetFramebufferAttachmentParameteriv
-glGetFramebufferParameteriv
+-  glGetFramebufferAttachmentParameteriv
+-  glGetFramebufferParameteriv
 
 ////////////////////////////////////////////
 RenderBuffer
@@ -149,27 +147,27 @@ glGetTexParameteriv
 ///////////////////////////////////////////////////////
 ShaderProgram
 2.0
-glCreateProgram
-glDeleteProgram
-glLinkProgram
+//glCreateProgram
+//glDeleteProgram
+//glLinkProgram
 glIsProgram
 glUseProgram
 glValidateProgram
-glCreateShader
-glDeleteShader
-glAttachShader
-glDetachShader
-glCompileShader
-glShaderSource
+//glCreateShader
+//glDeleteShader
+//glAttachShader
+//glDetachShader
+//glCompileShader
+//glShaderSource
 glShaderBinary
-glIsShader
-glBindAttribLocation
-glReleaseShaderCompiler
+//glIsShader
+--glBindAttribLocation
+//glReleaseShaderCompiler
 3.0
-glProgramBinary
-glProgramParameteri
-glCreateShaderProgram
-glCreateShaderProgramv
+//glProgramBinary
+//glProgramParameteri
+--glCreateShaderProgram
+--glCreateShaderProgramv
 Uniform
 2.0
 glGetUniformfv

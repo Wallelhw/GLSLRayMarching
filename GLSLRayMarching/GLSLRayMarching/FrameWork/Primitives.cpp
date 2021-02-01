@@ -165,6 +165,8 @@ void Primitives::Destroy()
 
 		glDeleteVertexArrays(1, &vao);
 		vao = 0;
+
+
 	}
 }
 

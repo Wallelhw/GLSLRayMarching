@@ -4,7 +4,7 @@
 #include "Texture.h"
 #include <map>
 
-static unsigned int texGLAttachments[] =
+static unsigned int frameBufferGLColorAttachments[] =
 {
 	GL_COLOR_ATTACHMENT0,
 	GL_COLOR_ATTACHMENT1,
@@ -42,33 +42,6 @@ static unsigned int texGLAttachments[] =
 	//GL_STENCIL_ATTACHMENT
 };
 
-/*
-////////////////////////////////////////////
-Frame Buffer
-2.0
-// glGenFramebuffers
-// glDeleteFramebuffers
-// glBindFramebuffer
-// glIsFramebuffer
-// glCheckFramebufferStatus
-// glFramebufferTexture2D
-glBindRenderbuffer
-glFramebufferRenderbuffer
-3.0
-glDrawBuffers
-// glFramebufferTextureLayer
-// glInvalidateFramebuffer
-// glInvalidateSubFramebuffer
-glBlitFramebuffer
-3.1
-glFramebufferParameteri
-3.2
-//glFramebufferTexture
-getter
-glGetFramebufferAttachmentParameteriv
-glGetFramebufferParameteriv
-*/
-
 class FrameBufferImpl
 {
 public:
@@ -78,6 +51,15 @@ public:
 		, depthAttachment()
 		, stencilAttachment()
 	{
+	}
+
+	void Clear()
+	{
+		fbo = 0;
+		colorAttachments.clear();
+		depthAttachment = FrameBufferImpl::TextureAndDirty();
+		stencilAttachment = FrameBufferImpl::TextureAndDirty();
+		depthStencilAttachment = FrameBufferImpl::TextureAndDirty();
 	}
 
 	class TextureAndDirty
@@ -96,7 +78,7 @@ public:
 	};
 
 	unsigned int fbo;
-	std::map<FrameBuffer::Attachment, TextureAndDirty> colorAttachments;
+	std::map<FrameBuffer::ColorAttachment, TextureAndDirty> colorAttachments;
 	TextureAndDirty depthAttachment;
 	TextureAndDirty stencilAttachment;
 	TextureAndDirty depthStencilAttachment;
@@ -137,13 +119,9 @@ void FrameBuffer::Destroy()
 
 	if (impl->fbo)
 	{
-		impl->colorAttachments.clear();
-		impl->depthAttachment = FrameBufferImpl::TextureAndDirty();
-		impl->stencilAttachment = FrameBufferImpl::TextureAndDirty();
-		impl->depthStencilAttachment = FrameBufferImpl::TextureAndDirty();
-
 		glDeleteFramebuffers(1, &impl->fbo);
-		impl->fbo = 0;
+
+		impl->Clear();
 	}
 }
 
@@ -162,7 +140,11 @@ bool FrameBuffer::Bind()
 		{
 			if (attachment.texture)
 			{
-				glFramebufferTexture2D(GL_FRAMEBUFFER, texGLAttachments[(int)attachmentmentItr.first], GL_TEXTURE_2D, attachment.texture->GetHandle(), 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER,
+					frameBufferGLColorAttachments[(int)attachmentmentItr.first],
+					GL_TEXTURE_2D,
+					attachment.texture->GetHandle(),
+					0);
 				attachment.dirty = false;
 
 				return IsframeBufferComplete();
@@ -225,6 +207,39 @@ void FrameBuffer::UnBind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+static unsigned int frameBuffer_GLMagFilters[] =
+{
+	GL_NEAREST,
+	GL_LINEAR,
+};
+
+void Copy(FrameBuffer& src_, const Rect2& srcRect_, FrameBuffer& dst_, const Rect2& dstRect_, FrameBuffer::BlitMask blitMask_, Texture::MagFilter filter_)
+{
+	Assert(src_.impl);
+	Assert(dst_.impl);
+
+	unsigned int mask = 0;
+	mask |= (blitMask_ & FrameBuffer::BlitMask::COLOR_BUFFER_BIT) ? GL_COLOR_BUFFER_BIT : 0;
+	mask |= (blitMask_ & FrameBuffer::BlitMask::DEPTH_BUFFER_BIT) ? GL_DEPTH_BUFFER_BIT : 0;
+	mask |= (blitMask_ & FrameBuffer::BlitMask::STENCIL_BUFFER_BIT) ? GL_STENCIL_BUFFER_BIT : 0;
+
+	glBlitFramebuffer
+	(
+		srcRect_.X(),
+		srcRect_.Y(),
+		srcRect_.X() + srcRect_.Width(),
+		srcRect_.Y() + srcRect_.Height(),
+
+		dstRect_.X(),
+		dstRect_.Y(),
+		dstRect_.X() + dstRect_.Width(),
+		dstRect_.Y() + dstRect_.Height(),
+
+		mask,
+		frameBuffer_GLMagFilters[(int)filter_]
+	);
+}
+
 void FrameBuffer::Invalidate(int x, int y, int w, int h) const
 {
 	Assert(impl);
@@ -260,18 +275,19 @@ void FrameBuffer::Invalidate(int x, int y, int w, int h) const
 		glInvalidateFramebuffer(GL_FRAMEBUFFER, attachmentEnums.size(), &attachmentEnums[0]);
 }
 
-void FrameBuffer::SetColorAttachment(FrameBuffer::Attachment attachment_, Texture* texture_, PixelStorage pixelStorage_)
+void FrameBuffer::SetColorAttachment(FrameBuffer::ColorAttachment colorAttachment_, Texture* texture_, PixelStorage pixelStorage_)
 {
 	Assert(impl);
 
-	impl->colorAttachments[attachment_].texture = texture_;
-	impl->colorAttachments[attachment_].dirty = true;
-	impl->colorAttachments[attachment_].pixelStorage = pixelStorage_;
+	impl->colorAttachments[colorAttachment_].texture = texture_;
+	impl->colorAttachments[colorAttachment_].dirty = true;
+	impl->colorAttachments[colorAttachment_].pixelStorage = pixelStorage_;
 }
 
 void FrameBuffer::SetDepthAttachment(Texture* texture_, PixelStorage pixelStorage_)
 {
 	Assert(impl);
+	Assert(texture_);
 
 	impl->depthAttachment.texture = texture_;
 	impl->depthAttachment.dirty = true;
@@ -281,6 +297,7 @@ void FrameBuffer::SetDepthAttachment(Texture* texture_, PixelStorage pixelStorag
 void FrameBuffer::SetStencilAttachment(Texture* texture_, PixelStorage pixelStorage_)
 {
 	Assert(impl);
+	Assert(texture_);
 
 	impl->stencilAttachment.texture = texture_;
 	impl->stencilAttachment.dirty = true;
@@ -290,18 +307,19 @@ void FrameBuffer::SetStencilAttachment(Texture* texture_, PixelStorage pixelStor
 void FrameBuffer::SetDepthStencilAttachment(Texture* texture_, PixelStorage pixelStorage_)
 {
 	Assert(impl);
+	Assert(texture_);
 
 	impl->depthStencilAttachment.texture = texture_;
 	impl->depthStencilAttachment.dirty = true;
 	impl->depthStencilAttachment.pixelStorage = pixelStorage_;
 }
 
-const Texture* FrameBuffer::GetColorAttachment(FrameBuffer::Attachment attachment) const
+const Texture* FrameBuffer::GetColorAttachment(FrameBuffer::ColorAttachment colorAttachment_) const
 {
 	Assert(impl);
 
-	std::map<FrameBuffer::Attachment, FrameBufferImpl::TextureAndDirty>::const_iterator
-		itr = impl->colorAttachments.find(attachment);
+	std::map<FrameBuffer::ColorAttachment, FrameBufferImpl::TextureAndDirty>::const_iterator
+		itr = impl->colorAttachments.find(colorAttachment_);
 
 	if (itr != impl->colorAttachments.end())
 		return itr->second.texture;
@@ -330,6 +348,57 @@ const Texture* FrameBuffer::GetDepthStencilAttachment() const
 	return impl->depthStencilAttachment.texture;
 }
 
+void FrameBuffer::ClearColorAttachment(FrameBuffer::ColorAttachment colorAttachment_, const ColorRGBA& color_)
+{
+	Assert(impl);
+
+	int c[4] =
+	{
+		color_[0] * 255,
+		color_[1] * 255,
+		color_[2] * 255,
+		color_[3] * 255,
+	};
+
+	bool attachmentIsFloat = false;
+	if(attachmentIsFloat)
+		glClearBufferfv(GL_COLOR, GL_DRAW_BUFFER0, &color_[0]);
+	else
+		glClearBufferiv(GL_COLOR, GL_DRAW_BUFFER0, c);
+}
+
+void FrameBuffer::ClearDepthAttachment(float clearDepth_)
+{
+	Assert(impl);
+
+	glClearBufferfv(GL_DEPTH, 0, &clearDepth_);
+}
+
+void FrameBuffer::ClearStencilAttachment(int clearStencil_)
+{
+	Assert(impl);
+	
+	glClearBufferiv(GL_COLOR, 0, &clearStencil_);
+}
+
+void FrameBuffer::ClearDepthStencilAttachment(float clearDepth_, int clearStencil_)
+{
+	Assert(impl);
+
+	glClearBufferfi(GL_DEPTH_STENCIL, 0, clearDepth_, clearStencil_);
+}
+
+void FrameBuffer::EnableDrawBuffers(std::vector<FrameBuffer::ColorAttachment> attachments_)
+{
+	std::vector<unsigned int> bufs(attachments_.size());
+	for (int i = 0; i < attachments_.size(); i++)
+	{
+		bufs[i] = frameBufferGLColorAttachments[(int)attachments_[i]];
+	}
+
+	glDrawBuffers(bufs.size(), &bufs[0]);
+}
+
 bool FrameBuffer::IsframeBufferComplete() const
 {
 	Assert(impl);
@@ -356,7 +425,7 @@ bool Texture2DFrameBuffer::Create(unsigned int width, unsigned int height, unsig
 	if (!texture.Create(width, height, nrComponents, isHDR, nullptr))
 		return false;
 
-	SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture, FrameBuffer::PixelStorage::Store);
+	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture, FrameBuffer::PixelStorage::Store);
 
 	return true;
 }
@@ -397,7 +466,7 @@ bool TextureCubeMapFrameBuffer::Create(unsigned int size, unsigned int nrCompone
 	if (!texture.Create(size, nrComponents, isHDR, nullptr))
 		return false;
 
-	SetColorAttachment(FrameBuffer::Attachment::COLOR_ATTACHMENT0, &texture);
+	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture);
 
 	return true;
 }

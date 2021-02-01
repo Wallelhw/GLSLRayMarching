@@ -40,7 +40,7 @@ void main()
 	pos.z += vertices[0].px[2];
 	pos.w = 1.0;
 
-	// vertices[0].px[0] += 0.1;//0.1 * gl_VertexID;
+	//vertices[0].px[0] += 0.001;//0.1 * gl_VertexID;
 
 	gl_Position = projTransform * viewTransform * worldTransform * pos;
 
