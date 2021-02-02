@@ -71,6 +71,14 @@ public:
 	{
 	}
 
+	class TransformData
+	{
+	public:
+		Matrix4 viewTransform;
+		Matrix4 projTransform;
+		int lod;
+	};
+
 	#define VECTOR_WIDTH  4
 	struct VertexData
 	{
@@ -80,6 +88,7 @@ public:
 
 	virtual bool OnCreate() override
 	{
+		////////////////////////////////////////////////////////////
 		float vertices[] =
 		{
 			0.0, 0.0,
@@ -100,6 +109,7 @@ public:
 			return false;
 		}
 
+		////////////////////////////////////////////////////////////
 		if (!geometryTexture.Create("bunny.p65.gim256.fmp.bmp", false))
 		{
 			return false;
@@ -120,6 +130,7 @@ public:
 		normalTexture.SetWarpR(Texture::Wrap::REPEAT);
 		normalTexture.SetWarpT(Texture::Wrap::REPEAT);
 
+		////////////////////////////////////////////////////////////
 		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
 		{
 			return false;
@@ -142,7 +153,7 @@ public:
 		};
 		memcpy(vertexData, temp, sizeof(VertexData) * 4);
 
-		if(	!buffer
+		if(	!shaderStorageBlockBuffer
 			.Begin(Buffer::Type::SHADER_STORAGE_BUFFER, Buffer::Usage::STATIC_DRAW)
 			.Fill(vertexData, sizeof(VertexData) * 4)
 			.End()
@@ -150,14 +161,29 @@ public:
 		{
 			return false;
 		}
-
 		//buffer.BindShaderStorage(geometryTextureShaderProgram, 0);
-		geometryTextureShaderProgram.BindShaderStorageBuffer(buffer, 0);
+		geometryTextureShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "VertexData", 0);
+		// geometryTextureShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, 0);
+
+		////////////////////////////////////////////////////////////
+		TransformData transformData;
+
+		if (!uniformBlockBuffer
+			.Begin(Buffer::Type::UNIFORM_BUFFER, Buffer::Usage::STATIC_DRAW)
+			.Fill(&transformData, sizeof(TransformData))
+			.End()
+			)
+		{
+			return false;
+		}
+		
+		geometryTextureShaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
+		// geometryTextureShaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
 
 		return true;
 	}
 
-	void TestGUI(bool& wireframe, int& lod)
+	void TestGUI(bool& wireframe, int& lod, float& ratio)
 	{
 		static bool enabled1 = false;
 		static bool enabled2 = false;
@@ -168,11 +194,15 @@ public:
 		{
 			if (ImGui::CollapsingHeader("Lod"))
 			{
-				ImGui::SliderInt("Lod", &lod, 0, 7, "LOD %d");
+				ImGui::SliderInt("Lod", &lod, 0, 7, "%d");
 			}
-			if (ImGui::CollapsingHeader("WireFrame"))
+			if (ImGui::CollapsingHeader("Ratio"))
 			{
-				ImGui::Checkbox("WireFrame1", &wireframe);
+				ImGui::SliderFloat("Ratio", &ratio, 0.0, 100.0, "%f");
+			}
+			if (ImGui::CollapsingHeader("WireFrame?"))
+			{
+				ImGui::Checkbox("WireFrame", &wireframe);
 			}
 			if (ImGui::CollapsingHeader("Shape and CSG"))
 			{
@@ -192,14 +222,15 @@ public:
 
 		ImGui::End();
 
-		buffer.Update(0, vertexData, sizeof(VertexData) * 4);
+		shaderStorageBlockBuffer.Update(0, vertexData, sizeof(VertexData) * 4);
 	}
 
 	virtual bool OnUpdate() override
 	{
 		static int lod = 0;
-		static bool wireframe = false;
-		TestGUI(wireframe, lod);
+		static bool wireframe = true;
+		static float ratio = 0.0;
+		TestGUI(wireframe, lod, ratio);
 
 		static float test1 = 0.0f;
 		test1 += 1;
@@ -212,7 +243,7 @@ public:
 		camera.SetWorldTransform(cameraTransform);
 
 		Matrix4 projectionTransform;
-		projectionTransform.SetPerspectiveFov(45.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
+		projectionTransform.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
 		camera.SetProjectionTransform(projectionTransform);
 
 		//////////////////////////////////////////////////////
@@ -247,11 +278,21 @@ public:
 		geometryTextureShaderProgram.Bind();
 		geometryTextureShaderProgram.SetUniform1i("geometryTexture", 0);
 		geometryTextureShaderProgram.SetUniform1i("normalTexture", 1);
-		geometryTextureShaderProgram.SetUniformMatrix4fv("worldTransform", 1, worldTransform);
-		geometryTextureShaderProgram.SetUniformMatrix4fv("viewTransform", 1, camera.GetViewTransform());
-		geometryTextureShaderProgram.SetUniformMatrix4fv("projTransform", 1, camera.GetProjectionTransform());
+		geometryTextureShaderProgram.SetUniform1f("ratio", ratio/100.0f);
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
 
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+		TransformData transformData;
+		transformData.viewTransform = camera.GetViewTransform().Transpose();
+		transformData.projTransform = camera.GetProjectionTransform().Transpose();
+		transformData.lod = lod;
+		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
+#else
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
 		geometryTextureShaderProgram.SetUniform1i("lod", lod);
+#endif
 
 		float scale = powf(2.0f, floor(lod));
 		int triangleCount = (int)(GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale));
@@ -280,235 +321,12 @@ private:
 	Texture2DFile geometryTexture;
 	Texture2DFile normalTexture;
 	ShaderProgram geometryTextureShaderProgram;
-	Buffer buffer;
+	Buffer shaderStorageBlockBuffer;
+	Buffer uniformBlockBuffer;
 	RenderStates renderStates;
 	Primitives primitives;
 };
 
-/*
-#include <GLFW/glfw3.h>
-#include <array>
-#include <iostream>
-#include <vector>
-
-void process_input(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, true);
-	}
-}
-
-void glfw_error_callback(int error_code, const char* description)
-{
-	std::cerr << "GLFW Error: [" << error_code << "] " << description << '\n';
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
-
-auto create_glfw_window()
-{
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	return glfwCreateWindow(800, 600, "OpenGL and AoSoA layout", nullptr, nullptr);
-}
-
-void set_callbacks(GLFWwindow* window)
-{
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetErrorCallback(glfw_error_callback);
-}
-
-void print_versions()
-{
-	std::cout << "Using GLFW " << glfwGetVersionString() << '\n';
-}
-
-void GLAPIENTRY MessageCallback(
-	GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam = nullptr)
-{
-	std::cerr << "[GL DEBUG] " << (type == GL_DEBUG_TYPE_ERROR ? "Error: " : "") << message << '\n';
-}
-
-constexpr auto VECTOR_WIDTH = 4;
-constexpr auto VERTEX_COUNT = 16;
-
-struct VertexData
-{
-	std::array<float, VECTOR_WIDTH> px;
-	std::array<float, VECTOR_WIDTH> py;
-};
-
-static const char* vertex_shader_source =
-"#version 430\n"
-"struct Vertex4\n"
-"{\n"
-"    float px[4]; // position x\n"
-"    float py[4]; // position y\n"
-"};\n"
-"layout(std430, binding=0) buffer VertexData\n"
-"{\n"
-"    Vertex4 vertices[];\n"
-"};\n"
-"void main()\n"
-"{\n"
-"  int dataIx = gl_VertexID / 4;\n"
-"  int vertexIx = gl_VertexID % 4;\n"
-"  vec2 vertexPosition = vec2(vertices[dataIx].px[vertexIx], vertices[dataIx].py[vertexIx]);\n"
-"}\n";
-
-static const char* fragment_shader_source =
-"#version 430\n"
-"out vec4 out_color;\n"
-"void main()\n"
-"{\n"
-"    out_color = vec4(1.0, 0.5, 0.5, 0.25);\n"
-"}\n";
-
-GLFWwindow* window;
-
-int test(int argc, char* argv[])
-{
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-	window = glfwCreateWindow(800, 600, "test", NULL, NULL);
-	if (window == NULL)
-	{
-		Platform::Debug("Failed to create GLFW window\n");
-		glfwTerminate();
-		return false;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, (void (*)(GLFWwindow*, int, int))(framebuffer_size_callback));
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		Platform::Debug("Failed to initialize GLAD\n");
-		return false;
-	}
-
-	glfwSetErrorCallback(glfw_error_callback);
-
-	std::vector<VertexData> vertices(VERTEX_COUNT / VECTOR_WIDTH);
-	vertices[0] = {
-		{-0.75f, 0.75f, 0.75f, -0.75f},
-		{-0.75f, -0.75f, 0.75f, 0.75f}
-	};
-	vertices[1] = {
-		{-0.50f, 0.50f, 0.50f, -0.50f},
-		{-0.50f, -0.50f, 0.50f, 0.50f},
-	};
-	vertices[2] = {
-		{-0.25f, 0.25f, 0.25f, -0.25f},
-		{-0.25f, -0.25f, 0.25f, 0.25f},
-	};
-	vertices[3] = {
-		{-0.05f, 0.05f, 0.05f, -0.05f},
-		{-0.05f, -0.05f, 0.05f, 0.05f},
-	};
-
-	auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_shader_source, nullptr);
-	glCompileShader(vertex_shader);
-
-	auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_source, nullptr);
-	glCompileShader(fragment_shader);
-
-	auto program = glCreateProgram();
-	glAttachShader(program, vertex_shader);
-	glAttachShader(program, fragment_shader);
-
-	const GLuint position_attrib_index = 0;
-	glBindAttribLocation(program, position_attrib_index, "vertexPosition");
-
-	glLinkProgram(program);
-
-	//glUseProgram(program);
-
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
-
-	//
-	// SSBO
-	//
-	int err;
-	err = glGetError();
-	const GLuint ssbo_binding_point = 0;
-	GLuint ssbo{};
-	glGenBuffers(1, &ssbo);
-	err = glGetError();
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	err = glGetError();
-
-	glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(VertexData), vertices.data(), GL_STATIC_DRAW);
-	err = glGetError();
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	err = glGetError();
-
-	const auto block_index = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, "VertexData");
-	err = glGetError();
-
-	glShaderStorageBlockBinding(program, block_index, ssbo_binding_point);
-	err = glGetError();
-
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point, ssbo);
-	err = glGetError();
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	err = glGetError();
-
-	//
-	// VAO
-	//
-	//GLuint vao{};
-	//glGenVertexArrays(1, &vao);
-	//glBindVertexArray(vao);
-	//glEnableVertexAttribArray(position_attrib_index);
-	//glVertexAttribPointer(position_attrib_index, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
-	glPointSize(10.0f);
-
-	while (!glfwWindowShouldClose(window)) 
-	{
-		process_input(window);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glUseProgram(program);
-		//glDrawArrays(GL_POINTS, 0, VERTEX_COUNT);
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
-	return 0;
-}
-*/
 int main(int argc, char* argv[])
 {
 	//test(argc, argv);

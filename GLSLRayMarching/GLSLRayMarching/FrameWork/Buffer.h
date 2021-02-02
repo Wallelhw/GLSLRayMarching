@@ -64,7 +64,10 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	void BindShaderStorage(ShaderProgram& shaderProgram_, /*const char* name_, */unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
+	void BindShaderStorage(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
+	void BindUniformBlock(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
+	void BindShaderStorage(ShaderProgram& shaderProgram_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
+	void BindUniformBlock(ShaderProgram& shaderProgram_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
 private:
 private:
 	BufferImpl* impl;
