@@ -40,6 +40,75 @@ ShaderProgram::~ShaderProgram()
 	}
 }
 
+bool ShaderProgram::Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+{
+	Assert(impl);
+
+	// 1. retrieve the vertex/fragment source code from filePath
+	std::string vertexCode;
+	std::string fragmentCode;
+	std::string geometryCode;
+	std::ifstream vShaderFile;
+	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
+	// ensure ifstream objects can throw exceptions:
+	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	try
+	{
+		// open files
+		vShaderFile.open(vertexPath);
+		fShaderFile.open(fragmentPath);
+		if (geometryPath)
+			gShaderFile.open(geometryPath);
+		std::stringstream vShaderStream, fShaderStream, gShaderStream;
+
+		// read file's buffer contents into streams
+		vShaderStream << vShaderFile.rdbuf();
+		fShaderStream << fShaderFile.rdbuf();
+		if (geometryPath)
+			gShaderStream << gShaderFile.rdbuf();
+
+		// close file handlers
+		vShaderFile.close();
+		fShaderFile.close();
+		if (geometryPath)
+			gShaderFile.close();
+
+		// convert stream into string
+		vertexCode = vShaderStream.str();
+		fragmentCode = fShaderStream.str();
+		if (geometryPath)
+			geometryCode = gShaderStream.str();
+	}
+	catch (std::ifstream::failure&)
+	{
+		return false;
+	}
+
+	const char* vShaderCode = vertexCode.c_str();
+	const char* fShaderCode = fragmentCode.c_str();
+	const char* gShaderCode = geometryCode.c_str();
+	if (!geometryPath)
+		gShaderCode = nullptr;
+
+	return CreateFromSource(vShaderCode, fShaderCode, gShaderCode);
+}
+
+void ShaderProgram::Destroy()
+{
+	Assert(impl);
+
+	if (impl->handle)
+	{
+		glDeleteProgram(impl->handle);
+		impl->handle = 0;
+
+		Platform::MemSet(impl, 0, sizeof(*impl));
+	}
+}
+
 bool ShaderProgram::CreateFromSource(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode)
 {
 	Assert(impl);
@@ -143,73 +212,11 @@ bool ShaderProgram::CreateFromBinary(const ShaderProgramBinary& shaderProgramBin
 	return true;
 }
 
-bool ShaderProgram::Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+unsigned int ShaderProgram::GetHandle() const
 {
 	Assert(impl);
 
-	// 1. retrieve the vertex/fragment source code from filePath
-	std::string vertexCode;
-	std::string fragmentCode;
-	std::string geometryCode;
-	std::ifstream vShaderFile;
-	std::ifstream fShaderFile;
-	std::ifstream gShaderFile;
-	// ensure ifstream objects can throw exceptions:
-	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	try
-	{
-		// open files
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
-		if (geometryPath)
-			gShaderFile.open(geometryPath);
-		std::stringstream vShaderStream, fShaderStream, gShaderStream;
-
-		// read file's buffer contents into streams
-		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-		if (geometryPath)
-			gShaderStream << gShaderFile.rdbuf();
-
-		// close file handlers
-		vShaderFile.close();
-		fShaderFile.close();
-		if (geometryPath)
-			gShaderFile.close();
-
-		// convert stream into string
-		vertexCode = vShaderStream.str();
-		fragmentCode = fShaderStream.str();
-		if (geometryPath)
-			geometryCode = gShaderStream.str();
-	}
-	catch (std::ifstream::failure&)
-	{
-		return false;
-	}
-
-	const char* vShaderCode = vertexCode.c_str();
-	const char* fShaderCode = fragmentCode.c_str();
-	const char* gShaderCode = geometryCode.c_str();
-	if (!geometryPath)
-		gShaderCode = nullptr;
-
-	return CreateFromSource(vShaderCode, fShaderCode, gShaderCode);
-}
-
-void ShaderProgram::Destroy()
-{
-	Assert(impl);
-
-	if (impl->handle)
-	{
-		glDeleteProgram(impl->handle);
-		impl->handle = 0;
-
-		Platform::MemSet(impl, 0, sizeof(*impl));
-	}
+	return impl->handle;
 }
 
 void ShaderProgram::Bind() const
@@ -263,42 +270,6 @@ void ShaderProgram::SetUniform4i(const char* name_, int v0_, int v1_, int v2_, i
 	glUniform4i(idx, v0_, v1_, v2_, v3_);
 }
 
-void ShaderProgram::SetUniform1f(const char* name_, float v0_)
-{
-	Assert(impl);
-
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1f(idx, v0_);
-}
-
-void ShaderProgram::SetUniform2f(const char* name_, float v0_, float v1_)
-{
-	Assert(impl);
-
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2f(idx, v0_, v1_);
-}
-
-void ShaderProgram::SetUniform3f(const char* name_, float v0_, float v1_, float v2_)
-{
-	Assert(impl);
-
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3f(idx, v0_, v1_, v2_);
-}
-
-void ShaderProgram::SetUniform4f(const char* name_, float v0_, float v1_, float v2_, float v3_)
-{
-	Assert(impl);
-
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4f(idx, v0_, v1_, v2_, v3_);
-}
-
 void ShaderProgram::SetUniform1iv(const char* name_, int count_, const int* v_)
 {
 	Assert(impl);
@@ -333,6 +304,114 @@ void ShaderProgram::SetUniform4iv(const char* name_, int count_, const int* v_)
 	int idx = glGetUniformLocation(impl->handle, name_);
 
 	glUniform4iv(idx, count_, v_);
+}
+
+void ShaderProgram::SetUniform1ui(const char* name_, unsigned int v0_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform1i(idx, v0_);
+}
+
+void ShaderProgram::SetUniform2ui(const char* name_, unsigned int v0_, unsigned int v1_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform2i(idx, v0_, v1_);
+}
+
+void ShaderProgram::SetUniform3ui(const char* name_, unsigned int v0_, unsigned int v1_, unsigned int v2_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform3i(idx, v0_, v1_, v2_);
+}
+
+void ShaderProgram::SetUniform4ui(const char* name_, unsigned int v0_, unsigned int v1_, unsigned int v2_, unsigned int v3_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform4i(idx, v0_, v1_, v2_, v3_);
+}
+
+void ShaderProgram::SetUniform1uiv(const char* name_, int count_, const unsigned int* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform1uiv(idx, count_, v_);
+}
+
+void ShaderProgram::SetUniform2uiv(const char* name_, int count_, const unsigned  int* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform2uiv(idx, count_, v_);
+}
+
+void ShaderProgram::SetUniform3uiv(const char* name_, int count_, const unsigned int* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform3uiv(idx, count_, v_);
+}
+
+void ShaderProgram::SetUniform4uiv(const char* name_, int count_, const unsigned int* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform4uiv(idx, count_, v_);
+}
+
+void ShaderProgram::SetUniform1f(const char* name_, float v0_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform1f(idx, v0_);
+}
+
+void ShaderProgram::SetUniform2f(const char* name_, float v0_, float v1_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform2f(idx, v0_, v1_);
+}
+
+void ShaderProgram::SetUniform3f(const char* name_, float v0_, float v1_, float v2_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform3f(idx, v0_, v1_, v2_);
+}
+
+void ShaderProgram::SetUniform4f(const char* name_, float v0_, float v1_, float v2_, float v3_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniform4f(idx, v0_, v1_, v2_, v3_);
 }
 
 void ShaderProgram::SetUniform1fv(const char* name_, int count_, const float* v_)
@@ -371,7 +450,7 @@ void ShaderProgram::SetUniform4fv(const char* name_, int count_, const float* v_
 	glUniform4fv(idx, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix2fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix2x2fv(const char* name_, int count_, const float* v_)
 {
 	Assert(impl);
 
@@ -380,7 +459,34 @@ void ShaderProgram::SetUniformMatrix2fv(const char* name_, int count_, const flo
 	glUniformMatrix2fv(idx, count_, true, v_);
 }
 
-void ShaderProgram::SetUniformMatrix3fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix2x3fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix2x3fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix2x4fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix2x4fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix3x2fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix3x2fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix3x3fv(const char* name_, int count_, const float* v_)
 {
 	Assert(impl);
 
@@ -389,7 +495,34 @@ void ShaderProgram::SetUniformMatrix3fv(const char* name_, int count_, const flo
 	glUniformMatrix3fv(idx, count_, true, v_);
 }
 
-void ShaderProgram::SetUniformMatrix4fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix3x4fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix3x4fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix4x2fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix4x2fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix4x3fv(const char* name_, int count_, const float* v_)
+{
+	Assert(impl);
+
+	int idx = glGetUniformLocation(impl->handle, name_);
+
+	glUniformMatrix4x3fv(idx, count_, true, v_);
+}
+
+void ShaderProgram::SetUniformMatrix4x4fv(const char* name_, int count_, const float* v_)
 {
 	Assert(impl);
 
@@ -398,18 +531,32 @@ void ShaderProgram::SetUniformMatrix4fv(const char* name_, int count_, const flo
 	glUniformMatrix4fv(idx, count_, true, v_);
 }
 
-void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, /*const char* name_, */unsigned int bindingPoint_)
+void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)
 {
 	Assert(impl);
 
-	buffer_.BindShaderStorage(*this, /*name_,*/ bindingPoint_);
+	buffer_.BindShaderStorage(*this, name_, bindingPoint_);
 }
 
-unsigned int ShaderProgram::GetHandle() const
+void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, unsigned int bindingPoint_)
 {
 	Assert(impl);
 
-	return impl->handle;
+	buffer_.BindShaderStorage(*this, bindingPoint_);
+}
+
+void ShaderProgram::BindUniformBlock(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)
+{
+	Assert(impl);
+
+	buffer_.BindUniformBlock(*this, name_, bindingPoint_);
+}
+
+void ShaderProgram::BindUniformBlock(Buffer& buffer_, unsigned int bindingPoint_)
+{
+	Assert(impl);
+
+	buffer_.BindUniformBlock(*this, bindingPoint_);
 }
 
 bool ShaderProgram::CheckCompileErrors(unsigned int shader, std::string type) const

@@ -156,6 +156,15 @@ Buffer& Buffer::Fill(void* data_, int dataSize_)
 
 	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
 	glBufferData(buffer_type_GL[(int)impl->type], dataSize_, data_, buffer_usage_GL[(int)impl->usage]);
+	// void* a = glMapBufferRange(buffer_type_GL[(int)impl->type], 0, 10, GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_WRITE_BIT);
+	// int err = glGetError();
+	// glUnmapBuffer(buffer_type_GL[(int)impl->type]);
+	// GL_MAP_READ_BIT
+	// GL_MAP_WRITE_BIT
+	// GL_MAP_INVALIDATE_RANGE_BIT 
+	// GL_MAP_INVALIDATE_BUFFER_BIT
+	// GL_MAP_FLUSH_EXPLICIT_BIT
+	// GL_MAP_UNSYNCHRONIZED_BIT
 
 	impl->size = dataSize_;
 	return *this;
@@ -207,15 +216,73 @@ void Buffer::Unbind() const
 	glBindBuffer(buffer_type_GL[(int)impl->type], 0);
 }
 
-void Buffer::BindShaderStorage(ShaderProgram& shaderProgram_, /*const char* name_, */unsigned int bindingPoint_, unsigned int offset_, unsigned int size_)
+void Buffer::BindShaderStorage(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_, unsigned int size_)
 {
 	Assert(impl);
 	Assert(impl->type == Type::SHADER_STORAGE_BUFFER);
 
-	//unsigned int block_index = glGetProgramResourceIndex(shaderProgram_.GetHandle(), GL_SHADER_STORAGE_BLOCK, name_);
-	//glShaderStorageBlockBinding(shaderProgram_.GetHandle(), block_index, bindingPoint_);
+	// get ShaderStorage blockIndex
+	// link ShaderStorage BlockIndex to binding point
+	unsigned int block_index = glGetProgramResourceIndex(shaderProgram_.GetHandle(), GL_SHADER_STORAGE_BLOCK, name_);
+	glShaderStorageBlockBinding(shaderProgram_.GetHandle(), block_index, bindingPoint_);
 
+	// link buffer to binding point
 	if(size_==0)
+		glBindBufferBase(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle);
+	else
+		glBindBufferRange(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle, offset_, size_);
+}
+
+void Buffer::BindUniformBlock(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_, unsigned int size_)
+{
+	Assert(impl);
+	Assert(impl->type == Type::UNIFORM_BUFFER);
+
+	// get uniform block index
+	// link uniform block index to binding point
+	unsigned int block_index = glGetUniformBlockIndex(shaderProgram_.GetHandle(), name_);
+	glUniformBlockBinding(shaderProgram_.GetHandle(), block_index, bindingPoint_);
+
+	if (size_ == 0)
+		glBindBufferBase(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle);
+	else
+		glBindBufferRange(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle, offset_, size_);
+}
+
+void Buffer::BindShaderStorage(ShaderProgram& shaderProgram_, unsigned int bindingPoint_, unsigned int offset_, unsigned int size_)
+{
+	Assert(impl);
+	Assert(impl->type == Type::SHADER_STORAGE_BUFFER);
+
+	/*
+	// Use Shader defined binding
+	// get ShaderStorage blockIndex
+	// link ShaderStorage BlockIndex to binding point
+	// unsigned int block_index = glGetProgramResourceIndex(shaderProgram_.GetHandle(), GL_SHADER_STORAGE_BLOCK, name_);
+	// glShaderStorageBlockBinding(shaderProgram_.GetHandle(), block_index, bindingPoint_);
+	*/
+
+	// link buffer to binding point
+	if (size_ == 0)
+		glBindBufferBase(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle);
+	else
+		glBindBufferRange(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle, offset_, size_);
+}
+
+void Buffer::BindUniformBlock(ShaderProgram& shaderProgram_, unsigned int bindingPoint_, unsigned int offset_, unsigned int size_)
+{
+	Assert(impl);
+	Assert(impl->type == Type::UNIFORM_BUFFER);
+
+	/*
+	// Use Shader defined binding
+	// get uniform block index
+	// link uniform block index to binding point
+	// unsigned int block_index = glGetUniformBlockIndex(shaderProgram_.GetHandle(), name_);
+	// glUniformBlockBinding(shaderProgram_.GetHandle(), block_index, bindingPoint_);
+	*/
+
+	if (size_ == 0)
 		glBindBufferBase(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle);
 	else
 		glBindBufferRange(buffer_type_GL[(int)impl->type], bindingPoint_, impl->handle, offset_, size_);

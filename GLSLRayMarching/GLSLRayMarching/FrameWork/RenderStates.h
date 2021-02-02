@@ -194,6 +194,7 @@ public:
 
 	void Apply()
 	{
+		glDisable(GL_CULL_FACE);
 		scissorTestState.Apply();
 		viewportState.Apply();
 
