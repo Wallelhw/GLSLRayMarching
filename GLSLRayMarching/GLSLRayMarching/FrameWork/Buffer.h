@@ -53,8 +53,8 @@ public:
 	unsigned int GetHandle() const;
 
 	Buffer& Begin(Buffer::Type type_, Buffer::Usage usage_);
-	Buffer& Fill(void* data_, int dataSize_);
-	Buffer& Update(int offset_, void* data_, int dataSize_);
+	Buffer& Fill(void* src_, int size_);
+	Buffer& Update(int offset_, void* src_, int size_);
 	bool End();	
 
 	friend void Copy(Buffer& src_, unsigned int srcOffset_, Buffer& dst_, unsigned int dstOffset_, unsigned int size_);
@@ -63,6 +63,7 @@ public:
 	
 	void Bind() const;
 	void Unbind() const;
+
 
 	void BindShaderStorage(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);
 	void BindUniformBlock(ShaderProgram& shaderProgram_, const char* name_, unsigned int bindingPoint_, unsigned int offset_ = 0, unsigned int size_ = 0);

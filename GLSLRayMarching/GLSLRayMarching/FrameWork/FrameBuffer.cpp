@@ -417,12 +417,12 @@ Texture2DFrameBuffer::~Texture2DFrameBuffer()
 	Destroy();
 }
 
-bool Texture2DFrameBuffer::Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR)
+bool Texture2DFrameBuffer::Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::Precision precision_)
 {
 	if (!FrameBuffer::Create())
 		return false;
 
-	if (!texture.Create(width, height, nrComponents, isHDR, nullptr))
+	if (!texture.Create(width, height, nrComponents, precision_, nullptr))
 		return false;
 
 	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture, FrameBuffer::PixelStorage::Store);
@@ -458,12 +458,12 @@ TextureCubeMapFrameBuffer::~TextureCubeMapFrameBuffer()
 	Destroy();
 }
 
-bool TextureCubeMapFrameBuffer::Create(unsigned int size, unsigned int nrComponents, bool isHDR)
+bool TextureCubeMapFrameBuffer::Create(unsigned int size_, unsigned int nrComponents_, Texture::Precision precision_)
 {
 	if (!FrameBuffer::Create())
 		return false;
 
-	if (!texture.Create(size, nrComponents, isHDR, nullptr))
+	if (!texture.Create(size_, nrComponents_, precision_, nullptr))
 		return false;
 
 	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture);

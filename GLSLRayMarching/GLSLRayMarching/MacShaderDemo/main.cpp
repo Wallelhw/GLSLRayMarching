@@ -37,9 +37,10 @@ public:
 
 	bool Create()
 	{
-		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
+		if (!Texture2D::Create(256, 3, 1, Texture::Precision::LOW, &buffer[0]))
 			return false;
-		
+
+	
 		SetMinFilter(Texture::MinFilter::NEAREST);
 		SetMagFilter(Texture::MagFilter::NEAREST);
 		SetWarpS(Texture::Wrap::CLAMP);
@@ -75,7 +76,7 @@ public:
 		*/
 	}
 
-	virtual void Update()
+	virtual void Tick()
 	{
 		for (int i = 'a'; i < 'z'; i++)
 		{
@@ -98,8 +99,8 @@ public:
 		UpdateKey(VK_SHIFT);
 		UpdateKey(VK_CONTROL);
 		UpdateKey(VK_MENU);
-
-		Texture2D::UpdateData(&buffer[0]);
+		
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -121,7 +122,7 @@ public:
 
 	bool Create()
 	{
-		if (!Texture2D::Create(256, 3, 1, false, &buffer[0]))
+		if (!Texture2D::Create(256, 3, 1, Texture::Precision::LOW, &buffer[0]))
 			return false;
 
 		SetMinFilter(Texture::MinFilter::NEAREST);
@@ -164,7 +165,7 @@ public:
 
 		ImGui::End();
 		*/
-		Texture2D::UpdateData(&buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 
 	void AddValue(const char* name_, bool v)
@@ -273,12 +274,12 @@ public:
 
 	bool Create(bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, false, &buffer[0], vflip_);
+		return Texture2D::Create(1280, 720, 4, Texture::Precision::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::UpdateData(&buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -300,12 +301,12 @@ public:
 
 	bool Create()
 	{
-		return Texture2D::Create(512, 2, 1, false, &buffer[0]);
+		return Texture2D::Create(512, 2, 1, Texture::Precision::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::UpdateData(&buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -327,12 +328,12 @@ public:
 
 	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(512, 2, 1, false, &buffer[0], vflip_);
+		return Texture2D::Create(512, 2, 1, Texture::Precision::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::UpdateData(&buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -354,12 +355,12 @@ public:
 
 	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, false, &buffer[0], vflip_);
+		return Texture2D::Create(1280, 720, 4, Texture::Precision::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
 	{
-		Texture2D::UpdateData(&buffer[0]);
+		Texture2D::Update(&buffer[0]);
 	}
 private:
 private:
@@ -406,15 +407,15 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR)
+	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::Precision precision_)
 	{
 		if (!FlipFrameBuffer::Create())
 			return false;
 
-		if (!texture[0].Create(width, height, nrComponents, isHDR, nullptr))
+		if (!texture[0].Create(width, height, nrComponents, precision_, nullptr))
 			return false;
 
-		if (!texture[1].Create(width, height, nrComponents, isHDR, nullptr))
+		if (!texture[1].Create(width, height, nrComponents, precision_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
@@ -456,15 +457,15 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int size, unsigned int nrComponents, bool isHDR)
+	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::Precision precision_)
 	{
 		if (!FlipFrameBuffer::Create())
 			return false;
 
-		if (!texture[0].Create(size, nrComponents, isHDR, nullptr))
+		if (!texture[0].Create(size, nrComponents, precision_, nullptr))
 			return false;
 
-		if (!texture[1].Create(size, nrComponents, isHDR, nullptr))
+		if (!texture[1].Create(size, nrComponents, precision_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
@@ -604,7 +605,13 @@ public:
 				//facecount = 6;
 			frameBuffer->Bind();
 
-			frameBuffer->GetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0)->GetResolution(resolution);
+			unsigned int w;
+			unsigned int h;
+			unsigned int d;
+			frameBuffer->GetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0)->GetResolution(&w, &h, &d);
+			resolution[0] = w;
+			resolution[1] = h;
+			resolution[2] = d;
 
 			renderStates.viewportState.pos = Vector2(0, 0);
 			renderStates.viewportState.size = Vector2(resolution[0], resolution[1]);
@@ -649,7 +656,12 @@ public:
 
 			if (texture)
 			{
-				texture->GetResolution(channelResolutions[i]);
+				unsigned int w, h, d;
+				texture->GetResolution(&w, &h, &d);
+				channelResolutions[i].X() = w;
+				channelResolutions[i].Y() = h;
+				channelResolutions[i].Z() = d;
+
 				channelTimes[i] = 0.0;
 
 				if (iChannels[i].wrap == Pass::Wrap::Repeat)
@@ -1170,25 +1182,25 @@ public:
 		std::vector<char> colors(32 * 32 * 4);
 		memset(&colors[0], 0, (32 * 32 * 4));
 
-		if (!black.Create(32, 32, 4, false, &colors[0], false))
+		if (!black.Create(32, 32, 4, Texture::Precision::LOW, &colors[0]))
 			return false;
-		if (!soundFrameBuffer.Create(512, 2, 1, true))
+		if (!soundFrameBuffer.Create(512, 2, 1, Texture::Precision::LOW))
 			return false;
-		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
 			return false;
-		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
 			return false;
-		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
 			return false;
-		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, true))
+		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
 			return false;
-		if (!cubeMapAFrameBuffer.Create(1024, 4, true))
+		if (!cubeMapAFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
 			return false;
-		if (!cubeMapBFrameBuffer.Create(1024, 4, true))
+		if (!cubeMapBFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
 			return false;
-		if (!cubeMapCFrameBuffer.Create(1024, 4, true))
+		if (!cubeMapCFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
 			return false;
-		if (!cubeMapDFrameBuffer.Create(1024, 4, true))
+		if (!cubeMapDFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
 			return false;
 
 		std::string folder = folder_;
@@ -1501,11 +1513,6 @@ public:
 
 	bool Update(unsigned int width, unsigned int height, double time, double deltaTime, Vector4 mouse, Vector2 mouseDelta, int frameCounter)
 	{
-		for (auto& texture : textures)
-		{
-			texture->Update();
-		}
-
 		for (auto& pass : passes)
 		{
 			if (!pass.Update(width, height, time, deltaTime, mouse, mouseDelta, frameCounter))
@@ -1578,7 +1585,7 @@ public:
 	{
 		//return macShaderDemo.Create("Demos/Noise/Perlin");//
 		//return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
-		//return macShaderDemo.Create("Demos/Clouds/Cloud");//
+		return macShaderDemo.Create("Demos/Clouds/Cloud");//
 		//return macShaderDemo.Create("Demos/Clouds/CloudFight");//
 		//return macShaderDemo.Create("Demos/default");
 		//return macShaderDemo.Create("Demos/Greek Temple");
@@ -1601,18 +1608,18 @@ public:
 		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
 		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
 		//return macShaderDemo.Create("Demos/Terrains/Elevated");
-		//return macShaderDemo.Create("Demos/Terrains/Lake in highland");
+		return macShaderDemo.Create("Demos/Terrains/Lake in highland");
 		//return macShaderDemo.Create("Demos/Terrains/Mountains");
-		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
-		//return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
+		return macShaderDemo.Create("Demos/Terrains/Rainforest");
+		return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
 
-		//return macShaderDemo.Create("Demos/Waters/RiverGo");
-		//return macShaderDemo.Create("Demos/Waters/Oceanic");
-		//return macShaderDemo.Create("Demos/Waters/Ocean");
-		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
-		//return macShaderDemo.Create("Demos/Waters/Water World");
-		//return macShaderDemo.Create("Demos/Wave Propagation Effect");
-		//return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
+		return macShaderDemo.Create("Demos/Waters/RiverGo");
+		return macShaderDemo.Create("Demos/Waters/Oceanic");
+		return macShaderDemo.Create("Demos/Waters/Ocean");
+		return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
+		return macShaderDemo.Create("Demos/Waters/Water World");
+		return macShaderDemo.Create("Demos/Wave Propagation Effect");
+		return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
 		return macShaderDemo.Create("Demos/Scattering/VolumetricIntegration");
 		return macShaderDemo.Create("Demos/Waters/Spout");
 	}
