@@ -101,7 +101,7 @@ Texture
 2.0
 //glGenTextures
 //glDeleteTextures
-glPixelStorei
+--glPixelStorei
 //glActiveTexture
 //glBindTexture
 -glIsTexture
@@ -173,8 +173,8 @@ Uniform
 2.0
 //glGetUniformfv
 //glGetUniformiv
-glGetUniformLocation
-glGetActiveUniform
+//glGetUniformLocation
+--glGetActiveUniform
 //glUniform1f
 //glUniform1fv
 //glUniform1i
@@ -210,7 +210,8 @@ glGetActiveUniform
 //glUniformMatrix4x3fv
 3.0
 //glShaderStorageBlockBinding
-glGetUniformuiv glGetUniformIndices
+glGetUniformuiv 
+glGetUniformIndices
 //glUniformBlockBinding
 //glGetUniformBlockIndex
 --glGetActiveUniformBlockiv

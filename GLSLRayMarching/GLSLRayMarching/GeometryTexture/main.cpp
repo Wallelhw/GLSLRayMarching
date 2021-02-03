@@ -268,7 +268,8 @@ public:
 		else
 			renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
 
-		renderStates.depthTestState.enabled = true;
+		renderStates.depthTestState.depthTestEnabled = true;
+		renderStates.depthTestState.depthWriteEnabled = true;
 		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 		renderStates.Apply();
 
