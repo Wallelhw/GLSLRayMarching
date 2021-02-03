@@ -6,7 +6,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-static unsigned int texGLTypes[] =
+static unsigned int textureGLTypes[] =
 {
 	GL_TEXTURE_1D,
 	GL_TEXTURE_2D,
@@ -14,13 +14,13 @@ static unsigned int texGLTypes[] =
 	GL_TEXTURE_CUBE_MAP
 };
 
-static unsigned int texGLWraps[] =
+static unsigned int textureGLWraps[] =
 {
 	GL_REPEAT,
 	GL_CLAMP
 };
 
-static unsigned int texGLMinFilters[] =
+static unsigned int textureGLMinFilters[] =
 {
 	GL_NEAREST,
 	GL_LINEAR,
@@ -30,53 +30,130 @@ static unsigned int texGLMinFilters[] =
 	GL_LINEAR_MIPMAP_LINEAR
 };
 
-static unsigned int texGLMagFilters[] =
+static unsigned int textureGLMagFilters[] =
 {
 	GL_NEAREST,
 	GL_LINEAR,
 };
 
-static unsigned int texGLFormats[] =
+typedef struct 
 {
-	GL_RED,
-	GL_RG,
-	GL_RGB,
-	GL_BGR,
-	GL_RGBA,
-	GL_BGRA,
-	GL_RED_INTEGER,
-	GL_RG_INTEGER,
-	GL_RGB_INTEGER,
-	GL_BGR_INTEGER,
-	GL_RGBA_INTEGER,
-	GL_BGRA_INTEGER,
-	GL_STENCIL_INDEX,
-	GL_DEPTH_COMPONENT,
-	GL_DEPTH_STENCIL
+	unsigned int internal;
+	unsigned int format;
+	unsigned int type;
+	float bytePerPixels;
+}Formats;
+
+static Formats textureGLFormats[] =
+{
+	{ GL_R8						, GL_RED					, GL_UNSIGNED_BYTE					 , 1.0f },
+	{ GL_R8_SNORM				, GL_RED					, GL_BYTE							 , 1.0f },
+	{ GL_R16F					, GL_RED					, GL_HALF_FLOAT						 , 2.0f },
+	{ GL_R32F					, GL_RED					, GL_FLOAT							 , 4.0f },
+	{ GL_R8UI					, GL_RED_INTEGER			, GL_UNSIGNED_BYTE					 , 1.0f },
+	{ GL_R8I					, GL_RED_INTEGER			, GL_BYTE							 , 1.0f },
+	{ GL_R16UI					, GL_RED_INTEGER			, GL_UNSIGNED_SHORT					 , 2.0f },
+	{ GL_R16I					, GL_RED_INTEGER			, GL_SHORT							 , 2.0f },
+	{ GL_R32UI					, GL_RED_INTEGER			, GL_UNSIGNED_INT					 , 4.0f },
+	{ GL_R32I					, GL_RED_INTEGER			, GL_INT							 , 4.0f },
+
+	{ GL_RG8					, GL_RG						, GL_UNSIGNED_BYTE					 , 2.0f },
+	{ GL_RG8_SNORM				, GL_RG						, GL_BYTE							 , 2.0f },
+	{ GL_RG16F					, GL_RG						, GL_HALF_FLOAT						 , 4.0f },
+	{ GL_RG32F					, GL_RG						, GL_FLOAT							 , 8.0f },
+	{ GL_RG8UI					, GL_RG_INTEGER				, GL_UNSIGNED_BYTE					 , 2.0f },
+	{ GL_RG8I					, GL_RG_INTEGER				, GL_BYTE							 , 2.0f },
+	{ GL_RG16UI					, GL_RG_INTEGER				, GL_UNSIGNED_SHORT					 , 4.0f },
+	{ GL_RG16I					, GL_RG_INTEGER				, GL_SHORT							 , 4.0f },
+	{ GL_RG32UI					, GL_RG_INTEGER				, GL_UNSIGNED_INT					 , 8.0f },
+	{ GL_RG32I					, GL_RG_INTEGER				, GL_INT							 , 8.0f },
+
+	{ GL_RGB8					, GL_RGB					, GL_UNSIGNED_BYTE					 , 3.0f },
+	{ GL_SRGB8					, GL_RGB					, GL_UNSIGNED_BYTE					 , 3.0f },
+	{ GL_RGB565					, GL_RGB					, GL_UNSIGNED_SHORT_5_6_5			 , 2.0f },
+	{ GL_RGB8_SNORM				, GL_RGB					, GL_BYTE							 , 3.0f },
+	{ GL_R11F_G11F_B10F			, GL_RGB					, GL_HALF_FLOAT						 , 4.0f },
+	{ GL_RGB9_E5				, GL_RGB					, GL_HALF_FLOAT						 , 4.0f },
+	{ GL_RGB16F					, GL_RGB					, GL_HALF_FLOAT						 , 6.0f },
+	{ GL_RGB32F					, GL_RGB					, GL_FLOAT							 , 12.0f },
+	{ GL_RGB8UI					, GL_RGB_INTEGER			, GL_UNSIGNED_BYTE					 , 3.0f },
+	{ GL_RGB8I					, GL_RGB_INTEGER			, GL_BYTE							 , 3.0f },
+	{ GL_RGB16UI				, GL_RGB_INTEGER			, GL_UNSIGNED_SHORT					 , 6.0f },
+	{ GL_RGB16I					, GL_RGB_INTEGER			, GL_SHORT							 , 6.0f },
+	{ GL_RGB32UI				, GL_RGB_INTEGER			, GL_UNSIGNED_INT					 , 12.0f },
+	{ GL_RGB32I					, GL_RGB_INTEGER			, GL_INT							 , 12.0f },
+
+	{ GL_RGBA8					, GL_RGBA					, GL_UNSIGNED_BYTE					 , 4.0f },
+	{ GL_SRGB8_ALPHA8			, GL_RGBA					, GL_UNSIGNED_BYTE					 , 4.0f },
+	{ GL_RGBA8_SNORM			, GL_RGBA					, GL_BYTE							 , 4.0f },
+	{ GL_RGB5_A1				, GL_RGBA					, GL_UNSIGNED_BYTE					 , 2.0f },
+	{ GL_RGBA4					, GL_RGBA					, GL_UNSIGNED_BYTE					 , 2.0f },
+	{ GL_RGB10_A2				, GL_RGBA					, GL_UNSIGNED_INT_2_10_10_10_REV	 , 4.0f },
+	{ GL_RGBA16F				, GL_RGBA					, GL_HALF_FLOAT						 , 8.0f },
+	{ GL_RGBA32F				, GL_RGBA					, GL_FLOAT							 , 16.0f },
+	{ GL_RGBA8UI				, GL_RGBA_INTEGER			, GL_UNSIGNED_BYTE					 , 4.0f },
+	{ GL_RGBA8I					, GL_RGBA_INTEGER			, GL_BYTE							 , 4.0f },
+	{ GL_RGB10_A2UI				, GL_RGBA_INTEGER			, GL_UNSIGNED_INT_2_10_10_10_REV	 , 4.0f },
+	{ GL_RGBA16UI				, GL_RGBA_INTEGER			, GL_UNSIGNED_SHORT					 , 8.0f },
+	{ GL_RGBA16I				, GL_RGBA_INTEGER			, GL_SHORT							 , 8.0f },
+	{ GL_RGBA32I				, GL_RGBA_INTEGER			, GL_INT							 , 16.0f },
+	{ GL_RGBA32UI				, GL_RGBA_INTEGER			, GL_UNSIGNED_INT					 , 16.0f },
+
+	{ GL_DEPTH_COMPONENT16		, GL_DEPTH_COMPONENT		, GL_UNSIGNED_SHORT					, 2.0f },
+	{ GL_DEPTH_COMPONENT24		, GL_DEPTH_COMPONENT		, GL_UNSIGNED_INT					, 3.0f },
+	{ GL_DEPTH_COMPONENT32F		, GL_DEPTH_COMPONENT		, GL_FLOAT							, 4.0f },
+	{ GL_DEPTH24_STENCIL8		, GL_DEPTH_STENCIL			, GL_UNSIGNED_INT_24_8				, 4.0f },
+	{ GL_DEPTH32F_STENCIL8		, GL_DEPTH_STENCIL			, GL_FLOAT_32_UNSIGNED_INT_24_8_REV	, 5.0f },
+	{ GL_STENCIL_INDEX8			, GL_STENCIL_INDEX			, GL_UNSIGNED_BYTE					, 1.0f },
+
+	{ GL_COMPRESSED_R11_EAC								, GL_RED		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_SIGNED_R11_EAC						, GL_RED		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_RG11_EAC							, GL_RG			, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_SIGNED_RG11_EAC						, GL_RG			, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_RGB8_ETC2							, GL_RGB		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_SRGB8_ETC2							, GL_RGB		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2		, GL_RGBA		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2		, GL_RGBA		, 0						, 8.0f / 4 / 4 },
+	{ GL_COMPRESSED_RGBA8_ETC2_EAC						, GL_RGBA		, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC				, GL_RGBA		, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_RGBA_ASTC_4x4_KHR					, GL_RGBA		, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_RGBA_ASTC_5x4_KHR					, GL_RGBA		, 0						, 16.0f / 5 / 4 },
+	{ GL_COMPRESSED_RGBA_ASTC_5x5_KHR					, GL_RGBA		, 0						, 16.0f / 5 / 5 },
+	{ GL_COMPRESSED_RGBA_ASTC_6x5_KHR					, GL_RGBA		, 0						, 16.0f / 6 / 5 },
+	{ GL_COMPRESSED_RGBA_ASTC_6x6_KHR					, GL_RGBA		, 0						, 16.0f / 6 / 6 },
+	{ GL_COMPRESSED_RGBA_ASTC_8x5_KHR					, GL_RGBA		, 0						, 16.0f / 8 / 5 },
+	{ GL_COMPRESSED_RGBA_ASTC_8x6_KHR					, GL_RGBA		, 0						, 16.0f / 8 / 6 },
+	{ GL_COMPRESSED_RGBA_ASTC_8x8_KHR					, GL_RGBA		, 0						, 16.0f / 8 / 8 },
+	{ GL_COMPRESSED_RGBA_ASTC_10x5_KHR					, GL_RGBA		, 0						, 16.0f / 10 / 5 },
+	{ GL_COMPRESSED_RGBA_ASTC_10x6_KHR					, GL_RGBA		, 0						, 16.0f / 10 / 6 },
+	{ GL_COMPRESSED_RGBA_ASTC_10x8_KHR					, GL_RGBA		, 0						, 16.0f / 10 / 8 },
+	{ GL_COMPRESSED_RGBA_ASTC_10x10_KHR					, GL_RGBA		, 0						, 16.0f / 10 / 10 },
+	{ GL_COMPRESSED_RGBA_ASTC_12x10_KHR					, GL_RGBA		, 0						, 16.0f / 12 / 10 },
+	{ GL_COMPRESSED_RGBA_ASTC_12x12_KHR					, GL_RGBA		, 0						, 16.0f / 10 / 12 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR			, GL_RGBA		, 0						, 16.0f / 4 / 4 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR			, GL_RGBA		, 0						, 16.0f / 5 / 4 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR			, GL_RGBA		, 0						, 16.0f / 5 / 5 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR			, GL_RGBA		, 0						, 16.0f / 6 / 5 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR			, GL_RGBA		, 0						, 16.0f / 6 / 6 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR			, GL_RGBA		, 0						, 16.0f / 8 / 5 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR			, GL_RGBA		, 0						, 16.0f / 8 / 6 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR			, GL_RGBA		, 0						, 16.0f / 8 / 8 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR			, GL_RGBA		, 0						, 16.0f / 10 / 5 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR			, GL_RGBA		, 0						, 16.0f / 10 / 6 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR			, GL_RGBA		, 0						, 16.0f / 10 / 8 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR			, GL_RGBA		, 0						, 16.0f / 10 / 10 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR			, GL_RGBA		, 0						, 16.0f / 12 / 10 },
+	{ GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR			, GL_RGBA		, 0						, 16.0f / 12 / 12 }
 };
 
-static unsigned int texGLPixelFormats[] =
+static unsigned int textureCubeMapGLSide[] =
 {
-	GL_UNSIGNED_BYTE,
-	GL_BYTE,
-	GL_UNSIGNED_SHORT,
-	GL_SHORT,
-	GL_UNSIGNED_INT,
-	GL_INT,
-	GL_HALF_FLOAT,
-	GL_FLOAT,
-	GL_UNSIGNED_BYTE_3_3_2,
-	GL_UNSIGNED_BYTE_2_3_3_REV,
-	GL_UNSIGNED_SHORT_5_6_5,
-	GL_UNSIGNED_SHORT_5_6_5_REV,
-	GL_UNSIGNED_SHORT_4_4_4_4,
-	GL_UNSIGNED_SHORT_4_4_4_4_REV,
-	GL_UNSIGNED_SHORT_5_5_5_1,
-	GL_UNSIGNED_SHORT_1_5_5_5_REV,
-	GL_UNSIGNED_INT_8_8_8_8,
-	GL_UNSIGNED_INT_8_8_8_8_REV,
-	GL_UNSIGNED_INT_10_10_10_2,
-	GL_UNSIGNED_INT_2_10_10_10_REV
+	GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 };
 
 class TextureImpl
@@ -84,9 +161,7 @@ class TextureImpl
 public:
 	TextureImpl(Texture::Type type_)
 		: type(type_)
-		, format(Texture::Format::RGBA)
-		, internalformat(GL_RGBA)
-		, pixelFormat(Texture::PixelFormat::UNSIGNED_BYTE)
+		, format(Texture::Format::RGBA32UI)
 		, handle(0)
 
 		, warpS(Texture::Wrap::REPEAT)
@@ -99,8 +174,6 @@ public:
 
 	Texture::Type type;
 	Texture::Format format;
-	unsigned internalformat;
-	Texture::PixelFormat pixelFormat;
 	unsigned int handle;
 
 	Texture::Wrap warpS;
@@ -155,13 +228,15 @@ void Texture::Bind(unsigned int texStage_)
 	if (impl->handle)
 	{
 		glActiveTexture(GL_TEXTURE0 + texStage_);
-		glBindTexture(texGLTypes[(int)impl->type], impl->handle);
 
-		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_S, texGLWraps[(int)impl->warpS]);
-		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_T, texGLWraps[(int)impl->warpT]);
-		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_WRAP_R, texGLWraps[(int)impl->warpR]);
-		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_MIN_FILTER, texGLMinFilters[(int)impl->minFilter]);
-		glTexParameteri(texGLTypes[(int)impl->type], GL_TEXTURE_MAG_FILTER, texGLMagFilters[(int)impl->magFilter]);
+		unsigned int textureType = textureGLTypes[(int)impl->type];
+		glBindTexture(textureType, impl->handle);
+
+		glTexParameteri(textureType, GL_TEXTURE_WRAP_S, textureGLWraps[(int)impl->warpS]);
+		glTexParameteri(textureType, GL_TEXTURE_WRAP_T, textureGLWraps[(int)impl->warpT]);
+		glTexParameteri(textureType, GL_TEXTURE_WRAP_R, textureGLWraps[(int)impl->warpR]);
+		glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, textureGLMinFilters[(int)impl->minFilter]);
+		glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, textureGLMagFilters[(int)impl->magFilter]);
 	}
 }
 
@@ -169,7 +244,7 @@ void Texture::Unbind()
 {
 	Assert(impl);
 
-	glBindTexture(texGLTypes[(int)impl->type], 0);
+	glBindTexture(textureGLTypes[(int)impl->type], 0);
 }
 
 Texture::Type Texture::GetType()  const
@@ -184,13 +259,6 @@ Texture::Format Texture::GetFormat()  const
 	Assert(impl);
 
 	return impl->format;
-}
-
-Texture::PixelFormat Texture::GetPixelFormat()  const
-{
-	Assert(impl);
-
-	return impl->pixelFormat;
 }
 
 unsigned int Texture::GetHandle() const
@@ -270,72 +338,158 @@ Texture::MagFilter Texture::GetMagFilter() const
 	return impl->magFilter;
 }
 
-void Texture::SetFormat(unsigned int internalformat, Texture::Format format, Texture::Type type)
+Texture::Format Texture::GetFormat(unsigned int nrComponents_, Texture::Precision precision) const
 {
 	Assert(impl);
 
-	impl->internalformat = internalformat;
-	impl->format = format;
-	impl->type = type;
+	if (nrComponents_ == 1)
+	{
+		if (precision == Texture::Precision::HIGH)
+		{
+			return Texture::Format::R32F;
+		}
+		else if (precision == Texture::Precision::MID)
+		{
+			return Texture::Format::R16F;
+		}
+		else// if (precision == Texture::Precision::LOW)
+		{
+			return Texture::Format::R8;
+		}
+	}
+	else if (nrComponents_ == 2)
+	{
+		if (precision == Texture::Precision::HIGH)
+		{
+			return Texture::Format::RG32F;
+		}
+		else if (precision == Texture::Precision::MID)
+		{
+			return Texture::Format::RG16F;
+		}
+		else// if (precision == Texture::Precision::LOW)
+		{
+			return Texture::Format::RG8;
+		}
+	}
+	else if (nrComponents_ == 3)
+	{
+		if (precision == Texture::Precision::HIGH)
+		{
+			return Texture::Format::RGB32F;
+		}
+		else if (precision == Texture::Precision::MID)
+		{
+			return Texture::Format::RGB16F;
+		}
+		else// if (precision == Texture::Precision::LOW)
+		{
+			return Texture::Format::RGB8;
+		}
+	}
+	else// if (nrComponents_ == 4)
+	{
+		if (precision == Texture::Precision::HIGH)
+		{
+			return Texture::Format::RGBA32F;
+		}
+		else if (precision == Texture::Precision::MID)
+		{
+			return Texture::Format::RGBA16F;
+		}
+		else// if (precision == Texture::Precision::LOW)
+		{
+			return Texture::Format::RGBA8;
+		}
+	}
 }
 
-void Texture::SetFormat(unsigned int nrComponents, bool isHDR)
+////////////////////////////////////////////////////////////////////////////////////
+Texture1D::Texture1D()
+: Texture(Texture::Type::TEXTURE_1D)
+, width(0)
+{
+	Assert(impl);
+}
+
+Texture1D::~Texture1D()
 {
 	Assert(impl);
 
-	if (nrComponents == 1)
-	{
-		impl->format = Texture::Format::RED;
-		if (isHDR)
-		{
-			impl->internalformat = GL_R32F;
-		}
-		else
-		{
-			impl->internalformat = GL_R16;
-		}
-	}
-	else if (nrComponents == 2)
-	{
-		impl->format = Texture::Format::RG;
-		if (isHDR)
-		{
-			impl->internalformat = GL_RG32F;
-		}
-		else
-		{
-			impl->internalformat = GL_RG16;
-		}
-	}
-	else if (nrComponents == 3)
-	{
-		impl->format = Texture::Format::RGB;
-		if (isHDR)
-		{
-			impl->internalformat = GL_RGB32F;
-		}
-		else
-		{
-			impl->internalformat = GL_RGB;
-		}
-	}
-	else if (nrComponents == 4)
-	{
-		impl->format = Texture::Format::RGBA;
-		if (isHDR)
-		{
-			impl->internalformat = GL_RGBA32F;
-		}
-		else
-		{
-			impl->internalformat = GL_RGBA;
-		}
-	}
+	Destroy();
+}
 
-	if (isHDR)
-		impl->pixelFormat = Texture::PixelFormat::FLOAT;
+bool Texture1D::Create(unsigned int width_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	impl->format = format_;
+	width = width_;
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+	glGenTextures(1, &impl->handle);
+	glBindTexture(GL_TEXTURE_1D, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexImage1D(textureType, 0, f.internal, width_, 0, (GLsizei)(f.bytePerPixels * width_), src_);
 	else
-		impl->pixelFormat = Texture::PixelFormat::UNSIGNED_BYTE;
+		glTexImage1D(textureType, 0, f.internal, width_, 0, f.format, f.type, src_);
+	glGenerateMipmap(textureType);
+
+	return Texture::Create();
+}
+
+bool Texture1D::Create(unsigned int width_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+{
+	Assert(impl);
+
+	return Create(width_, GetFormat(nrComponents_, precision_), src_);
+}
+
+void Texture1D::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+void Texture1D::Update(unsigned int x_, unsigned int width_, void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage1D(textureType, level_ == -1 ? 0 : level_, x_, width_, f.format, (GLsizei)(f.bytePerPixels * width_), src_);
+	else
+		glTexSubImage1D(textureType, level_ == -1 ? 0 : level_, 0, width_, f.format, f.type, src_);
+
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void Texture1D::Update(void* src_, int level_)
+{
+	Update(0, width, src_, level_);
+}
+
+void Texture1D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = width;
+	*h_ = 1;
+	*d_ = 1;
+}
+
+unsigned int Texture1D::GetWidth() const
+{
+	Assert(impl);
+
+	return width;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -354,60 +508,35 @@ Texture2D::~Texture2D()
 	Destroy();
 }
 
-bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int internalformat_, Texture::Format format_, Texture::Type type_, void* data_)
+bool Texture2D::Create(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
-	SetFormat(internalformat_, format_, impl->type);
-
+	impl->format = format_;
 	width = width_;
 	height = height_;
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
 	glGenTextures(1, &impl->handle);
-	glBindTexture(GL_TEXTURE_2D, impl->handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalformat_, width_, height_, 0, texGLFormats[(int)format_], texGLPixelFormats[(int)impl->pixelFormat], data_);
+	glBindTexture(textureType, impl->handle);
 
-	return Texture::Create();
-}
-
-bool Texture2D::Create(unsigned int width, unsigned int height, unsigned int nrComponents, bool isHDR, void* data, bool vflip)
-{
-	Assert(impl);
-
-	SetFormat(nrComponents, isHDR);
-
-	if (isHDR)
-	{
-		if (vflip)
-			stbi__vertical_flip(data, width, height, nrComponents * 4);
-	}
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexImage2D(textureType, 0, f.internal, width_, height_, 0, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
 	else
-	{
-		if (vflip)
-			stbi__vertical_flip(data, width, height, nrComponents * 1);
-	}
+		glTexImage2D(textureType, 0, f.internal, width_, height_, 0, f.format, f.type, src_);
 
-	this->width = width;
-	this->height = height;
-	glGenTextures(1, &this->impl->handle);
-	glBindTexture(GL_TEXTURE_2D, this->impl->handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, impl->internalformat, width, height, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glGenerateMipmap(textureType);
 
 	return Texture::Create();
 }
 
-void Texture2D::Update()
-{
-	Assert(impl);
-}
-
-void Texture2D::UpdateData(void* data)
+bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
 {
 	Assert(impl);
 
-	glBindTexture(GL_TEXTURE_2D, impl->handle);
-
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data);
+	return Create(width_, height_, GetFormat(nrComponents_, precision_), src_);
 }
 
 void Texture2D::Destroy()
@@ -417,13 +546,39 @@ void Texture2D::Destroy()
 	return Texture::Destroy();
 }
 
-void Texture2D::GetResolution(Vector3& resolution) const
+void Texture2D::Update(unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int level_)
 {
 	Assert(impl);
 
-	resolution = Vector3((float)width, (float)height, 1.0f);
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, y_, width_, height_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+	else
+		glTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, y_, width_, height_, f.format, f.type, src_);
+
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
 }
 
+void Texture2D::Update(void* src_, int level_)
+{
+	Assert(impl);
+
+	Update(0, 0, width, height, src_, level_);
+}
+
+void Texture2D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = width;
+	*h_ = height;
+	*d_ = 1;
+
+}
 unsigned int Texture2D::GetWidth() const
 {
 	Assert(impl);
@@ -436,6 +591,253 @@ unsigned int Texture2D::GetHeight() const
 	Assert(impl);
 
 	return height;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+Texture3D::Texture3D()
+: Texture(Texture::Type::TEXTURE_3D)
+, width(0)
+, height(0)
+, depth(0)
+{
+	Assert(impl);
+}
+
+Texture3D::~Texture3D()
+{
+	Assert(impl);
+
+	Destroy();
+}
+
+bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	impl->format = format_;
+
+	width = width_;
+	height = height_;
+	depth = depth_;
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glGenTextures(1, &impl->handle);
+	glBindTexture(textureType, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexImage3D(textureType, 0, f.internal, width_, height_, depth_, 0, (GLsizei)(f.bytePerPixels * width_ * height_ * depth_), src_);
+	else
+		glTexImage3D(textureType, 0, f.internal, width_, height_, depth_, 0, f.format, f.type, src_);
+	
+	glGenerateMipmap(textureType);
+
+	return Texture::Create();
+}
+
+bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+{
+	Assert(impl);
+
+	return Create(width_, height_, depth_, GetFormat(nrComponents_, precision_), src_);
+}
+
+void Texture3D::Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int width_, unsigned int height_, unsigned int depth_, void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage3D(textureType, level_ == -1 ? 0 : level_, x_, y_, z_, width_, height_, depth_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_ * depth_), src_);
+	else
+		glTexSubImage3D(textureType, level_ == -1 ? 0 : level_, x_, y_, z_, width_, height_, depth_, f.format, f.type, src_);
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void Texture3D::Update(void* src_, int level_)
+{
+	Assert(impl);
+
+	Update(0, 0, 0, width, height, depth, src_, level_);
+}
+
+void Texture3D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = width;
+	*h_ = height;
+	*d_ = depth;
+}
+
+void Texture3D::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+unsigned int Texture3D::GetWidth() const
+{
+	Assert(impl);
+
+	return width;
+}
+
+unsigned int Texture3D::GetHeight() const
+{
+	Assert(impl);
+
+	return height;
+}
+
+unsigned int Texture3D::GetDepth() const
+{
+	Assert(impl);
+
+	return depth;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+static unsigned int textureCubeMapGLSides[] =
+{
+	GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+};
+
+enum class Side
+{
+	POSITIVE_X = 0,
+	NEGATIVE_X,
+	POSITIVE_Y,
+	NEGATIVE_Y,
+	POSITIVE_Z,
+	NEGATIVE_Z
+};
+
+TextureCubeMap::TextureCubeMap()
+: Texture(Texture::Type::TEXTURE_CUBE_MAP)
+, size(0)
+, faceDataSize(0)
+{
+}
+
+TextureCubeMap::~TextureCubeMap()
+{
+	Assert(impl);
+
+	Destroy();
+}
+
+bool TextureCubeMap::Create(unsigned int size_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	impl->format = format_;
+	
+	size = size_;
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	faceDataSize = size_ * size_ * f.bytePerPixels;
+	unsigned char* dataPtr = (unsigned char*)src_;
+
+	glGenTextures(1, &impl->handle);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	
+	return Texture::Create();
+}
+
+bool TextureCubeMap::Create(unsigned int size_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+{
+	return Create(size_, GetFormat(nrComponents_, precision_), src_);
+}
+
+void TextureCubeMap::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+void TextureCubeMap::Update(Side side_, void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	glTexSubImage2D(textureCubeMapGLSide[(int)side_], level_ == -1 ? 0 : level_, 0, 0, size, size, f.format, f.type, src_);
+	
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void TextureCubeMap::Update(void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	
+	unsigned char* dataPtr = (unsigned char*)src_;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void TextureCubeMap::Update(Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	glTexSubImage2D(textureCubeMapGLSide[(int)side_], level_ == -1 ? 0 : level_, x_, y_, w_, h_, f.format, f.type, src_);
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void TextureCubeMap::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = size;
+	*h_ = size;
+	*d_ = 1;
+}
+
+unsigned int TextureCubeMap::GetSize() const
+{
+	Assert(impl);
+
+	return size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -463,15 +865,20 @@ bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 	if (isHDR)
 	{
 		data = stbi_loadf(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 4);
 	}
 	else
 	{
 		data = stbi_load(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 1);
 	}
 
 	if (data)
 	{
-		bool result = Texture2D::Create(width, height, nrComponents, isHDR, data, vflip_);
+		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		bool result = Texture2D::Create(width, height, nrComponents, precision, data);
 
 		stbi_image_free(data);
 
@@ -487,92 +894,68 @@ void Texture2DFile::Destroy()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture2D::Destroy();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-TextureCubeMap::TextureCubeMap()
-	: Texture(Texture::Type::TEXTURE_CUBE_MAP)
-	, size(0)
-	, faceDataSize(0)
+Texture3DFile::Texture3DFile()
+	: Texture3D()
 {
 }
 
-TextureCubeMap::~TextureCubeMap()
+Texture3DFile::~Texture3DFile()
 {
 	Assert(impl);
 
 	Destroy();
 }
 
-bool TextureCubeMap::Create(unsigned int size, unsigned int nrComponents, bool isHDR, void* data, bool vflip)
+bool Texture3DFile::Create(const std::string& path_, bool vflip_)
 {
 	Assert(impl);
 
-	this->size = size;
-	SetFormat(nrComponents, isHDR);
+	bool isHDR = stbi_is_hdr(path_.c_str());
+
+	int width, height, depth, nrComponents;
+
+	void* data = nullptr;
 	if (isHDR)
-		faceDataSize = size * size * nrComponents * sizeof(float);
+	{
+		data = stbi_loadf(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 4);
+	}
 	else
-		faceDataSize = size * size * nrComponents * sizeof(unsigned char);
+	{
+		data = stbi_load(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 1);
+	}
+	depth = 1;
 
-	unsigned char* dataPtr = (unsigned char*)data;
+	if (data)
+	{
+		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		bool result = Texture3D::Create(width, height, depth, nrComponents, precision, data);
 
-	glGenTextures(1, &impl->handle);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, impl->internalformat, size, size, 0, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data ? dataPtr : data); dataPtr += faceDataSize;
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		stbi_image_free(data);
 
-	return Texture::Create();
+		return result;
+	}
+	else
+	{
+		return false;
+	}
 }
 
-void TextureCubeMap::Destroy()
+void Texture3DFile::Destroy()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture3D::Destroy();
 }
 
-void TextureCubeMap::Update()
-{
-	Assert(impl);
-}
-
-void TextureCubeMap::UpdateData(void* data)
-{
-	Assert(impl);
-
-	unsigned char* dataPtr = (unsigned char*)data;
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, size, size, texGLFormats[(int)impl->format], texGLPixelFormats[(int)impl->pixelFormat], data); dataPtr += faceDataSize;
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-}
-
-void TextureCubeMap::GetResolution(Vector3& resolution) const
-{
-	Assert(impl);
-
-	resolution = Vector3(size, size, 1.0);
-}
-
-unsigned int TextureCubeMap::GetSize() const
-{
-	Assert(impl);
-
-	return size;
-}
-
+///////////////////////////////////////////////////////////////////////////////////////
 TextureCubeMapFile::TextureCubeMapFile()
 	: TextureCubeMap()
 {
@@ -594,13 +977,23 @@ bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 	int width, height, nrComponents;
 	void* data = nullptr;
 	if (isHDR)
+	{
 		data = stbi_loadf(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 4);
+
+	}
 	else
+	{
 		data = stbi_load(path_.c_str(), &width, &height, &nrComponents, 0);
+		if (vflip_)
+			stbi__vertical_flip(data, width, height, nrComponents * 1);
+	}
 
 	if (data)
 	{
-		bool result = TextureCubeMap::Create(width, nrComponents, isHDR, data, vflip_);
+		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		bool result = TextureCubeMap::Create(width, nrComponents, precision, data);
 
 		stbi_image_free(data);
 
@@ -616,5 +1009,5 @@ void TextureCubeMapFile::Destroy()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return TextureCubeMap::Destroy();
 }

@@ -234,301 +234,606 @@ void ShaderProgram::Unbind() const
 	glUseProgram(0);
 }
 
-void ShaderProgram::SetUniform1i(const char* name_, int v0_)
+unsigned int ShaderProgram::GetUniformLocation(const char* uniform_) const
 {
 	Assert(impl);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1i(idx, v0_);
+	return glGetUniformLocation(impl->handle, uniform_);
 }
 
-void ShaderProgram::SetUniform2i(const char* name_, int v0_, int v1_)
+void ShaderProgram::SetUniform1i(const char* uniform_, int v0_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2i(idx, v0_, v1_);
+	SetUniform1i(location, v0_);
 }
 
-void ShaderProgram::SetUniform3i(const char* name_, int v0_, int v1_, int v2_)
+void ShaderProgram::SetUniform2i(const char* uniform_, int v0_, int v1_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3i(idx, v0_, v1_, v2_);
+	SetUniform2i(location, v0_, v1_);
 }
 
-void ShaderProgram::SetUniform4i(const char* name_, int v0_, int v1_, int v2_, int v3_)
+void ShaderProgram::SetUniform3i(const char* uniform_, int v0_, int v1_, int v2_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4i(idx, v0_, v1_, v2_, v3_);
+	SetUniform3i(location, v0_, v1_, v2_);
 }
 
-void ShaderProgram::SetUniform1iv(const char* name_, int count_, const int* v_)
+void ShaderProgram::SetUniform4i(const char* uniform_, int v0_, int v1_, int v2_, int v3_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1iv(idx, count_, v_);
+	SetUniform4i(location, v0_, v1_, v2_, v3_);
 }
 
-void ShaderProgram::SetUniform2iv(const char* name_, int count_, const int* v_)
+void ShaderProgram::SetUniform1iv(const char* uniform_, int count_, const int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2iv(idx, count_, v_);
+	SetUniform1iv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform3iv(const char* name_, int count_, const int* v_)
+void ShaderProgram::SetUniform2iv(const char* uniform_, int count_, const int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3iv(idx, count_, v_);
+	SetUniform2iv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform4iv(const char* name_, int count_, const int* v_)
+void ShaderProgram::SetUniform3iv(const char* uniform_, int count_, const int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4iv(idx, count_, v_);
+	SetUniform3iv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform1ui(const char* name_, unsigned int v0_)
+void ShaderProgram::SetUniform4iv(const char* uniform_, int count_, const int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1i(idx, v0_);
+	SetUniform4iv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform2ui(const char* name_, unsigned int v0_, unsigned int v1_)
+void ShaderProgram::SetUniform1ui(const char* uniform_, unsigned int v0_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2i(idx, v0_, v1_);
+	SetUniform1ui(location, v0_);
 }
 
-void ShaderProgram::SetUniform3ui(const char* name_, unsigned int v0_, unsigned int v1_, unsigned int v2_)
+void ShaderProgram::SetUniform2ui(const char* uniform_, unsigned int v0_, unsigned int v1_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3i(idx, v0_, v1_, v2_);
+	SetUniform2ui(location, v0_, v1_);
 }
 
-void ShaderProgram::SetUniform4ui(const char* name_, unsigned int v0_, unsigned int v1_, unsigned int v2_, unsigned int v3_)
+void ShaderProgram::SetUniform3ui(const char* uniform_, unsigned int v0_, unsigned int v1_, unsigned int v2_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4i(idx, v0_, v1_, v2_, v3_);
+	SetUniform3ui(location, v0_, v1_, v2_);
 }
 
-void ShaderProgram::SetUniform1uiv(const char* name_, int count_, const unsigned int* v_)
+void ShaderProgram::SetUniform4ui(const char* uniform_, unsigned int v0_, unsigned int v1_, unsigned int v2_, unsigned int v3_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1uiv(idx, count_, v_);
+	SetUniform4ui(location, v0_, v1_, v2_, v3_);
 }
 
-void ShaderProgram::SetUniform2uiv(const char* name_, int count_, const unsigned  int* v_)
+void ShaderProgram::SetUniform1uiv(const char* uniform_, int count_, const unsigned int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2uiv(idx, count_, v_);
+	SetUniform1uiv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform3uiv(const char* name_, int count_, const unsigned int* v_)
+void ShaderProgram::SetUniform2uiv(const char* uniform_, int count_, const unsigned int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3uiv(idx, count_, v_);
+	SetUniform2uiv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform4uiv(const char* name_, int count_, const unsigned int* v_)
+void ShaderProgram::SetUniform3uiv(const char* uniform_, int count_, const unsigned int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4uiv(idx, count_, v_);
+	SetUniform3uiv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform1f(const char* name_, float v0_)
+void ShaderProgram::SetUniform4uiv(const char* uniform_, int count_, const unsigned int* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1f(idx, v0_);
+	SetUniform4uiv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform2f(const char* name_, float v0_, float v1_)
+void ShaderProgram::SetUniform1f(const char* uniform_, float v0_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2f(idx, v0_, v1_);
+	SetUniform1f(location, v0_);
 }
 
-void ShaderProgram::SetUniform3f(const char* name_, float v0_, float v1_, float v2_)
+void ShaderProgram::SetUniform2f(const char* uniform_, float v0_, float v1_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3f(idx, v0_, v1_, v2_);
+	SetUniform2f(location, v0_, v1_);
 }
 
-void ShaderProgram::SetUniform4f(const char* name_, float v0_, float v1_, float v2_, float v3_)
+void ShaderProgram::SetUniform3f(const char* uniform_, float v0_, float v1_, float v2_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4f(idx, v0_, v1_, v2_, v3_);
+	SetUniform3f(location, v0_, v1_, v2_);
 }
 
-void ShaderProgram::SetUniform1fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniform4f(const char* uniform_, float v0_, float v1_, float v2_, float v3_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform1fv(idx, count_, v_);
+	SetUniform4f(location, v0_, v1_, v2_, v3_);
 }
 
-void ShaderProgram::SetUniform2fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniform1fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform2fv(idx, count_, v_);
+	SetUniform1fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform3fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniform2fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform3fv(idx, count_, v_);
+	SetUniform2fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniform4fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniform3fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniform4fv(idx, count_, v_);
+	SetUniform3fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix2x2fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniform4fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix2fv(idx, count_, true, v_);
+	SetUniform4fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix2x3fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix2x2fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix2x3fv(idx, count_, true, v_);
+	SetUniformMatrix2x2fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix2x4fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix2x3fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix2x4fv(idx, count_, true, v_);
+	SetUniformMatrix2x3fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix3x2fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix2x4fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix3x2fv(idx, count_, true, v_);
+	SetUniformMatrix2x4fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix3x3fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix3x2fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix3fv(idx, count_, true, v_);
+	SetUniformMatrix3x2fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix3x4fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix3x3fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix3x4fv(idx, count_, true, v_);
+	SetUniformMatrix3x3fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix4x2fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix3x4fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix4x2fv(idx, count_, true, v_);
+	SetUniformMatrix3x4fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix4x3fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix4x2fv(const char* uniform_, int count_, const float* v_)
 {
-	Assert(impl);
+	int location = GetUniformLocation(uniform_);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
-
-	glUniformMatrix4x3fv(idx, count_, true, v_);
+	SetUniformMatrix4x2fv(location, count_, v_);
 }
 
-void ShaderProgram::SetUniformMatrix4x4fv(const char* name_, int count_, const float* v_)
+void ShaderProgram::SetUniformMatrix4x3fv(const char* uniform_, int count_, const float* v_)
 {
+	int location = GetUniformLocation(uniform_);
+
+	SetUniformMatrix4x3fv(location, count_, v_);
+}
+
+void ShaderProgram::SetUniformMatrix4x4fv(const char* uniform_, int count_, const float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	SetUniformMatrix4x4fv(location, count_, v_);
+}
+
+#define USE_PROGRAM_UNIFORM
+void ShaderProgram::SetUniform1i(unsigned int uniformLocation_, int v0_)
+{
+#ifdef USE_PROGRAM_UNIFORM
 	Assert(impl);
 
-	int idx = glGetUniformLocation(impl->handle, name_);
+	glProgramUniform1i(impl->handle, uniformLocation_, v0_);
+#else
+	glUniform1i(uniformLocation_, v0_);
+#endif
+}
 
-	glUniformMatrix4fv(idx, count_, true, v_);
+void ShaderProgram::SetUniform2i(unsigned int uniformLocation_, int v0_, int v1_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2i(impl->handle, uniformLocation_, v0_, v1_);
+#else
+	glUniform2i(uniformLocation_, v0_, v1_);
+#endif
+}
+
+void ShaderProgram::SetUniform3i(unsigned int uniformLocation_, int v0_, int v1_, int v2_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3i(impl->handle, uniformLocation_, v0_, v1_, v2_);
+#else
+	glUniform3i(uniformLocation_, v0_, v1_, v2_);
+#endif
+}
+
+void ShaderProgram::SetUniform4i(unsigned int uniformLocation_, int v0_, int v1_, int v2_, int v3_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4i(impl->handle, uniformLocation_, v0_, v1_, v2_, v3_);
+#else
+	glUniform4i(uniformLocation_, v0_, v1_, v2_, v3_);
+#endif
+}
+
+void ShaderProgram::SetUniform1iv(unsigned int uniformLocation_, int count_, const int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform1iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform2iv(unsigned int uniformLocation_, int count_, const int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform2iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform3iv(unsigned int uniformLocation_, int count_, const int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform3iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform4iv(unsigned int uniformLocation_, int count_, const int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform4iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform1ui(unsigned int uniformLocation_, unsigned int v0_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1ui(impl->handle, uniformLocation_, v0_);
+#else
+	glUniform1ui(uniformLocation_, v0_);
+#endif
+}
+
+void ShaderProgram::SetUniform2ui(unsigned int uniformLocation_, unsigned int v0_, unsigned int v1_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2ui(impl->handle, uniformLocation_, v0_, v1_);
+#else
+	glUniform2ui(uniformLocation_, v0_, v1_);
+#endif
+}
+
+void ShaderProgram::SetUniform3ui(unsigned int uniformLocation_, unsigned int v0_, unsigned int v1_, unsigned int v2_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3ui(impl->handle, uniformLocation_, v0_, v1_, v2_);
+#else
+	glUniform3ui(uniformLocation_, v0_, v1_, v2_);
+#endif
+}
+
+void ShaderProgram::SetUniform4ui(unsigned int uniformLocation_, unsigned int v0_, unsigned int v1_, unsigned int v2_, unsigned int v3_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4ui(impl->handle, uniformLocation_, v0_, v1_, v2_, v3_);
+#else
+	glUniform4ui(uniformLocation_, v0_, v1_, v2_, v3_);
+#endif
+}
+
+void ShaderProgram::SetUniform1uiv(unsigned int uniformLocation_, int count_, const unsigned int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1uiv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform1uiv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform2uiv(unsigned int uniformLocation_, int count_, const unsigned int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2uiv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform2uiv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform3uiv(unsigned int uniformLocation_, int count_, const unsigned int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3uiv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform3uiv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform4uiv(unsigned int uniformLocation_, int count_, const unsigned int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4uiv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform4uiv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform1f(unsigned int uniformLocation_, float v0_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1f(impl->handle, uniformLocation_, v0_);
+#else
+	glUniform1f(uniformLocation_, v0_);
+#endif
+}
+
+void ShaderProgram::SetUniform2f(unsigned int uniformLocation_, float v0_, float v1_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2f(impl->handle, uniformLocation_, v0_, v1_);
+#else
+	glUniform2f(uniformLocation_, v0_, v1_);
+#endif
+}
+
+void ShaderProgram::SetUniform3f(unsigned int uniformLocation_, float v0_, float v1_, float v2_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3f(impl->handle, uniformLocation_, v0_, v1_, v2_);
+#else
+	glUniform3f(uniformLocation_, v0_, v1_, v2_);
+#endif
+}
+
+void ShaderProgram::SetUniform4f(unsigned int uniformLocation_, float v0_, float v1_, float v2_, float v3_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4f(impl->handle, uniformLocation_, v0_, v1_, v2_, v3_);
+#else
+	glUniform4f(uniformLocation_, v0_, v1_, v2_, v3_);
+#endif
+}
+
+void ShaderProgram::SetUniform1fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1fv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform1fv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform2fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2fv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform2fv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform3fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3fv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform3fv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniform4fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4fv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform4fv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix2x2fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix2fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix2fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix2x3fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix2x3fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix2x3fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix2x4fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix2x4fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix2x4fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix3x2fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix3x2fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix3x2fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix3x3fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix3fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix3fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix3x4fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix3x4fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix3x4fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix4x2fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix4x2fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix4x2fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix4x3fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix4x3fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix4x3fv(uniformLocation_, count_, true, v_);
+#endif
+}
+
+void ShaderProgram::SetUniformMatrix4x4fv(unsigned int uniformLocation_, int count_, const float* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniformMatrix4fv(impl->handle, uniformLocation_, count_, true, v_);
+#else
+	glUniformMatrix4fv(uniformLocation_, count_, true, v_);
+#endif
 }
 
 void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)

@@ -139,23 +139,19 @@ Buffer& Buffer::Begin(Buffer::Type type_, Buffer::Usage usage_)
 	return *this;
 }
 
-Buffer& Buffer::Fill(void* data_, int dataSize_)
+#define USE_MAPPING
+Buffer& Buffer::Fill(void* src_, int size_)
 {
 	Assert(impl);
 
-	/*
-	int err = 0;
-	glBindBuffer(buffer_type_GL[(int)type], handle);
-	err = glGetError();
-	void* data = glMapBuffer(buffer_type_GL[(int)type], GL_READ_WRITE);
-	err = glGetError();
-	memcpy(data, data_, dataSize_);
-	glUnmapBuffer(buffer_type_GL[(int)type]);
-	err = glGetError();
-	*/
-
+#ifdef USE_MAPPING
 	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
-	glBufferData(buffer_type_GL[(int)impl->type], dataSize_, data_, buffer_usage_GL[(int)impl->usage]);
+	glBufferData(buffer_type_GL[(int)impl->type], size_, src_, buffer_usage_GL[(int)impl->usage]);
+
+	void* dst = glMapBufferRange(buffer_type_GL[(int)impl->type], 0, size_, GL_MAP_WRITE_BIT);
+	Platform::MemCpy(dst, src_, size_);
+	glUnmapBuffer(buffer_type_GL[(int)impl->type]);
+	impl->size = size_;
 	// void* a = glMapBufferRange(buffer_type_GL[(int)impl->type], 0, 10, GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_WRITE_BIT);
 	// int err = glGetError();
 	// glUnmapBuffer(buffer_type_GL[(int)impl->type]);
@@ -165,17 +161,28 @@ Buffer& Buffer::Fill(void* data_, int dataSize_)
 	// GL_MAP_INVALIDATE_BUFFER_BIT
 	// GL_MAP_FLUSH_EXPLICIT_BIT
 	// GL_MAP_UNSYNCHRONIZED_BIT
+#else
+	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
+	glBufferData(buffer_type_GL[(int)impl->type], size_, src_, buffer_usage_GL[(int)impl->usage]);
+	impl->size = size_;
+#endif
 
-	impl->size = dataSize_;
 	return *this;
 }
 
-Buffer& Buffer::Update(int offset_, void* data_, int dataSize_)
+Buffer& Buffer::Update(int offset_, void* src_, int size_)
 {
 	Assert(impl);
 
+#ifdef USE_MAPPING
 	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
-	glBufferSubData(buffer_type_GL[(int)impl->type], offset_, dataSize_, data_);
+	void* dst = glMapBufferRange(buffer_type_GL[(int)impl->type], offset_, size_, GL_MAP_WRITE_BIT);
+	Platform::MemCpy(dst, src_, size_);
+	glUnmapBuffer(buffer_type_GL[(int)impl->type]);
+#else
+	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
+	glBufferSubData(buffer_type_GL[(int)impl->type], offset_, size_, src_);
+#endif
 
 	return *this;
 }
