@@ -2,7 +2,7 @@
 #define SC (250.0)
 
 // value noise, and its analytical derivatives
-vec3 noise_derivative( in vec2 x )
+vec3 noised( in vec2 x )
 {
     vec2 f = fract(x);
     vec2 u = f*f*(3.0-2.0*f);
@@ -23,11 +23,12 @@ vec3 noise_derivative( in vec2 x )
 	float d = textureLod( iChannel0, (p+vec2(1.5,1.5))/256.0, 0.0 ).x;
 #endif
     
-	return vec3(a+(b-a)*u.x+(c-a)*u.y+(a-b-c+d)*u.x*u.y, 
-                6.0*f*(1.0-f)*(vec2(b-a,c-a)+(a-b-c+d)*u.yx));
+	return vec3(a+(b-a)*u.x+(c-a)*u.y+(a-b-c+d)*u.x*u.y,
+				6.0*f*(1.0-f)*(vec2(b-a,c-a)+(a-b-c+d)*u.yx));
 }
 
 const mat2 m2 = mat2(0.8,-0.6,0.6,0.8);
+
 
 float terrainH( in vec2 x )
 {
@@ -37,9 +38,9 @@ float terrainH( in vec2 x )
 	vec2  d = vec2(0.0);
     for( int i=0; i<16; i++ )
     {
-        vec3 n = noise_derivative(p);
+        vec3 n = noised(p);
         d += n.yz;
-        a += b * n.x / (1.0+dot(d,d));
+        a += b*n.x/(1.0+dot(d,d));
 		b *= 0.5;
         p = m2*p*2.0;
     }
@@ -55,7 +56,7 @@ float terrainM( in vec2 x )
 	vec2  d = vec2(0.0);
     for( int i=0; i<9; i++ )
     {
-        vec3 n = noise_derivative(p);
+        vec3 n = noised(p);
         d += n.yz;
         a += b*n.x/(1.0+dot(d,d));
 		b *= 0.5;
@@ -72,7 +73,7 @@ float terrainL( in vec2 x )
 	vec2  d = vec2(0.0);
     for( int i=0; i<3; i++ )
     {
-        vec3 n = noise_derivative(p);
+        vec3 n = noised(p);
         d += n.yz;
         a += b*n.x/(1.0+dot(d,d));
 		b *= 0.5;
@@ -131,40 +132,9 @@ float fbm( vec2 p )
 
 const float kMaxT = 5000.0*SC;
 
-#define SKY_BASE_COLOR (vec3(0.3,0.5,0.85))
-#define SKY_MIST_COLOR (0.85*vec3(0.7,0.75,0.85))
-#define SUN_COLOR1 (0.25*vec3(1.0,0.7,0.4))
-#define SUN_COLOR2 (0.25*vec3(1.0,0.8,0.6))
-#define SUN_COLOR3 (0.20*vec3(1.0,0.8,0.6))
-
-#define HORIZON_COLOR  (0.68*vec3(0.4,0.65,1.0))
-#define CLOUD_COLOR    (vec3(1.0,0.95,1.0))
-
-#define ROCK_COLOR1     vec3(0.08,0.05,0.03)
-#define ROCK_COLOR2     vec3(0.10,0.09,0.08)
-#define GRASS_COLOR1    (0.20*vec3(0.45,.30,0.15))
-#define GRASS_COLOR2    (0.15*vec3(0.30,.30,0.10))
-
-#define SNOW_COLOR      (0.29*vec3(0.62,0.65,0.7))
-
-#define SNOW_THICKNESS1 55.0
-#define SNOW_THICKNESS2 80.0
-
-#define AMBIENT_LIGHT   0.5
-#define AMBIENT_LIGHT_AUGMENTATION  (0.5 * nor.y)
-#define AMBIENT_LIGHT_SCALE   (vec3(0.40,0.60,1.00) * 1.2)
-#define MOUNTAIN_AMBIENT_MIN 0.2
-#define MOUNTAIN_AMBIENT_RANGE 0.8
-#define MOUNTAIN_AMBIENT_SCALE vec3(0.40,0.50,0.60)
-
-#define DIRECTIONAL_LIGHT_SCALE (vec3(8.00,5.00,3.00) * 1.3)
-
-#define FOG_COLOR 0.65*vec3(0.4, 0.65, 1.0)
-#define SUN_SCATTER_COLOR 0.3*vec3(1.0,0.7,0.3)
-
 vec4 render( in vec3 ro, in vec3 rd )
 {
-    vec3 lightDir1 = normalize( vec3(-0.8,0.4,-0.3) );
+    vec3 light1 = normalize( vec3(-0.8,0.4,-0.3) );
     // bounding plane
     float tmin = 1.0;
     float tmax = kMaxT;
@@ -173,34 +143,32 @@ vec4 render( in vec3 ro, in vec3 rd )
     float tp = (maxh-ro.y)/rd.y;
     if( tp>0.0 )
     {
-        if( ro.y>maxh ) 
-            tmin = max( tmin, tp );
-        else
-            tmax = min( tmax, tp );
+        if( ro.y>maxh ) tmin = max( tmin, tp );
+        else            tmax = min( tmax, tp );
     }
 #endif
-	float sundot = clamp(dot(rd,lightDir1),0.0,1.0);
+	float sundot = clamp(dot(rd,light1),0.0,1.0);
 	vec3 col;
     float t = raycast( ro, rd, tmin, tmax );
     if( t>tmax)
     {
-        col = vec3(0.0, 0.0, 0.0);
+        col = vec3(1.0, 0.0, 0.0);
 
         // sky		
-        col = SKY_BASE_COLOR - rd.y*rd.y*0.5;
-        col = mix(col, SKY_MIST_COLOR, pow( 1.0-max(rd.y,0.0), 4.0 ));
+        col = vec3(0.3,0.5,0.85) - rd.y*rd.y*0.5;
+        col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
 
         // sun
-		col += SUN_COLOR1 * pow( sundot, 5.0 );   // sun falloff 1
-		col += SUN_COLOR2 * pow( sundot, 64.0 );  // sun falloff 2
-		col += SUN_COLOR3 * pow( sundot, 512.0 ); // sun falloff 3
+		col += 0.25*vec3(1.0,0.7,0.4)*pow( sundot,5.0 );
+		col += 0.25*vec3(1.0,0.8,0.6)*pow( sundot,64.0 );
+		col += 0.2*vec3(1.0,0.8,0.6)*pow( sundot,512.0 );
 
         // clouds
-		vec2 sc = ro.xz + rd.xz * (SC * 1000.0 - ro.y) / rd.y;
-		col = mix( col, CLOUD_COLOR, 0.5*smoothstep(0.5, 0.8, fbm(0.0005*sc/SC)) );
+		vec2 sc = ro.xz + rd.xz*(SC*1000.0-ro.y)/rd.y;
+		col = mix( col, vec3(1.0,0.95,1.0), 0.5*smoothstep(0.5,0.8,fbm(0.0005*sc/SC)) );
 
         // horizon
-        col = mix( col, HORIZON_COLOR, pow( 1.0-max(rd.y,0.0), 16.0 ) );
+        col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(rd.y,0.0), 16.0 ) );
 
         t = -1.0;
 	}
@@ -208,52 +176,57 @@ vec4 render( in vec3 ro, in vec3 rd )
 	{
         // mountains		
 		vec3 pos = ro + t*rd;
-        vec3 nor = calcNormal ( pos, t );
+        vec3 nor = calcNormal( pos, t );
+        //nor = normalize( nor + 0.5*( vec3(-1.0,0.0,-1.0) + vec3(2.0,1.0,2.0)*texture(iChannel1,0.01*pos.xz).xyz) );
         vec3 ref = reflect( rd, nor );
+        float fre = clamp( 1.0+dot(rd,nor), 0.0, 1.0 );
+        vec3 hal = normalize(light1-rd);
+     
+        col = vec3(0.0, 1.0, 0.0);
 
-        vec3 hal = normalize(lightDir1-rd);
-        float fre = clamp( 1.0+dot(rd, nor), 0.0, 1.0 );
 
         // rock
-        float rock = texture( iChannel0, (7.0/SC)*pos.xz/256.0 ).x;
-        col = (rock*0.25 + 0.75) * mix( ROCK_COLOR1, ROCK_COLOR2, 
-                                      texture(iChannel0,0.00007*vec2(pos.x,pos.y*48.0)/SC).x );
-		col = mix( col, GRASS_COLOR1*(0.50*rock + 0.50),smoothstep(0.70,0.9,nor.y) );
-        col = mix( col, GRASS_COLOR2*(0.75*rock + 0.25),smoothstep(0.95,1.0,nor.y) );
-		col *= 0.1 + 1.8 * sqrt(fbm(pos.xz*0.04) * fbm(pos.xz*0.005));
+ 
+		float r = texture( iChannel0, (7.0/SC)*pos.xz/256.0 ).x;
+        col = (r*0.25+0.75)*0.9*mix( vec3(0.08,0.05,0.03), vec3(0.10,0.09,0.08), 
+                                     texture(iChannel0,0.00007*vec2(pos.x,pos.y*48.0)/SC).x );
+
+		col = mix( col, 0.20*vec3(0.45,.30,0.15)*(0.50+0.50*r),smoothstep(0.70,0.9,nor.y) );
+        col = mix( col, 0.15*vec3(0.30,.30,0.10)*(0.25+0.75*r),smoothstep(0.95,1.0,nor.y) );
+		col *= 0.1+1.8*sqrt(fbm(pos.xz*0.04)*fbm(pos.xz*0.005));
+ 
 
 		// snow
-		float h = smoothstep(SNOW_THICKNESS1, SNOW_THICKNESS2, pos.y/SC + 25.0*fbm(0.01*pos.xz/SC) );
-        float e = smoothstep(1.0 - 0.5 * h, 1.0 - 0.1 * h, nor.y);
-        float o = 0.3 + 0.7 * smoothstep(0.0, 0.1, nor.x + h * h);
-        float snow = h * e * o;
-        col = mix( col, SNOW_COLOR, smoothstep( 0.1, 0.9, snow ) );
-        
-        // lighting	
-        float amb = clamp( AMBIENT_LIGHT + AMBIENT_LIGHT_AUGMENTATION, 0.0, 1.0); // 
-		float bac = clamp( MOUNTAIN_AMBIENT_MIN + MOUNTAIN_AMBIENT_RANGE * dot( normalize( vec3(-lightDir1.x, 0.0, lightDir1.z ) ), nor ), 0.0, 1.0 );
-		float dif = clamp( dot( lightDir1, nor ), 0.0, 1.0 );
-		float sh = 1.0; 
-        if(dif>=0.0001)
-            sh = softShadow(pos+lightDir1*SC*0.05,lightDir1);
-		
-		vec3 lin = vec3(0.0);
-		lin += amb * AMBIENT_LIGHT_SCALE;
-        lin += bac * MOUNTAIN_AMBIENT_SCALE;
-		lin += dif * DIRECTIONAL_LIGHT_SCALE * sh;// * vec3(sh, sh*sh*0.5+0.5*sh, sh*sh*0.8+0.2*sh);
-		col *= lin;
+		float h = smoothstep(55.0,80.0,pos.y/SC + 25.0*fbm(0.01*pos.xz/SC) );
+        float e = smoothstep(1.0-0.5*h,1.0-0.1*h,nor.y);
+        float o = 0.3 + 0.7*smoothstep(0.0,0.1,nor.x+h*h);
+        float s = h*e*o;
+        col = mix( col, 0.29*vec3(0.62,0.65,0.7), smoothstep( 0.1, 0.9, s ) );
 
-        col += (0.7+0.3*snow)*(0.04+0.96*pow(clamp(1.0+dot(hal,rd),0.0,1.0),5.0)) *
+        // lighting		
+        float amb = clamp(0.5+0.5*nor.y,0.0,1.0);
+		float dif = clamp( dot( light1, nor ), 0.0, 1.0 );
+		float bac = clamp( 0.2 + 0.8*dot( normalize( vec3(-light1.x, 0.0, light1.z ) ), nor ), 0.0, 1.0 );
+		float sh = 1.0; if( dif>=0.0001 ) sh = softShadow(pos+light1*SC*0.05,light1);
+		
+		vec3 lin  = vec3(0.0);
+		lin += dif*vec3(8.00,5.00,3.00)*1.3*vec3( sh, sh*sh*0.5+0.5*sh, sh*sh*0.8+0.2*sh );
+		lin += amb*vec3(0.40,0.60,1.00)*1.2;
+        lin += bac*vec3(0.40,0.50,0.60);
+		col *= lin;
+        
+        col += (0.7+0.3*s)*(0.04+0.96*pow(clamp(1.0+dot(hal,rd),0.0,1.0),5.0))*
                vec3(7.0,5.0,3.0)*dif*sh*
                pow( clamp(dot(nor,hal), 0.0, 1.0),16.0);
-        col += snow*0.65*pow(fre,4.0)*vec3(0.3,0.5,0.6)*smoothstep(0.0,0.6,ref.y);
+        col += s*0.65*pow(fre,4.0)*vec3(0.3,0.5,0.6)*smoothstep(0.0,0.6,ref.y);
 
 		// fog
-        float fogfactor = 1.0 - exp(-pow(0.001*t/SC, 1.5) );
-        col = mix(col, FOG_COLOR, fogfactor);
+        float fo = 1.0-exp(-pow(0.001*t/SC,1.5) );
+        vec3 fco = 0.65*vec3(0.4, 0.65, 1.0);
+        col = mix( col, fco, fo );
 	}
     // sun scatter
-    col += SUN_SCATTER_COLOR * pow(sundot, 8.0);
+    col += 0.3*vec3(1.0,0.7,0.3)*pow( sundot, 8.0 );
 
     // gamma
 	col = sqrt(col);
