@@ -1,6 +1,3 @@
-// Created by inigo quilez - iq/2013
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
 float noise( in vec3 x )
 {
     vec3 p = floor(x);
