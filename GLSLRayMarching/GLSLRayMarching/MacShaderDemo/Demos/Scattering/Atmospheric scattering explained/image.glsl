@@ -80,7 +80,7 @@ Note: 	Because rayleigh is a long word to type, I use ray instead on most variab
 #endif
 
 // camera mode, 0 is on the ground, 1 is in space, 2 is moving, 3 is moving from ground to space
-#define CAMERA_MODE 2
+#define CAMERA_MODE 0
 
 /*
 Next we'll define the main scattering function.

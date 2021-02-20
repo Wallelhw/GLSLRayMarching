@@ -6,79 +6,6 @@
 #include "Vector2.h"
 #include "Graphics.h"
 
-/*
-int renerStateGLEnableFlags[] =
-{
-	// GL_BLEND,
-	// GL_CULL_FACE,
-	GL_DEBUG_OUTPUT,
-	GL_DEBUG_OUTPUT_SYNCHRONOUS,
-	// GL_DEPTH_TEST,
-	GL_DITHER,
-	// GL_POLYGON_OFFSET_FILL,
-	GL_PRIMITIVE_RESTART_FIXED_INDEX,
-	GL_RASTERIZER_DISCARD,
-	GL_SAMPLE_ALPHA_TO_COVERAGE,
-	GL_SAMPLE_COVERAGE,
-	GL_SAMPLE_MASK,
-	// GL_SCISSOR_TEST,
-	// GL_STENCIL_TEST
-};
-
-/*
-Stencil
-2.0
-glStencilFunc
-glStencilMask
-glStencilOp
-glStencilFuncSeparate
-glStencilMaskSeparate
-glStencilOpSeparate
-Cull Face
-2.0
-glCullFace
-glFrontFace
-Blend State
-2.0
-glBlendColor
-glBlendEquation
-glBlendFunc
-glBlendEquationSeparate
-glBlendFuncSeparate
-3.2
-glBlendEquationi
-glBlendFunci
-glBlendEquationSeparatei
-glBlendFuncSeparatei
-glBlendBarrier
-Clear State
-2.0
-glClear
-glClearColor
-glClearDepthf
-glClearStencil
-Color Mask
-2.0
-glColorMask
-3.2
-glColorMaski
-Depth State
-2.0
-glDepthFunc
-glDepthMask
-glDepthRangef
-Misc
-2.0
-glSampleCoverage
-glLineWidth
-glPolygonOffset
-glScissor
-glViewport
-glMinSampleShading
-3.1
-glSampleMaski
-*/
-
 ////////////////////////////////////////////////////////////////////////
 class BlendState
 {
@@ -144,6 +71,18 @@ public:
 	ColorRGBA clearColor;
 	float clearDepth;
 	unsigned int clearStencil;
+};
+
+class ColorMask
+{
+public:
+	ColorMask();
+	void Apply() const;
+
+	bool enableR;
+	bool enableG;
+	bool enableB;
+	bool enableA;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -305,6 +244,10 @@ public:
 	}
 
 	~RenderStates()
+	{
+	}
+
+	void Destroy()
 	{
 	}
 

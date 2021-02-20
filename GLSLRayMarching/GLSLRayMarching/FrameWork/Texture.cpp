@@ -11,7 +11,10 @@ static unsigned int textureGLTypes[] =
 	GL_TEXTURE_1D,
 	GL_TEXTURE_2D,
 	GL_TEXTURE_3D,
-	GL_TEXTURE_CUBE_MAP
+	GL_TEXTURE_CUBE_MAP,
+	GL_TEXTURE_1D_ARRAY,
+	GL_TEXTURE_2D_ARRAY,
+	GL_TEXTURE_CUBE_MAP_ARRAY
 };
 
 static unsigned int textureGLWraps[] =
@@ -156,6 +159,7 @@ static unsigned int textureCubeMapGLSide[] =
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 };
 
+////////////////////////////////////////////////////////////////////////////
 class TextureImpl
 {
 public:
@@ -338,66 +342,66 @@ Texture::MagFilter Texture::GetMagFilter() const
 	return impl->magFilter;
 }
 
-Texture::Format Texture::GetFormat(unsigned int nrComponents_, Texture::Precision precision) const
+Texture::Format Texture::GetFormat(unsigned int nrComponents_, Texture::DynamicRange precision) const
 {
 	Assert(impl);
 
 	if (nrComponents_ == 1)
 	{
-		if (precision == Texture::Precision::HIGH)
+		if (precision == Texture::DynamicRange::HIGH)
 		{
 			return Texture::Format::R32F;
 		}
-		else if (precision == Texture::Precision::MID)
+		else if (precision == Texture::DynamicRange::MID)
 		{
 			return Texture::Format::R16F;
 		}
-		else// if (precision == Texture::Precision::LOW)
+		else// if (precision == Texture::DynamicRange::LOW)
 		{
 			return Texture::Format::R8;
 		}
 	}
 	else if (nrComponents_ == 2)
 	{
-		if (precision == Texture::Precision::HIGH)
+		if (precision == Texture::DynamicRange::HIGH)
 		{
 			return Texture::Format::RG32F;
 		}
-		else if (precision == Texture::Precision::MID)
+		else if (precision == Texture::DynamicRange::MID)
 		{
 			return Texture::Format::RG16F;
 		}
-		else// if (precision == Texture::Precision::LOW)
+		else// if (precision == Texture::DynamicRange::LOW)
 		{
 			return Texture::Format::RG8;
 		}
 	}
 	else if (nrComponents_ == 3)
 	{
-		if (precision == Texture::Precision::HIGH)
+		if (precision == Texture::DynamicRange::HIGH)
 		{
 			return Texture::Format::RGB32F;
 		}
-		else if (precision == Texture::Precision::MID)
+		else if (precision == Texture::DynamicRange::MID)
 		{
 			return Texture::Format::RGB16F;
 		}
-		else// if (precision == Texture::Precision::LOW)
+		else// if (precision == Texture::DynamicRange::LOW)
 		{
 			return Texture::Format::RGB8;
 		}
 	}
 	else// if (nrComponents_ == 4)
 	{
-		if (precision == Texture::Precision::HIGH)
+		if (precision == Texture::DynamicRange::HIGH)
 		{
 			return Texture::Format::RGBA32F;
 		}
-		else if (precision == Texture::Precision::MID)
+		else if (precision == Texture::DynamicRange::MID)
 		{
 			return Texture::Format::RGBA16F;
 		}
-		else// if (precision == Texture::Precision::LOW)
+		else// if (precision == Texture::DynamicRange::LOW)
 		{
 			return Texture::Format::RGBA8;
 		}
@@ -439,11 +443,11 @@ bool Texture1D::Create(unsigned int width_, Texture::Format format_, void* src_)
 	return Texture::Create();
 }
 
-bool Texture1D::Create(unsigned int width_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+bool Texture1D::Create(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, GetFormat(nrComponents_, precision_), src_);
+	return Create(width_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
 void Texture1D::Destroy()
@@ -532,11 +536,11 @@ bool Texture2D::Create(unsigned int width_, unsigned int height_, Texture::Forma
 	return Texture::Create();
 }
 
-bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, height_, GetFormat(nrComponents_, precision_), src_);
+	return Create(width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
 void Texture2D::Destroy()
@@ -546,7 +550,7 @@ void Texture2D::Destroy()
 	return Texture::Destroy();
 }
 
-void Texture2D::Update(unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int level_)
+void Texture2D::Update(unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
 {
 	Assert(impl);
 
@@ -555,19 +559,19 @@ void Texture2D::Update(unsigned int x_, unsigned int y_, unsigned int width_, un
 
 	glBindTexture(textureType, impl->handle);
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
-		glCompressedTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, y_, width_, height_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+		glCompressedTexSubImage2D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
 	else
-		glTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, y_, width_, height_, f.format, f.type, src_);
+		glTexSubImage2D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, f.type, src_);
 
-	if (level_ == -1)
+	if (mipLevel_ == -1)
 		glGenerateMipmap(textureType);
 }
 
-void Texture2D::Update(void* src_, int level_)
+void Texture2D::Update(void* src_, int mipLevel_)
 {
 	Assert(impl);
 
-	Update(0, 0, width, height, src_, level_);
+	Update(0, 0, width, height, src_, mipLevel_);
 }
 
 void Texture2D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
@@ -635,14 +639,14 @@ bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int d
 	return Texture::Create();
 }
 
-bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, height_, depth_, GetFormat(nrComponents_, precision_), src_);
+	return Create(width_, height_, depth_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void Texture3D::Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int width_, unsigned int height_, unsigned int depth_, void* src_, int level_)
+void Texture3D::Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int width_, unsigned int height_, unsigned int depth_, void* src_, int mipLevel_)
 {
 	Assert(impl);
 
@@ -651,18 +655,19 @@ void Texture3D::Update(unsigned int x_, unsigned int y_, unsigned int z_, unsign
 
 	glBindTexture(textureType, impl->handle);
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
-		glCompressedTexSubImage3D(textureType, level_ == -1 ? 0 : level_, x_, y_, z_, width_, height_, depth_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_ * depth_), src_);
+		glCompressedTexSubImage3D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, z_, width_, height_, depth_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_ * depth_), src_);
 	else
-		glTexSubImage3D(textureType, level_ == -1 ? 0 : level_, x_, y_, z_, width_, height_, depth_, f.format, f.type, src_);
-	if (level_ == -1)
+		glTexSubImage3D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, z_, width_, height_, depth_, f.format, f.type, src_);
+	
+	if (mipLevel_ == -1)
 		glGenerateMipmap(textureType);
 }
 
-void Texture3D::Update(void* src_, int level_)
+void Texture3D::Update(void* src_, int mipLevel_)
 {
 	Assert(impl);
 
-	Update(0, 0, 0, width, height, depth, src_, level_);
+	Update(0, 0, 0, width, height, depth, src_, mipLevel_);
 }
 
 void Texture3D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
@@ -703,26 +708,6 @@ unsigned int Texture3D::GetDepth() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-static unsigned int textureCubeMapGLSides[] =
-{
-	GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-	GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-	GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-};
-
-enum class Side
-{
-	POSITIVE_X = 0,
-	NEGATIVE_X,
-	POSITIVE_Y,
-	NEGATIVE_Y,
-	POSITIVE_Z,
-	NEGATIVE_Z
-};
-
 TextureCubeMap::TextureCubeMap()
 : Texture(Texture::Type::TEXTURE_CUBE_MAP)
 , size(0)
@@ -753,20 +738,33 @@ bool TextureCubeMap::Create(unsigned int size_, Texture::Format format_, void* s
 
 	glGenTextures(1, &impl->handle);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+	{
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
+	}
+	else
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+	}
+
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	
 	return Texture::Create();
 }
 
-bool TextureCubeMap::Create(unsigned int size_, unsigned int nrComponents_, Texture::Precision precision_, void* src_)
+bool TextureCubeMap::Create(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
-	return Create(size_, GetFormat(nrComponents_, precision_), src_);
+	return Create(size_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
 void TextureCubeMap::Destroy()
@@ -776,7 +774,7 @@ void TextureCubeMap::Destroy()
 	return Texture::Destroy();
 }
 
-void TextureCubeMap::Update(Side side_, void* src_, int level_)
+void TextureCubeMap::Update(Side side_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
 {
 	Assert(impl);
 
@@ -784,43 +782,43 @@ void TextureCubeMap::Update(Side side_, void* src_, int level_)
 	Formats f = textureGLFormats[(int)impl->format];
 
 	glBindTexture(textureType, impl->handle);
-	glTexSubImage2D(textureCubeMapGLSide[(int)side_], level_ == -1 ? 0 : level_, 0, 0, size, size, f.format, f.type, src_);
-	
-	if (level_ == -1)
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+	{
+		glCompressedTexSubImage2D(textureCubeMapGLSide[(int)side_], mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+	}
+	else
+	{
+		glTexSubImage2D(textureCubeMapGLSide[(int)side_], mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, f.type, src_);
+	}
+
+	if (mipLevel_ == -1)
 		glGenerateMipmap(textureType);
 }
 
-void TextureCubeMap::Update(void* src_, int level_)
+void TextureCubeMap::Update(Side side_, void* src_, int mipLevel_)
+{
+	Update(side_, 0, 0, size, size, src_, mipLevel_);
+}
+
+void TextureCubeMap::Update(void* src_, int mipLevel_)
 {
 	Assert(impl);
 
 	unsigned int textureType = textureGLTypes[(int)impl->type];
 	Formats f = textureGLFormats[(int)impl->format];
-
-	glBindTexture(textureType, impl->handle);
-	
 	unsigned char* dataPtr = (unsigned char*)src_;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, level_ == -1 ? 0 : level_, f.internal, size, size, 0, f.format, f.type, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
-	
-	if (level_ == -1)
-		glGenerateMipmap(textureType);
-}
-
-void TextureCubeMap::Update(Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int level_)
-{
-	Assert(impl);
-
-	unsigned int textureType = textureGLTypes[(int)impl->type];
-	Formats f = textureGLFormats[(int)impl->format];
 
 	glBindTexture(textureType, impl->handle);
-	glTexSubImage2D(textureCubeMapGLSide[(int)side_], level_ == -1 ? 0 : level_, x_, y_, w_, h_, f.format, f.type, src_);
-	if (level_ == -1)
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+	{
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+	}
+	else
+	{
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+	}
+
+	if (mipLevel_ == -1)
 		glGenerateMipmap(textureType);
 }
 
@@ -877,7 +875,7 @@ bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 
 	if (data)
 	{
-		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
 		bool result = Texture2D::Create(width, height, nrComponents, precision, data);
 
 		stbi_image_free(data);
@@ -935,7 +933,7 @@ bool Texture3DFile::Create(const std::string& path_, bool vflip_)
 
 	if (data)
 	{
-		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
 		bool result = Texture3D::Create(width, height, depth, nrComponents, precision, data);
 
 		stbi_image_free(data);
@@ -992,7 +990,7 @@ bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 
 	if (data)
 	{
-		Texture::Precision precision = isHDR ? Texture::Precision::HIGH : Texture::Precision::LOW;
+		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
 		bool result = TextureCubeMap::Create(width, nrComponents, precision, data);
 
 		stbi_image_free(data);

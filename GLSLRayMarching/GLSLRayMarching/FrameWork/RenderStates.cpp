@@ -100,6 +100,20 @@ void ClearState::Apply() const
 }
 
 //////////////////////////////////////////////////////////////
+ColorMask::ColorMask()
+: enableR(true)
+, enableG(true)
+, enableB(true)
+, enableA(true)
+{
+}
+
+void ColorMask::Apply() const
+{
+	glColorMask(enableR, enableG, enableB, enableA);
+}
+
+//////////////////////////////////////////////////////////////
 static int cullFaceStateGLModes[] =
 {
 	GL_FRONT,
