@@ -189,38 +189,8 @@ public:
 		static bool enabled2 = false;
 		static bool enabled3 = false;
 		static Vector4 c(0, 0, 0, 0);
-
-		if (ImGui::Begin("SuperGameObject"))
-		{
-			if (ImGui::CollapsingHeader("Lod"))
-			{
-				ImGui::SliderInt("Lod", &lod, 0, 7, "%d");
-			}
-			if (ImGui::CollapsingHeader("Ratio"))
-			{
-				ImGui::SliderFloat("Ratio", &ratio, 0.0, 100.0, "%f");
-			}
-			if (ImGui::CollapsingHeader("WireFrame?"))
-			{
-				ImGui::Checkbox("WireFrame", &wireframe);
-			}
-			if (ImGui::CollapsingHeader("Shape and CSG"))
-			{
-				ImGui::Indent(10.0f);
-				ImGui::Checkbox("Render Shape1", &enabled1);
-				ImGui::ColorEdit4("Shape1 Color", &c[0], ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs);
-				ImGui::Checkbox("Shape1 Wire", &enabled2);
-				ImGui::Checkbox("Shape1 Solid", &enabled3);
-				ImGui::Unindent(10.0f);
-			}
-
-			if (ImGui::CollapsingHeader("vertexData[0].px[0]"))
-			{
-				ImGui::SliderFloat4("vertexData[0].px[0]", &vertexData[0].px[0], -1, 1, "%f");
-			}
-		}
-
-		ImGui::End();
+	
+		GUI::Test2(lod, ratio, wireframe, vertexData[0].px[0]);
 
 		shaderStorageBlockBuffer.Update(0, vertexData, sizeof(VertexData) * 4);
 	}

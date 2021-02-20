@@ -7,16 +7,18 @@
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-using namespace rapidjson;
+#include "GUI.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 #define SCR_WIDTH 800*2
 #define SCR_HEIGHT 400*2
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+using namespace rapidjson;
 
 #include <Windows.h>
 #include <WinUser.h>
@@ -37,7 +39,7 @@ public:
 
 	bool Create()
 	{
-		if (!Texture2D::Create(256, 3, 1, Texture::Precision::LOW, &buffer[0]))
+		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
 			return false;
 
 	
@@ -122,7 +124,7 @@ public:
 
 	bool Create()
 	{
-		if (!Texture2D::Create(256, 3, 1, Texture::Precision::LOW, &buffer[0]))
+		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
 			return false;
 
 		SetMinFilter(Texture::MinFilter::NEAREST);
@@ -134,37 +136,11 @@ public:
 		return true;
 	}
 
-	virtual void Update()
+	virtual void Update(ShaderProgram& shaderProgram)
 	{
-		/*
-		static int test = 0;
-		if (ImGui::Begin("SuperGameObject"))
-		{
-			for (auto& v : bValues)
-			{
-				ImGui::Checkbox(v.first, &v.second);
-			}
+		// shaderProgram.SetUniform1i("guiTexture", );
 
-			for (auto& v : iValues)
-			{
-				ImGui::SliderInt(v.first, &v.second.value, v.second.min, v.second.max);
-			}
-
-			for (auto& v : fValues)
-			{
-				ImGui::SliderFloat(v.first, &v.second.value, v.second.min, v.second.max);
-			}
-
-			for (auto& v : vec4Values)
-			{
-				float vvv[4] = { v.second.value[0], v.second.value[1], v.second.value[2], v.second.value[3] };
-
-				ImGui::SliderFloat4(v.first, vvv, v.second.min, v.second.max);
-			}
-		}
-
-		ImGui::End();
-		*/
+		// GUI::Test(bValues, iValues, fValues, vec4Values);
 		Texture2D::Update(&buffer[0]);
 	}
 
@@ -229,27 +205,6 @@ public:
 	}
 private:
 private:
-	struct IValue
-	{
-		int value;
-		int min;
-		int max;
-	};
-
-	struct FValue
-	{
-		float value;
-		float min;
-		float max;
-	};
-
-	struct Vec4Value
-	{
-		Vector4 value;
-		float min;
-		float max;
-	};
-
 	std::map<const char*, bool> bValues;
 	std::map<const char*, IValue> iValues;
 	std::map<const char*, FValue> fValues;
@@ -274,7 +229,7 @@ public:
 
 	bool Create(bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, Texture::Precision::LOW, &buffer[0]);
+		return Texture2D::Create(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -301,7 +256,7 @@ public:
 
 	bool Create()
 	{
-		return Texture2D::Create(512, 2, 1, Texture::Precision::LOW, &buffer[0]);
+		return Texture2D::Create(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -328,7 +283,7 @@ public:
 
 	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(512, 2, 1, Texture::Precision::LOW, &buffer[0]);
+		return Texture2D::Create(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -355,7 +310,7 @@ public:
 
 	bool Create(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, Texture::Precision::LOW, &buffer[0]);
+		return Texture2D::Create(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -407,15 +362,15 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::Precision precision_)
+	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
 	{
 		if (!FlipFrameBuffer::Create())
 			return false;
 
-		if (!texture[0].Create(width, height, nrComponents, precision_, nullptr))
+		if (!texture[0].Create(width, height, nrComponents, dynamicRange_, nullptr))
 			return false;
 
-		if (!texture[1].Create(width, height, nrComponents, precision_, nullptr))
+		if (!texture[1].Create(width, height, nrComponents, dynamicRange_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
@@ -457,15 +412,15 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::Precision precision_)
+	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
 	{
 		if (!FlipFrameBuffer::Create())
 			return false;
 
-		if (!texture[0].Create(size, nrComponents, precision_, nullptr))
+		if (!texture[0].Create(size, nrComponents, dynamicRange_, nullptr))
 			return false;
 
-		if (!texture[1].Create(size, nrComponents, precision_, nullptr))
+		if (!texture[1].Create(size, nrComponents, dynamicRange_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
@@ -535,7 +490,7 @@ public:
 		{
 		}
 
-		void Clear()
+		void Destroy()
 		{
 			texture = nullptr;
 			frameBuffer = nullptr;
@@ -556,16 +511,20 @@ public:
 		, primitives()
 		, shaderProgram()
 		, iChannels(CHANNEL_COUNT)
+		, guiTexture()
 		, frameBuffer(nullptr)
 	{
 	}
 
 	virtual ~Pass()
 	{
+		Destroy();
 	}
 
 	bool Create()
 	{
+		Destroy();
+
 		float vertices[] =
 		{
 			1.0f,  1.0f, 0.0f,  // top right
@@ -586,11 +545,6 @@ public:
 		{
 			return false;
 		}
-
-		for (int i = 0; i < iChannels.size(); i++)
-			iChannels[i].Clear();
-
-		frameBuffer = nullptr;
 
 		return true;
 	}
@@ -713,6 +667,8 @@ public:
 			shaderProgram.SetUniform1i(name.c_str(), i);
 		}
 
+		guiTexture.Update(shaderProgram);
+
 		primitives.Bind();
 		primitives.DrawArray(Primitives::Mode::TRIANGLES, 0, primitives.GetCount());
 
@@ -734,6 +690,18 @@ public:
 
 	void Destroy()
 	{
+		enabled = false;
+
+		renderStates.Destroy();
+		shaderProgram.Destroy();
+
+		for (auto& channel : iChannels)
+		{
+			channel.Destroy();
+		}
+		
+		frameBuffer = nullptr;
+		primitives.Destroy();
 	}
 
 	void SetEnabled(bool enabled_)
@@ -925,6 +893,7 @@ public:
 				fclose(fptr);
 			}
 		}
+
 		return shaderProgram.CreateFromSource(vShaderCode.c_str(), fShader.c_str());
 	}
 protected:
@@ -938,6 +907,7 @@ private:
 	RenderStates renderStates;
 	ShaderProgram shaderProgram;
 	std::vector<Channel> iChannels;
+	GUITexture guiTexture;
 	FlipFrameBuffer* frameBuffer;
 	Primitives primitives;
 };
@@ -1068,21 +1038,6 @@ public:
 		return texture;
 	}
 
-	GUITexture* AddGUITexture()
-	{
-		GUITexture* texture = new GUITexture();
-		if (!texture)
-			return nullptr;
-		if (!texture->Create())
-		{
-			delete texture;
-			return nullptr;
-		}
-
-		textures.push_back(texture);
-		return texture;
-	}
-	
 	Texture* AddWebcamTexture(bool vflip_)
 	{
 		WebcamTexture* texture = new WebcamTexture();
@@ -1182,25 +1137,25 @@ public:
 		std::vector<char> colors(32 * 32 * 4);
 		memset(&colors[0], 0, (32 * 32 * 4));
 
-		if (!black.Create(32, 32, 4, Texture::Precision::LOW, &colors[0]))
+		if (!black.Create(32, 32, 4, Texture::DynamicRange::LOW, &colors[0]))
 			return false;
-		if (!soundFrameBuffer.Create(512, 2, 1, Texture::Precision::LOW))
+		if (!soundFrameBuffer.Create(512, 2, 1, Texture::DynamicRange::LOW))
 			return false;
-		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
+		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
+		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
+		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::Precision::HIGH))
+		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapAFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
+		if (!cubeMapAFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapBFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
+		if (!cubeMapBFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapCFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
+		if (!cubeMapCFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapDFrameBuffer.Create(1024, 4, Texture::Precision::HIGH))
+		if (!cubeMapDFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
 
 		std::string folder = folder_;
@@ -1292,7 +1247,7 @@ public:
 							return false;
 						}
 
-						for (int j = 0; j < 4; j++)
+						for (int j = 0; j < CHANNEL_COUNT; j++)
 						{
 							passes[i].SetChannelTexture(j, &black);
 
@@ -1328,6 +1283,7 @@ public:
 
 										passes[i].SetChannelTexture(j, texture);
 									}
+#if 0
 									if (channelJson.HasMember("gui"))
 									{
 										Value& guisJson = channelJson["gui"];
@@ -1386,7 +1342,9 @@ public:
 										{
 											printf("gui is not an object\n");
 										}
+
 									}
+#endif
 									else if (channelJson.HasMember("webcam"))
 									{
 										Texture* texture = AddWebcamTexture(passes[i].GetChannel(j).vFlip);
@@ -1581,12 +1539,29 @@ public:
 	{
 	}
 
+#define Hr (8000*1000)
+#define n (1.000293)
+#define N (1.1839*1000.0)
+
+	double RayleighScattering(double h, double lamda)
+	{
+		double coeff = 8.0 *
+			Math::Pow(Math::OnePi, 3.0) *
+			Math::Sqr((Math::Sqr(n) - 1.0)) / 3.0 / N / Math::Sqr((Math::Sqr(lamda)));
+		
+		return coeff * exp(h / Hr);
+	}
+
 	virtual bool OnCreate() override
 	{
+		double t = RayleighScattering(0.0f, 680.0e-9);
+		double t2 = 33.1 * exp(-6);
+
 		//return macShaderDemo.Create("Demos/Noise/Perlin");//
 		//return macShaderDemo.Create("Demos/Clouds/Cheap Cloud Flythrough");//
-		return macShaderDemo.Create("Demos/Clouds/Cloud");//
+		//return macShaderDemo.Create("Demos/Clouds/Cloud");//
 		//return macShaderDemo.Create("Demos/Clouds/CloudFight");//
+		//return macShaderDemo.Create("Demos/Clouds/Cloud2");//
 		//return macShaderDemo.Create("Demos/default");
 		//return macShaderDemo.Create("Demos/Greek Temple");
 		//return macShaderDemo.Create("Demos/JustForFuns/Hexagonal Grid Traversal - 3D");		
@@ -1599,19 +1574,18 @@ public:
 		//return macShaderDemo.Create("Demos/PathTracings/Room DI");
 		//return macShaderDemo.Create("Demos/Post process - SSAO");
 		
-		//return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
+		return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
 		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
-		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Demos/Scattering/RayleighMieDayNight");
 		//return macShaderDemo.Create("Demos/Scattering/RealySimpleAtmosphericScatter");
 		//return macShaderDemo.Create("Demos/Terrains/Cloudy Terrain");
 		//return macShaderDemo.Create("Demos/Terrains/Desert Sand");
 		//return macShaderDemo.Create("Demos/Terrains/Elevated");
-		return macShaderDemo.Create("Demos/Terrains/Lake in highland");
+		//return macShaderDemo.Create("Demos/Terrains/Lake in highland");
 		//return macShaderDemo.Create("Demos/Terrains/Mountains");
-		return macShaderDemo.Create("Demos/Terrains/Rainforest");
-		return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
+		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
+		//return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
 
 		return macShaderDemo.Create("Demos/Waters/RiverGo");
 		return macShaderDemo.Create("Demos/Waters/Oceanic");

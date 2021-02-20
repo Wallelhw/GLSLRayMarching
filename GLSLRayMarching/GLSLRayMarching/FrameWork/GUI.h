@@ -10,9 +10,38 @@
 #define _GUI_h_
 
 #include "Platform.h"
+#include "Vector4.h"
 
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_glfw.h"
-#include "imgui\imgui_impl_opengl3.h"
+struct IValue
+{
+	int value;
+	int min;
+	int max;
+};
+
+struct FValue
+{
+	float value;
+	float min;
+	float max;
+};
+
+struct Vec4Value
+{
+	Vector4 value;
+	float min;
+	float max;
+};
+
+class GUI
+{
+public:
+	static void Test(std::map<const char*, bool>& bValues,
+	std::map<const char*, IValue>& iValues,
+	std::map<const char*, FValue>& fValues,
+	std::map<const char*, Vec4Value>& vec4Values);
+
+	static void Test2(int& lod, float& ratio, bool& wireframe, float& v);
+};
 
 #endif

@@ -14,7 +14,10 @@ public:
 		TEXTURE_1D = 0,
 		TEXTURE_2D,
 		TEXTURE_3D,
-		TEXTURE_CUBE_MAP
+		TEXTURE_CUBE_MAP,
+		TEXTURE_ARRAY_1D,
+		TEXTURE_ARRAY_2D,
+		TEXTURE_ARRAY_CUBE_MAP,
 	};
 
 	enum class Wrap
@@ -141,7 +144,7 @@ public:
 		COMPRESSED_SRGB8_ALPHA8_ASTC_12x12,
 	};
 
-	enum class Precision
+	enum class DynamicRange
 	{
 		LOW = 0,
 		MID,
@@ -175,7 +178,7 @@ public:
 	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const = 0;
 public:
 protected:
-	Texture::Format GetFormat(unsigned int nrComponents_, Texture::Precision precision_) const;
+	Texture::Format GetFormat(unsigned int nrComponents_, Texture::DynamicRange dynamicRange_) const;
 private:
 public:
 protected:
@@ -190,11 +193,11 @@ public:
 	virtual ~Texture1D();
 
 	bool Create(unsigned int width_, Texture::Format format_, void* data_);
-	bool Create(unsigned int width_, unsigned int nrComponents_, Texture::Precision precision_, void* data_);
+	bool Create(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
 	void Destroy();
 
-	void Update(void* src_, int level_ = -1);
-	void Update(unsigned int x_, unsigned int w_, void* src_, int level_ = -1);
+	void Update(unsigned int x_, unsigned int w_, void* src_, int mipLevel_ = -1);
+	void Update(void* src_, int mipLevel_ = -1);
 
 	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
 	unsigned int GetWidth() const;
@@ -214,11 +217,11 @@ public:
 	virtual ~Texture2D();
 	
 	bool Create(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
-	bool Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::Precision precision_, void* src_);
+	bool Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
 	void Destroy();
-	
-	void Update(void* src_, int level_ = -1);
-	void Update(unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int level_ = -1);
+
+	void Update(unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
+	void Update(void* src_, int mipLevel_ = -1);
 
 	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
 	unsigned int GetWidth() const;
@@ -240,11 +243,11 @@ public:
 	virtual ~Texture3D();
 
 	bool Create(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_);
-	bool Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::Precision precision_, void* src_);
+	bool Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
 	void Destroy();
 
-	void Update(void* src_, int level_ = -1);
-	void Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int w_, unsigned int h_, unsigned int d_, void* src_, int level_ = -1);
+	void Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int w_, unsigned int h_, unsigned int d_, void* src_, int mipLevel_ = -1);
+	void Update(void* src_, int mipLevel_ = -1);
 
 	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
 	unsigned int GetWidth() const;
@@ -278,12 +281,12 @@ public:
 	virtual ~TextureCubeMap();
 
 	bool Create(unsigned int size_, Texture::Format format_, void* src_);
-	bool Create(unsigned int size_, unsigned int nrComponents_, Texture::Precision precision_, void* src_);
+	bool Create(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
 	void Destroy();
 
-	void Update(Side side_, void* src_, int level_ = -1);
-	void Update(Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int level_ = -1);
-	void Update(void* src_, int level_ = -1);
+	void Update(Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
+	void Update(Side side_, void* src_, int mipLevel_ = -1);
+	void Update(void* src_, int mipLevel_ = -1);
 
 	void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
 	unsigned int GetSize() const;

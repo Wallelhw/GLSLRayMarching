@@ -103,7 +103,7 @@ public:
 	Texture2DFrameBuffer();
 	virtual ~Texture2DFrameBuffer();
 
-	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::Precision precision_);
+	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
 	virtual void Destroy();
 	
 	Texture* GetTexture();
@@ -118,7 +118,7 @@ public:
 	TextureCubeMapFrameBuffer();
 	virtual ~TextureCubeMapFrameBuffer();
 
-	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::Precision precision_);
+	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
 	virtual void Destroy();
 
 	Texture* GetTexture();

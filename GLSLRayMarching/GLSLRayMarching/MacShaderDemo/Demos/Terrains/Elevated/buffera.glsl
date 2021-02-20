@@ -248,6 +248,7 @@ vec4 render( in vec3 ro, in vec3 rd )
                pow( clamp(dot(nor,hal), 0.0, 1.0),16.0);
         col += snow*0.65*pow(fre,4.0)*vec3(0.3,0.5,0.6)*smoothstep(0.0,0.6,ref.y);
 
+        // mickey!!!!!!!!!!!!!!!!!!!
 		// fog
         float fogfactor = 1.0 - exp(-pow(0.001*t/SC, 1.5) );
         col = mix(col, FOG_COLOR, fogfactor);
