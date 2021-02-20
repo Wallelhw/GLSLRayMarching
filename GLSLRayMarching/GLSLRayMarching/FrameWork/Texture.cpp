@@ -427,17 +427,20 @@ bool Texture1D::Create(unsigned int width_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
-	impl->format = format_;
 	width = width_;
+	impl->format = format_;
 
 	unsigned int textureType = textureGLTypes[(int)impl->type];
 	Formats f = textureGLFormats[(int)impl->format];
+
 	glGenTextures(1, &impl->handle);
-	glBindTexture(GL_TEXTURE_1D, impl->handle);
+	glBindTexture(textureType, impl->handle);
+
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
 		glCompressedTexImage1D(textureType, 0, f.internal, width_, 0, (GLsizei)(f.bytePerPixels * width_), src_);
 	else
 		glTexImage1D(textureType, 0, f.internal, width_, 0, f.format, f.type, src_);
+
 	glGenerateMipmap(textureType);
 
 	return Texture::Create();
@@ -516,9 +519,9 @@ bool Texture2D::Create(unsigned int width_, unsigned int height_, Texture::Forma
 {
 	Assert(impl);
 
-	impl->format = format_;
 	width = width_;
 	height = height_;
+	impl->format = format_;
 
 	unsigned int textureType = textureGLTypes[(int)impl->type];
 	Formats f = textureGLFormats[(int)impl->format];
@@ -618,17 +621,17 @@ bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int d
 {
 	Assert(impl);
 
-	impl->format = format_;
-
 	width = width_;
 	height = height_;
 	depth = depth_;
+	impl->format = format_;
 
 	unsigned int textureType = textureGLTypes[(int)impl->type];
 	Formats f = textureGLFormats[(int)impl->format];
 
 	glGenTextures(1, &impl->handle);
 	glBindTexture(textureType, impl->handle);
+
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
 		glCompressedTexImage3D(textureType, 0, f.internal, width_, height_, depth_, 0, (GLsizei)(f.bytePerPixels * width_ * height_ * depth_), src_);
 	else
@@ -726,18 +729,17 @@ bool TextureCubeMap::Create(unsigned int size_, Texture::Format format_, void* s
 {
 	Assert(impl);
 
-	impl->format = format_;
-	
 	size = size_;
+	impl->format = format_;
 
 	unsigned int textureType = textureGLTypes[(int)impl->type];
 	Formats f = textureGLFormats[(int)impl->format];
 
-	faceDataSize = size_ * size_ * f.bytePerPixels;
+	faceDataSize = (unsigned int)(size_ * size_ * f.bytePerPixels);
 	unsigned char* dataPtr = (unsigned char*)src_;
 
 	glGenTextures(1, &impl->handle);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, impl->handle);
+	glBindTexture(textureType, impl->handle);
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
 	{
 		glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, (GLsizei)(f.bytePerPixels * size * size), src_); dataPtr += faceDataSize;
@@ -812,10 +814,20 @@ void TextureCubeMap::Update(void* src_, int mipLevel_)
 	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
 	{
 		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+		glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
 	}
 	else
 	{
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, size, size, f.format, f.type, dataPtr); dataPtr += faceDataSize;
 	}
 
 	if (mipLevel_ == -1)
@@ -836,6 +848,389 @@ unsigned int TextureCubeMap::GetSize() const
 	Assert(impl);
 
 	return size;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+Texture1DArray::Texture1DArray()
+: Texture(Texture::Type::TEXTURE_1D_ARRAY)
+, width(0)
+, layerCount(0)
+{
+	Assert(impl);
+}
+
+Texture1DArray::~Texture1DArray()
+{
+	Assert(impl);
+
+	Destroy();
+}
+
+bool Texture1DArray::Create(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	layerCount = layerCount_;
+	width = width_;
+	impl->format = format_;
+	int miplevels = log2(width);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+	glGenTextures(1, &impl->handle);
+	glBindTexture(textureType, impl->handle);
+	glTexStorage2D(textureType, miplevels, f.internal, width, layerCount);
+
+	/*
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexImage1D(textureType, 0, f.internal, width_, 0, (GLsizei)(f.bytePerPixels * width_), src_);
+	else
+		glTexImage1D(textureType, 0, f.internal, width_, 0, f.format, f.type, src_);
+	*/
+	for (int i = 0; i < layerCount_; i++)
+	{
+		if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+			glCompressedTexImage2D(textureType, 0, f.internal, width_, layerCount_, 0, (GLsizei)(f.bytePerPixels * width_), src_);
+		else
+			glTexImage2D(textureType, 0, f.internal, width_, layerCount_, 0, f.format, f.type, src_);
+	}
+	
+	glGenerateMipmap(textureType);
+
+	return Texture::Create();
+}
+
+bool Texture1DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+{
+	Assert(impl);
+
+	return Create(layerCount_, width_, GetFormat(nrComponents_, dynamicRange_), src_);
+}
+
+void Texture1DArray::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+void Texture1DArray::Update(unsigned int layer_, unsigned int x_, unsigned int width_, void* src_, int level_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, layer_, width_, 1, f.format, (GLsizei)(f.bytePerPixels * width_), src_);
+	else
+		glTexSubImage2D(textureType, level_ == -1 ? 0 : level_, x_, layer_, width_, 1, f.format, f.type, src_);
+	/*
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage1D(textureType, level_ == -1 ? 0 : level_, x_, width_, f.format, (GLsizei)(f.bytePerPixels * width_), src_);
+	else
+		glTexSubImage1D(textureType, level_ == -1 ? 0 : level_, 0, width_, f.format, f.type, src_);
+	*/
+
+	if (level_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void Texture1DArray::Update(unsigned int layer_, void* src_, int level_)
+{
+	Update(layer_, 0, width, src_, level_);
+}
+
+void Texture1DArray::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = width;
+	*h_ = 1;
+	*d_ = 1;
+}
+
+unsigned int Texture1DArray::GetWidth() const
+{
+	Assert(impl);
+
+	return width;
+}
+
+unsigned int Texture1DArray::GetLayerCount() const
+{
+	Assert(impl);
+
+	return layerCount;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+Texture2DArray::Texture2DArray()
+: Texture(Texture::Type::TEXTURE_2D_ARRAY)
+, width(0)
+, height(0)
+, layerCount(0)
+{
+	Assert(impl);
+}
+
+Texture2DArray::~Texture2DArray()
+{
+	Assert(impl);
+
+	Destroy();
+}
+
+bool Texture2DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	layerCount = layerCount_;
+	width = width_;
+	height = height_;
+	impl->format = format_;
+	int miplevels = log2(Math::Min(width, height));
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glGenTextures(1, &impl->handle);
+	glBindTexture(textureType, impl->handle);
+	glTexStorage3D(textureType, miplevels, f.internal, width, height, layerCount);
+
+	for (int i = 0; i < layerCount_; i++)
+	{
+		if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+			glCompressedTexImage3D(textureType, 0, f.internal, width_, height_, layerCount_, 0, (GLsizei)(f.bytePerPixels * width_), src_);
+		else
+			glTexImage3D(textureType, 0, f.internal, width_, height_, layerCount_, 0, f.format, f.type, src_);
+	}
+
+	glGenerateMipmap(textureType);
+
+	return Texture::Create();
+}
+
+bool Texture2DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+{
+	Assert(impl);
+
+	return Create(layerCount_, width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
+}
+
+void Texture2DArray::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+void Texture2DArray::Update(unsigned int layer_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage3D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, layer_, width_, height_, 1, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+	else
+		glTexSubImage3D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, layer_, width_, height_, 1, f.format, f.type, src_);
+	/*
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		glCompressedTexSubImage2D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+	else
+		glTexSubImage2D(textureType, mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, width_, height_, f.format, f.type, src_);
+	*/
+
+	if (mipLevel_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void Texture2DArray::Update(unsigned int layer_, void* src_, int mipLevel_)
+{
+	Assert(impl);
+
+	Update(layer_, 0, 0, width, height, src_, mipLevel_);
+}
+
+void Texture2DArray::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = width;
+	*h_ = height;
+	*d_ = 1;
+}
+
+unsigned int Texture2DArray::GetWidth() const
+{
+	Assert(impl);
+
+	return width;
+}
+
+unsigned int Texture2DArray::GetHeight() const
+{
+	Assert(impl);
+
+	return height;
+}
+
+unsigned int Texture2DArray::GetLayerCount() const
+{
+	Assert(impl);
+
+	return layerCount;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+TextureCubeMapArray::TextureCubeMapArray()
+: Texture(Texture::Type::TEXTURE_CUBE_MAP_ARRAY)
+, size(0)
+, faceDataSize(0)
+, layerCount(0)
+{
+}
+
+TextureCubeMapArray::~TextureCubeMapArray()
+{
+	Assert(impl);
+
+	Destroy();
+}
+
+bool TextureCubeMapArray::Create(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_)
+{
+	Assert(impl);
+
+	layerCount = layerCount_;
+	size = size_;
+	impl->format = format_;
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+	int miplevels = log2(size);
+
+	faceDataSize = size_ * size_ * f.bytePerPixels;
+	unsigned char* dataPtr = (unsigned char*)src_;
+
+	glGenTextures(1, &impl->handle);
+	glBindTexture(textureType, impl->handle);
+	glTexStorage3D(textureType, miplevels, f.internal, size, size, layerCount);
+
+	for (int i = 0; i < layerCount_; i++)
+	{
+		if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+		{
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glCompressedTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, layerCount, 0, (GLsizei)(f.bytePerPixels * size * size), src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		}
+		else
+		{
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+			glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, f.internal, size, size, 0, f.format, f.type, 0, src_ ? dataPtr : NULL); dataPtr += faceDataSize;
+		}
+	}
+
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+	return Texture::Create();
+}
+
+bool TextureCubeMapArray::Create(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+{
+	return Create(layerCount_, size_, GetFormat(nrComponents_, dynamicRange_), src_);
+}
+
+void TextureCubeMapArray::Destroy()
+{
+	Assert(impl);
+
+	return Texture::Destroy();
+}
+
+void TextureCubeMapArray::Update(unsigned int layer_, Side side_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+
+	glBindTexture(textureType, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+	{
+		glCompressedTexSubImage3D(textureCubeMapGLSide[(int)side_], mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, layer_, width_, height_, 1, f.format, (GLsizei)(f.bytePerPixels * width_ * height_), src_);
+	}
+	else
+	{
+		glTexSubImage3D(textureCubeMapGLSide[(int)side_], mipLevel_ == -1 ? 0 : mipLevel_, x_, y_, layer_, width_, height_, 1, f.format, f.type, src_);
+	}
+
+	if (mipLevel_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void TextureCubeMapArray::Update(unsigned int layer_, Side side_, void* src_, int mipLevel_)
+{
+	Update(layer_, side_, 0, 0, size, size, src_, mipLevel_);
+}
+
+void TextureCubeMapArray::Update(unsigned int layer_, void* src_, int mipLevel_)
+{
+	Assert(impl);
+
+	unsigned int textureType = textureGLTypes[(int)impl->type];
+	Formats f = textureGLFormats[(int)impl->format];
+	unsigned char* dataPtr = (unsigned char*)src_;
+
+	glBindTexture(textureType, impl->handle);
+	if (impl->format >= Texture::Format::COMPRESSED_R11_EAC)
+	{
+		glCompressedTexSubImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, layer_, size, size, 1, f.format, (GLsizei)(f.bytePerPixels * size * size), dataPtr); dataPtr += faceDataSize;
+	}
+	else
+	{
+		glTexSubImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel_ == -1 ? 0 : mipLevel_, 0, 0, layer_, size, size, 1, f.format, f.type, dataPtr); dataPtr += faceDataSize;
+	}
+
+	if (mipLevel_ == -1)
+		glGenerateMipmap(textureType);
+}
+
+void TextureCubeMapArray::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* d_) const
+{
+	Assert(impl);
+
+	*w_ = size;
+	*h_ = size;
+	*d_ = 1;
+}
+
+unsigned int TextureCubeMapArray::GetSize() const
+{
+	Assert(impl);
+
+	return size;
+}
+
+unsigned int TextureCubeMapArray::GetLayerCount() const
+{
+	Assert(impl);
+
+	return layerCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -15,9 +15,9 @@ public:
 		TEXTURE_2D,
 		TEXTURE_3D,
 		TEXTURE_CUBE_MAP,
-		TEXTURE_ARRAY_1D,
-		TEXTURE_ARRAY_2D,
-		TEXTURE_ARRAY_CUBE_MAP,
+		TEXTURE_1D_ARRAY,
+		TEXTURE_2D_ARRAY,
+		TEXTURE_CUBE_MAP_ARRAY,
 	};
 
 	enum class Wrap
@@ -186,6 +186,7 @@ protected:
 private:
 };
 
+///////////////////////////////////////////////////////////////////
 class Texture1D : public Texture
 {
 public:
@@ -299,6 +300,99 @@ private:
 	unsigned int faceDataSize;
 };
 
+/////////////////////////////////////////////////////////
+class Texture1DArray : public Texture
+{
+public:
+	Texture1DArray();
+	virtual ~Texture1DArray();
+
+	bool Create(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* data_);
+	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
+	void Destroy();
+
+	void Update(unsigned int layer_, unsigned int x_, unsigned int w_, void* src_, int mipLevel_ = -1);
+	void Update(unsigned int layer_, void* src_, int mipLevel_ = -1);
+
+	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
+	unsigned int GetWidth() const;
+	unsigned int GetLayerCount() const;
+protected:
+private:
+
+public:
+protected:
+	unsigned int width;
+	unsigned int layerCount;
+private:
+};
+
+class Texture2DArray : public Texture
+{
+public:
+	Texture2DArray();
+	virtual ~Texture2DArray();
+
+	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
+	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Destroy();
+
+	void Update(unsigned int layer_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
+	void Update(unsigned int layer_, void* src_, int mipLevel_ = -1);
+
+	virtual void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
+	unsigned int GetWidth() const;
+	unsigned int GetHeight() const;
+	unsigned int GetLayerCount() const;
+protected:
+private:
+
+public:
+protected:
+	unsigned int width;
+	unsigned int height;
+	unsigned int layerCount;
+private:
+};
+
+class TextureCubeMapArray : public Texture
+{
+public:
+	enum class Side
+	{
+		POSITIVE_X = 0,
+		NEGATIVE_X,
+		POSITIVE_Y,
+		NEGATIVE_Y,
+		POSITIVE_Z,
+		NEGATIVE_Z
+	};
+
+	TextureCubeMapArray();
+	virtual ~TextureCubeMapArray();
+
+	bool Create(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_);
+	bool Create(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Destroy();
+
+	void Update(unsigned int layer_, Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
+	void Update(unsigned int layer_, Side side_, void* src_, int mipLevel_ = -1);
+	void Update(unsigned int layer_, void* src_, int mipLevel_ = -1);
+
+	void GetResolution(unsigned int* w_ = nullptr, unsigned int* h_ = nullptr, unsigned int* d_ = nullptr) const;
+	unsigned int GetSize() const;
+	unsigned int GetLayerCount() const;
+private:
+
+public:
+protected:
+private:
+	unsigned int size;
+	unsigned int faceDataSize;
+	unsigned int layerCount;
+};
+
+///////////////////////////////////////////////////////////////////
 class Texture1DFile : public Texture1D
 {
 public:
