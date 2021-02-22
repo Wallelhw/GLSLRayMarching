@@ -43,11 +43,11 @@ public:
 			return false;
 
 	
-		SetMinFilter(Texture::MinFilter::NEAREST);
-		SetMagFilter(Texture::MagFilter::NEAREST);
-		SetWarpS(Texture::Wrap::CLAMP);
-		SetWarpR(Texture::Wrap::CLAMP);
-		SetWarpT(Texture::Wrap::CLAMP);
+		SetMinFilter(Texture::MinFilter::Nearest);
+		SetMagFilter(Texture::MagFilter::Nearest);
+		SetWarpS(Texture::Wrap::Clamp);
+		SetWarpR(Texture::Wrap::Clamp);
+		SetWarpT(Texture::Wrap::Clamp);
 
 		return true;
 	}
@@ -127,11 +127,11 @@ public:
 		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
 			return false;
 
-		SetMinFilter(Texture::MinFilter::NEAREST);
-		SetMagFilter(Texture::MagFilter::NEAREST);
-		SetWarpS(Texture::Wrap::CLAMP);
-		SetWarpR(Texture::Wrap::CLAMP);
-		SetWarpT(Texture::Wrap::CLAMP);
+		SetMinFilter(Texture::MinFilter::Nearest);
+		SetMagFilter(Texture::MagFilter::Nearest);
+		SetWarpS(Texture::Wrap::Clamp);
+		SetWarpR(Texture::Wrap::Clamp);
+		SetWarpT(Texture::Wrap::Clamp);
 
 		return true;
 	}
@@ -620,31 +620,31 @@ public:
 
 				if (iChannels[i].wrap == Pass::Wrap::Repeat)
 				{
-					texture->SetWarpS(Texture::Wrap::REPEAT);
-					texture->SetWarpR(Texture::Wrap::REPEAT);
-					texture->SetWarpT(Texture::Wrap::REPEAT);
+					texture->SetWarpS(Texture::Wrap::Repeat);
+					texture->SetWarpR(Texture::Wrap::Repeat);
+					texture->SetWarpT(Texture::Wrap::Repeat);
 				}
 				else if (iChannels[i].wrap == Pass::Wrap::Clamp)
 				{
-					texture->SetWarpS(Texture::Wrap::CLAMP);
-					texture->SetWarpR(Texture::Wrap::CLAMP);
-					texture->SetWarpT(Texture::Wrap::CLAMP);
+					texture->SetWarpS(Texture::Wrap::Clamp);
+					texture->SetWarpR(Texture::Wrap::Clamp);
+					texture->SetWarpT(Texture::Wrap::Clamp);
 				}
 
 				if (iChannels[i].filter == Pass::Filter::Nearest)
 				{
-					texture->SetMinFilter(Texture::MinFilter::NEAREST);
-					texture->SetMagFilter(Texture::MagFilter::NEAREST);
+					texture->SetMinFilter(Texture::MinFilter::Nearest);
+					texture->SetMagFilter(Texture::MagFilter::Nearest);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Linear)
 				{
-					texture->SetMinFilter(Texture::MinFilter::LINEAR);
-					texture->SetMagFilter(Texture::MagFilter::LINEAR);
+					texture->SetMinFilter(Texture::MinFilter::Linear);
+					texture->SetMagFilter(Texture::MagFilter::Linear);
 				}
 				else if (iChannels[i].filter == Pass::Filter::Mipmap)
 				{
-					texture->SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
-					texture->SetMagFilter(Texture::MagFilter::LINEAR);
+					texture->SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+					texture->SetMagFilter(Texture::MagFilter::Linear);
 				}
 
 				texture->Bind(i);
@@ -830,16 +830,16 @@ public:
 
 			if (iChannels[i].texture)
 			{
-				if (iChannels[i].texture->GetType() == Texture::Type::TEXTURE_2D)
+				if (iChannels[i].texture->GetType() == Texture::Type::Texture2D)
 					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
-				else if (iChannels[i].texture->GetType() == Texture::Type::TEXTURE_CUBE_MAP)
+				else if (iChannels[i].texture->GetType() == Texture::Type::TextureCubeMap)
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 			else if (iChannels[i].frameBuffer)
 			{
-				if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::TEXTURE_2D)
+				if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::Texture2D)
 					fShaderChannels += "uniform sampler2D iChannel" + idx + ";\n";
-				else if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::TEXTURE_CUBE_MAP)
+				else if (iChannels[i].frameBuffer->GetCurrentTexture()->GetType() == Texture::Type::TextureCubeMap)
 					fShaderChannels += "uniform samplerCube iChannel" + idx + ";\n";
 			}
 		}
