@@ -22,24 +22,25 @@ layout (std140) uniform Example
 */
 
 #define USE_UNIFORM_BLOCK
-
 #ifdef USE_UNIFORM_BLOCK
 layout (std140, binding=0) uniform TransformData
 {
 	uniform mat4 viewTransform;
 	uniform mat4 projTransform;
 	uniform int lod;
+	uniform float ratio;
 };  
 #else
 	uniform mat4 viewTransform;
 	uniform mat4 projTransform;	
 	uniform int lod;
+	uniform float ratio;
 #endif
 
 uniform mat4 worldTransform;
 uniform sampler2D geometryTexture;
 uniform sampler2D normalTexture;
-uniform float ratio;
+
 out vec4 color;
 
 struct Vertex4
@@ -49,7 +50,7 @@ struct Vertex4
 };
 layout(std430, binding=2) buffer VertexData
 {
-	Vertex4 vertices[];
+	Vertex4 vertices[1];
 };
 
 vec3 blend(vec3 a, vec3 b, float t)

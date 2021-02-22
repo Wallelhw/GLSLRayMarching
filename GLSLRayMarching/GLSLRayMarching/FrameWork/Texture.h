@@ -11,39 +11,35 @@ class Texture
 public:
 	enum class Type
 	{
-		TEXTURE_1D = 0,
-		TEXTURE_2D,
-		TEXTURE_3D,
-		TEXTURE_CUBE_MAP,
-		TEXTURE_1D_ARRAY,
-		TEXTURE_2D_ARRAY,
-		TEXTURE_CUBE_MAP_ARRAY,
+		Texture1D = 0,
+		Texture2D,
+		Texture3D,
+		TextureCubeMap,
+		Texture1DArray,
+		Texture2DArray,
+		TextureCubeMapArray,
 	};
 
 	enum class Wrap
 	{
-		REPEAT = 0,
-		CLAMP
+		Repeat = 0,
+		Clamp
 	};
 
 	enum class MinFilter
 	{
-		NEAREST = 0,
-		LINEAR,
-		NEAREST_MIPMAP_NEAREST,
-		LINEAR_MIPMAP_NEAREST,
-		NEAREST_MIPMAP_LINEAR,
-		LINEAR_MIPMAP_LINEAR
+		Nearest = 0,
+		Linear,
+		NearestMipmapNearest,
+		LinearMipmapNearest,
+		NearestMipmapLinear,
+		LinearMipmapLinear
 	};
 
 	enum class MagFilter
 	{
-		NEAREST = 0,
-		LINEAR,
-		NEAREST_MIPMAP_NEAREST,
-		LINEAR_MIPMAP_NEAREST,
-		NEAREST_MIPMAP_LINEAR,
-		LINEAR_MIPMAP_LINEAR
+		Nearest = 0,
+		Linear,
 	};
 
 	enum class Format

@@ -71,12 +71,13 @@ public:
 	{
 	}
 
-	class TransformData
+	class TestTransformData
 	{
 	public:
 		Matrix4 viewTransform;
 		Matrix4 projTransform;
 		int lod;
+		float ratio;
 	};
 
 	#define VECTOR_WIDTH  4
@@ -114,21 +115,21 @@ public:
 		{
 			return false;
 		}
-		geometryTexture.SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
-		geometryTexture.SetMagFilter(Texture::MagFilter::LINEAR);
-		geometryTexture.SetWarpS(Texture::Wrap::CLAMP);
-		geometryTexture.SetWarpR(Texture::Wrap::CLAMP);
-		geometryTexture.SetWarpT(Texture::Wrap::CLAMP);
+		geometryTexture.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		geometryTexture.SetMagFilter(Texture::MagFilter::Linear);
+		geometryTexture.SetWarpS(Texture::Wrap::Clamp);
+		geometryTexture.SetWarpR(Texture::Wrap::Clamp);
+		geometryTexture.SetWarpT(Texture::Wrap::Clamp);
 
 		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
 		{
 			return false;
 		}
-		normalTexture.SetMinFilter(Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
-		normalTexture.SetMagFilter(Texture::MagFilter::LINEAR);
-		normalTexture.SetWarpS(Texture::Wrap::REPEAT);
-		normalTexture.SetWarpR(Texture::Wrap::REPEAT);
-		normalTexture.SetWarpT(Texture::Wrap::REPEAT);
+		normalTexture.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		normalTexture.SetMagFilter(Texture::MagFilter::Linear);
+		normalTexture.SetWarpS(Texture::Wrap::Repeat);
+		normalTexture.SetWarpR(Texture::Wrap::Repeat);
+		normalTexture.SetWarpT(Texture::Wrap::Repeat);
 
 		////////////////////////////////////////////////////////////
 		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
@@ -166,11 +167,10 @@ public:
 		// geometryTextureShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, 0);
 
 		////////////////////////////////////////////////////////////
-		TransformData transformData;
-
+		TestTransformData transformData;
 		if (!uniformBlockBuffer
 			.Begin(Buffer::Type::UNIFORM_BUFFER, Buffer::Usage::STATIC_DRAW)
-			.Fill(&transformData, sizeof(TransformData))
+			.Fill(&transformData, sizeof(TestTransformData))
 			.End()
 			)
 		{
@@ -183,14 +183,29 @@ public:
 		return true;
 	}
 
-	void TestGUI(bool& wireframe, int& lod, float& ratio)
+	void UpdateShader(bool& wireframe, int& lod, float& ratio)
 	{
-		static bool enabled1 = false;
-		static bool enabled2 = false;
-		static bool enabled3 = false;
-		static Vector4 c(0, 0, 0, 0);
-	
 		GUI::Test2(lod, ratio, wireframe, vertexData[0].px[0]);
+
+		geometryTextureShaderProgram.Bind();
+		geometryTextureShaderProgram.SetUniform1i("geometryTexture", 0);
+		geometryTextureShaderProgram.SetUniform1i("normalTexture", 1);
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+		TestTransformData transformData;
+		transformData.viewTransform = camera.GetViewTransform().Transpose();
+		transformData.projTransform = camera.GetProjectionTransform().Transpose();
+		transformData.lod = lod;
+		transformData.ratio = ratio / 100.0f;
+		uniformBlockBuffer.Update(0, &transformData, sizeof(TestTransformData));
+#else
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		geometryTextureShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+		geometryTextureShaderProgram.SetUniform1i("lod", lod);
+		geometryTextureShaderProgram.SetUniform1f("ratio", ratio / 100.0f);
+#endif
 
 		shaderStorageBlockBuffer.Update(0, vertexData, sizeof(VertexData) * 4);
 	}
@@ -200,7 +215,7 @@ public:
 		static int lod = 0;
 		static bool wireframe = true;
 		static float ratio = 0.0;
-		TestGUI(wireframe, lod, ratio);
+		UpdateShader(wireframe, lod, ratio);
 
 		static float test1 = 0.0f;
 		test1 += 1;
@@ -224,8 +239,6 @@ public:
 		renderStates.viewportState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
 
 		renderStates.clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
-
-		renderStates.clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
 		renderStates.clearState.clearDepth = 1.0f;
 		renderStates.clearState.clearStencil = 0;
 		renderStates.clearState.enableClearColor = true;
@@ -245,25 +258,6 @@ public:
 
 		geometryTexture.Bind(0);
 		normalTexture.Bind(1);
-
-		geometryTextureShaderProgram.Bind();
-		geometryTextureShaderProgram.SetUniform1i("geometryTexture", 0);
-		geometryTextureShaderProgram.SetUniform1i("normalTexture", 1);
-		geometryTextureShaderProgram.SetUniform1f("ratio", ratio/100.0f);
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
-
-#define USE_UNIFORM_BLOCK
-#ifdef USE_UNIFORM_BLOCK
-		TransformData transformData;
-		transformData.viewTransform = camera.GetViewTransform().Transpose();
-		transformData.projTransform = camera.GetProjectionTransform().Transpose();
-		transformData.lod = lod;
-		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
-#else
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
-		geometryTextureShaderProgram.SetUniform1i("lod", lod);
-#endif
 
 		float scale = powf(2.0f, floor(lod));
 		int triangleCount = (int)(GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale));

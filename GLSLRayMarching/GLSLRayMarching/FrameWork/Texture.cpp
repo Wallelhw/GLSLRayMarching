@@ -36,7 +36,7 @@ static unsigned int textureGLMinFilters[] =
 static unsigned int textureGLMagFilters[] =
 {
 	GL_NEAREST,
-	GL_LINEAR,
+	GL_LINEAR
 };
 
 typedef struct 
@@ -168,11 +168,11 @@ public:
 		, format(Texture::Format::RGBA32UI)
 		, handle(0)
 
-		, warpS(Texture::Wrap::REPEAT)
-		, warpT(Texture::Wrap::REPEAT)
-		, warpR(Texture::Wrap::REPEAT)
-		, minFilter(Texture::MinFilter::NEAREST)
-		, magFilter(Texture::MagFilter::NEAREST)
+		, warpS(Texture::Wrap::Repeat)
+		, warpT(Texture::Wrap::Repeat)
+		, warpR(Texture::Wrap::Repeat)
+		, minFilter(Texture::MinFilter::Nearest)
+		, magFilter(Texture::MagFilter::Nearest)
 	{
 	}
 
@@ -410,7 +410,7 @@ Texture::Format Texture::GetFormat(unsigned int nrComponents_, Texture::DynamicR
 
 ////////////////////////////////////////////////////////////////////////////////////
 Texture1D::Texture1D()
-: Texture(Texture::Type::TEXTURE_1D)
+: Texture(Texture::Type::Texture1D)
 , width(0)
 {
 	Assert(impl);
@@ -501,7 +501,7 @@ unsigned int Texture1D::GetWidth() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 Texture2D::Texture2D()
-	: Texture(Texture::Type::TEXTURE_2D)
+	: Texture(Texture::Type::Texture2D)
 	, width(0)
 	, height(0)
 {
@@ -602,7 +602,7 @@ unsigned int Texture2D::GetHeight() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 Texture3D::Texture3D()
-: Texture(Texture::Type::TEXTURE_3D)
+: Texture(Texture::Type::Texture3D)
 , width(0)
 , height(0)
 , depth(0)
@@ -712,7 +712,7 @@ unsigned int Texture3D::GetDepth() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 TextureCubeMap::TextureCubeMap()
-: Texture(Texture::Type::TEXTURE_CUBE_MAP)
+: Texture(Texture::Type::TextureCubeMap)
 , size(0)
 , faceDataSize(0)
 {
@@ -852,7 +852,7 @@ unsigned int TextureCubeMap::GetSize() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 Texture1DArray::Texture1DArray()
-: Texture(Texture::Type::TEXTURE_1D_ARRAY)
+: Texture(Texture::Type::Texture1DArray)
 , width(0)
 , layerCount(0)
 {
@@ -968,7 +968,7 @@ unsigned int Texture1DArray::GetLayerCount() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 Texture2DArray::Texture2DArray()
-: Texture(Texture::Type::TEXTURE_2D_ARRAY)
+: Texture(Texture::Type::Texture2DArray)
 , width(0)
 , height(0)
 , layerCount(0)
@@ -1090,7 +1090,7 @@ unsigned int Texture2DArray::GetLayerCount() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 TextureCubeMapArray::TextureCubeMapArray()
-: Texture(Texture::Type::TEXTURE_CUBE_MAP_ARRAY)
+: Texture(Texture::Type::TextureCubeMapArray)
 , size(0)
 , faceDataSize(0)
 , layerCount(0)
