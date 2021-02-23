@@ -212,6 +212,16 @@ public:
 
 	virtual bool OnUpdate() override
 	{
+		unsigned int count = geometryTextureShaderProgram.GetActiveUniformCount();
+
+		std::string name;
+		UniformType uniformType;
+		int size;
+		for (int i = 0; i < count; i++)
+		{
+			geometryTextureShaderProgram.GetActiveUniformInfo(i, name, uniformType, size);
+		}
+
 		static int lod = 0;
 		static bool wireframe = true;
 		static float ratio = 0.0;

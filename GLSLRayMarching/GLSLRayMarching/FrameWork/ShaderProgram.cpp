@@ -234,6 +234,76 @@ void ShaderProgram::Unbind() const
 	glUseProgram(0);
 }
 
+int ShaderProgram::GetActiveUniformCount() const
+{
+	Assert(impl);
+
+	int activeuniform = 0;
+	glGetProgramiv(impl->handle, GL_ACTIVE_UNIFORMS, &activeuniform);
+
+	return activeuniform;
+}
+
+std::map<int, UniformType> uniformTypeGLValues =
+{
+	{ GL_FLOAT,								  UniformType::FLOAT },
+	{ GL_FLOAT_VEC2,						  UniformType::FLOAT_VEC2 },
+	{ GL_FLOAT_VEC3,						  UniformType::FLOAT_VEC3 },
+	{ GL_FLOAT_VEC4,						  UniformType::FLOAT_VEC4 },
+	{ GL_INT,								  UniformType::INT },
+	{ GL_INT_VEC2,							  UniformType::INT_VEC2 },
+	{ GL_INT_VEC3,							  UniformType::INT_VEC3 },
+	{ GL_INT_VEC4,							  UniformType::INT_VEC4 },
+	{ GL_UNSIGNED_INT,						  UniformType::UNSIGNED_INT },
+	{ GL_UNSIGNED_INT_VEC2,					  UniformType::UNSIGNED_INT_VEC2 },
+	{ GL_UNSIGNED_INT_VEC3,					  UniformType::UNSIGNED_INT_VEC3 },
+	{ GL_UNSIGNED_INT_VEC4,					  UniformType::UNSIGNED_INT_VEC4 },
+	{ GL_BOOL,								  UniformType::BOOL },
+	{ GL_BOOL_VEC2,							  UniformType::BOOL_VEC2 },
+	{ GL_BOOL_VEC3,							  UniformType::BOOL_VEC3 },
+	{ GL_BOOL_VEC4,							  UniformType::BOOL_VEC4 },
+	{ GL_FLOAT_MAT2, 						  UniformType::FLOAT_MAT2 },
+	{ GL_FLOAT_MAT3, 						  UniformType::FLOAT_MAT3 },
+	{ GL_FLOAT_MAT4, 						  UniformType::FLOAT_MAT4 },
+	{ GL_FLOAT_MAT2x3,						  UniformType::FLOAT_MAT2x3 },
+	{ GL_FLOAT_MAT2x4,						  UniformType::FLOAT_MAT2x4 },
+	{ GL_FLOAT_MAT3x2,						  UniformType::FLOAT_MAT3x2 },
+	{ GL_FLOAT_MAT3x4,						  UniformType::FLOAT_MAT3x4 },
+	{ GL_FLOAT_MAT4x2,						  UniformType::FLOAT_MAT4x2 },
+	{ GL_FLOAT_MAT4x3,						  UniformType::FLOAT_MAT4x3 },
+	{ GL_SAMPLER_2D,						  UniformType::SAMPLER_2D },
+	{ GL_SAMPLER_3D,						  UniformType::SAMPLER_3D },
+	{ GL_SAMPLER_CUBE,						  UniformType::SAMPLER_CUBE },
+	{ GL_SAMPLER_2D_SHADOW,					  UniformType::SAMPLER_2D_SHADOW },
+	{ GL_SAMPLER_2D_ARRAY,					  UniformType::SAMPLER_2D_ARRAY },
+	{ GL_SAMPLER_2D_ARRAY_SHADOW,			  UniformType::SAMPLER_2D_ARRAY_SHADOW },
+	{ GL_SAMPLER_CUBE_SHADOW,				  UniformType::SAMPLER_CUBE_SHADOW },
+	{ GL_INT_SAMPLER_2D,					  UniformType::INT_SAMPLER_2D },
+	{ GL_INT_SAMPLER_3D,					  UniformType::INT_SAMPLER_3D },
+	{ GL_INT_SAMPLER_CUBE,					  UniformType::INT_SAMPLER_CUBE },
+	{ GL_INT_SAMPLER_2D_ARRAY,				  UniformType::INT_SAMPLER_2D_ARRAY },
+	{ GL_UNSIGNED_INT_SAMPLER_2D,			  UniformType::UNSIGNED_INT_SAMPLER_2D },
+	{ GL_UNSIGNED_INT_SAMPLER_3D,			  UniformType::UNSIGNED_INT_SAMPLER_3D },
+	{ GL_UNSIGNED_INT_SAMPLER_CUBE,			  UniformType::UNSIGNED_INT_SAMPLER_CUBE },
+	{ GL_UNSIGNED_INT_SAMPLER_2D_ARRAY,		  UniformType::UNSIGNED_INT_SAMPLER_2D_ARRAY },
+};
+
+void ShaderProgram::GetActiveUniformInfo(int index_, std::string& name_, UniformType& uniformType_, int& size_) const
+{
+	Assert(impl);
+
+	unsigned int bufSize = 1024;
+	int length = 0;
+	name_.resize(bufSize + 1);
+	GLenum type;
+	glGetActiveUniform(impl->handle, index_, bufSize, &length, &size_, &type, &name_[0]);
+
+	if(uniformTypeGLValues.find(type) == uniformTypeGLValues.end())
+		uniformType_ = UniformType::UNSUPPORTED;
+	else
+		uniformType_ = uniformTypeGLValues[type];
+}
+
 unsigned int ShaderProgram::GetUniformLocation(const char* uniform_) const
 {
 	Assert(impl);
@@ -834,6 +904,539 @@ void ShaderProgram::SetUniformMatrix4x4fv(unsigned int uniformLocation_, int cou
 #else
 	glUniformMatrix4fv(uniformLocation_, count_, true, v_);
 #endif
+}
+
+void ShaderProgram::GetUniform1i(const char* uniform_, int& v0_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1i(location, v0_);
+}
+
+void ShaderProgram::GetUniform2i(const char* uniform_, int& v0_, int& v1_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2i(location, v0_, v1_);
+}
+
+void ShaderProgram::GetUniform3i(const char* uniform_, int& v0_, int& v1_, int& v2_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3i(location, v0_, v1_, v2_);
+}
+
+void ShaderProgram::GetUniform4i(const char* uniform_, int& v0_, int& v1_, int& v2_, int& v3_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4i(location, v0_, v1_, v2_, v3_);
+}
+
+void ShaderProgram::GetUniform1iv(const char* uniform_, int count_, int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1iv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform2iv(const char* uniform_, int count_, int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2iv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform3iv(const char* uniform_, int count_, int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3iv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform4iv(const char* uniform_, int count_, int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4iv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform1ui(const char* uniform_, unsigned int& v0_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1ui(location, v0_);
+}
+
+void ShaderProgram::GetUniform2ui(const char* uniform_, unsigned int& v0_, unsigned int& v1_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2ui(location, v0_, v1_);
+}
+
+void ShaderProgram::GetUniform3ui(const char* uniform_, unsigned int& v0_, unsigned int& v1_, unsigned int& v2_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3ui(location, v0_, v1_, v2_);
+}
+
+void ShaderProgram::GetUniform4ui(const char* uniform_, unsigned int& v0_, unsigned int& v1_, unsigned int& v2_, unsigned int& v3_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4ui(location, v0_, v1_, v2_, v3_);
+}
+
+void ShaderProgram::GetUniform1uiv(const char* uniform_, int count_, unsigned int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1uiv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform2uiv(const char* uniform_, int count_, unsigned int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2uiv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform3uiv(const char* uniform_, int count_, unsigned int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3uiv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform4uiv(const char* uniform_, int count_, unsigned int* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4uiv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform1f(const char* uniform_, float& v0_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1f(location, v0_);
+}
+
+void ShaderProgram::GetUniform2f(const char* uniform_, float& v0_, float& v1_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2f(location, v0_, v1_);
+}
+
+void ShaderProgram::GetUniform3f(const char* uniform_, float& v0_, float& v1_, float& v2_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3f(location, v0_, v1_, v2_);
+}
+
+void ShaderProgram::GetUniform4f(const char* uniform_, float& v0_, float& v1_, float& v2_, float& v3_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4f(location, v0_, v1_, v2_, v3_);
+}
+
+void ShaderProgram::GetUniform1fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform1fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform2fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform2fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform3fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform3fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniform4fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniform4fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x2fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix2x2fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x3fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix2x3fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x4fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix2x4fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix3x2fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix3x2fv(location, count_, v_);
+}
+
+void ShaderProgram::SetUniformMatrix3x3fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix3x3fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix3x4fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix3x4fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x2fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix4x2fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x3fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix4x3fv(location, count_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x4fv(const char* uniform_, int count_, float* v_)
+{
+	int location = GetUniformLocation(uniform_);
+
+	GetUniformMatrix4x4fv(location, count_, v_);
+}
+
+#define USE_PROGRAM_UNIFORM
+void ShaderProgram::GetUniform1i(unsigned int uniformLocation_, int& v0_)
+{
+	Assert(impl);
+
+	int values[4];
+	glGetUniformiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+}
+
+void ShaderProgram::GetUniform2i(unsigned int uniformLocation_, int& v0_, int& v1_)
+{
+	Assert(impl);
+
+	int values[4];
+	glGetUniformiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+}
+
+void ShaderProgram::GetUniform3i(unsigned int uniformLocation_, int& v0_, int& v1_, int& v2_)
+{
+	Assert(impl);
+
+	int values[4];
+	glGetUniformiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+}
+
+void ShaderProgram::GetUniform4i(unsigned int uniformLocation_, int& v0_, int& v1_, int& v2_, int& v3_)
+{
+	Assert(impl);
+
+	int values[4];
+	glGetUniformiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+	v3_ = values[3];
+}
+
+void ShaderProgram::GetUniform1iv(unsigned int uniformLocation_, int count_, int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform1iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform1iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::GetUniform2iv(unsigned int uniformLocation_, int count_, int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform2iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform2iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::GetUniform3iv(unsigned int uniformLocation_, int count_, int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform3iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform3iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::GetUniform4iv(unsigned int uniformLocation_, int count_, int* v_)
+{
+#ifdef USE_PROGRAM_UNIFORM
+	Assert(impl);
+
+	glProgramUniform4iv(impl->handle, uniformLocation_, count_, v_);
+#else
+	glUniform4iv(uniformLocation_, count_, v_);
+#endif
+}
+
+void ShaderProgram::GetUniform1ui(unsigned int uniformLocation_, unsigned int& v0_)
+{
+	Assert(impl);
+
+	unsigned int values[4];
+	glGetUniformuiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+}
+
+void ShaderProgram::GetUniform2ui(unsigned int uniformLocation_, unsigned int& v0_, unsigned int& v1_)
+{
+	Assert(impl);
+
+	unsigned int values[4];
+	glGetUniformuiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+}
+
+void ShaderProgram::GetUniform3ui(unsigned int uniformLocation_, unsigned int& v0_, unsigned int& v1_, unsigned int& v2_)
+{
+	Assert(impl);
+
+	unsigned int values[4];
+	glGetUniformuiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+}
+
+void ShaderProgram::GetUniform4ui(unsigned int uniformLocation_, unsigned int& v0_, unsigned int& v1_, unsigned int& v2_, unsigned int& v3_)
+{
+	Assert(impl);
+
+	unsigned int values[4];
+	glGetUniformuiv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+	v3_ = values[3];
+}
+
+void ShaderProgram::GetUniform1uiv(unsigned int uniformLocation_, int count_, unsigned int* v_)
+{
+	Assert(impl);
+
+	glGetUniformuiv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform2uiv(unsigned int uniformLocation_, int count_, unsigned int* v_)
+{
+	Assert(impl);
+
+	glGetUniformuiv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform3uiv(unsigned int uniformLocation_, int count_, unsigned int* v_)
+{
+	Assert(impl);
+
+	glGetUniformuiv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform4uiv(unsigned int uniformLocation_, int count_, unsigned int* v_)
+{
+	Assert(impl);
+
+	glGetUniformuiv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform1f(unsigned int uniformLocation_, float& v0_)
+{
+	Assert(impl);
+
+	float values[4];
+	glGetUniformfv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+}
+
+void ShaderProgram::GetUniform2f(unsigned int uniformLocation_, float& v0_, float& v1_)
+{
+	Assert(impl);
+
+	float values[4];
+	glGetUniformfv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+}
+
+void ShaderProgram::GetUniform3f(unsigned int uniformLocation_, float& v0_, float& v1_, float& v2_)
+{
+	Assert(impl);
+
+	float values[4];
+	glGetUniformfv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+}
+
+void ShaderProgram::GetUniform4f(unsigned int uniformLocation_, float& v0_, float& v1_, float& v2_, float& v3_)
+{
+	Assert(impl);
+
+	float values[4];
+	glGetUniformfv(impl->handle, uniformLocation_, values);
+
+	v0_ = values[0];
+	v1_ = values[1];
+	v2_ = values[2];
+	v3_ = values[3];
+}
+
+void ShaderProgram::GetUniform1fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform2fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform3fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniform4fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x2fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x3fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix2x4fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix3x2fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix3x3fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix3x4fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x2fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x3fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
+}
+
+void ShaderProgram::GetUniformMatrix4x4fv(unsigned int uniformLocation_, int count_, float* v_)
+{
+	Assert(impl);
+
+	glGetUniformfv(impl->handle, uniformLocation_, v_);
 }
 
 void ShaderProgram::BindShaderStorageBuffer(Buffer& buffer_, const char* name_, unsigned int bindingPoint_)

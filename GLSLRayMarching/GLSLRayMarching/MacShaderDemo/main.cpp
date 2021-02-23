@@ -29,7 +29,7 @@ class KeyboardTexture : public Texture2D
 public:
 	KeyboardTexture()
 		: Texture2D()
-		, buffer(256*3)
+		, buffer(256 * 3)
 	{
 	}
 
@@ -42,7 +42,6 @@ public:
 		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
 			return false;
 
-	
 		SetMinFilter(Texture::MinFilter::Nearest);
 		SetMagFilter(Texture::MagFilter::Nearest);
 		SetWarpS(Texture::Wrap::Clamp);
@@ -69,7 +68,7 @@ public:
 		bool release = (keydown[key] != oldKeydown) && !keydown[key];
 		if (key == 38)
 		{
-			//printf("%d %d %d\n", keydown[key], keyclick[key], keytoggle[key]);
+			//Platform::Debug("%d %d %d\n", keydown[key], keyclick[key], keytoggle[key]);
 			if (keyclick[key])
 			{
 				int a = 1;
@@ -101,7 +100,7 @@ public:
 		UpdateKey(VK_SHIFT);
 		UpdateKey(VK_CONTROL);
 		UpdateKey(VK_MENU);
-		
+
 		Texture2D::Update(&buffer[0]);
 	}
 private:
@@ -109,110 +108,29 @@ private:
 	std::vector<char> buffer;
 };
 
-class GUITexture : public Texture2D
+class UniformGUI
 {
 public:
-	GUITexture()
-	: Texture2D()
-	, buffer(256 * 3)
+	UniformGUI()
 	{
 	}
 
-	virtual ~GUITexture()
+	virtual ~UniformGUI()
 	{
 	}
 
 	bool Create()
 	{
-		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
-			return false;
-
-		SetMinFilter(Texture::MinFilter::Nearest);
-		SetMagFilter(Texture::MagFilter::Nearest);
-		SetWarpS(Texture::Wrap::Clamp);
-		SetWarpR(Texture::Wrap::Clamp);
-		SetWarpT(Texture::Wrap::Clamp);
-
 		return true;
 	}
 
 	virtual void Update(ShaderProgram& shaderProgram)
 	{
-		// shaderProgram.SetUniform1i("guiTexture", );
-
-		// GUI::Test(bValues, iValues, fValues, vec4Values);
-		Texture2D::Update(&buffer[0]);
-	}
-
-	void AddValue(const char* name_, bool v)
-	{
-		bValues[name_] = v;
-	}
-
-	void SetValue(const char* name_, bool v_)
-	{
-		bValues[name_] = v_;
-	}
-
-	void GetValue(const char* name_, bool& value_)
-	{
-		value_ = bValues[name_];
-	}
-
-	void AddValue(const char* name_, int v_, int min_, int max_)
-	{
-		iValues[name_] = { v_, min_, max_ };
-	}
-
-	void SetValue(const char* name_, int v_)
-	{
-		iValues[name_].value = v_;
-	}
-
-	void GetValue(const char* name_, int& value_)
-	{
-		value_ = iValues[name_].value;
-	}
-
-	void AddValue(const char* name_, float v_, float min_, float max_)
-	{
-		fValues[name_] = { v_, min_, max_ };
-	}
-
-	void SetValue(const char* name_, float v_)
-	{
-		fValues[name_].value = v_;
-	}
-
-	void GetValue(const char* name_, float& value_)
-	{
-		value_ = fValues[name_].value;
-	}
-
-	void AddValue(const char* name_, Vector4 v_, float min_, float max_)
-	{
-		vec4Values[name_] = { v_, min_, max_ };
-	}
-
-	void SetValue(const char* name_, Vector4 v_)
-	{
-		vec4Values[name_].value = v_;
-	}
-
-	void GetValue(const char* name_, Vector4& value_)
-	{
-		value_ = vec4Values[name_].value;
+		GUI::UpdateShader(shaderProgram);
 	}
 private:
 private:
-	std::map<const char*, bool> bValues;
-	std::map<const char*, IValue> iValues;
-	std::map<const char*, FValue> fValues;
-	std::map<const char*, Vec4Value> vec4Values;
-
-	std::vector<char> buffer;
 };
-
 
 class WebcamTexture : public Texture2D
 {
@@ -443,7 +361,7 @@ public:
 	virtual void Flip()
 	{
 		FlipFrameBuffer::Flip();
-		
+
 		//Invalidate();
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[GetCurrent()]);
 	}
@@ -461,6 +379,201 @@ private:
 #define IMAGE 6
 
 #define CHANNEL_COUNT 4
+
+template<class ValueType>
+class Parameter
+{
+public:
+	Parameter()
+	{
+	}
+
+	~Parameter()
+	{
+	}
+
+	void SetValue(const ValueType& value_)
+	{
+		value = value_;
+	}
+
+	const ValueType& GetValue() const
+	{
+		return value;
+	}
+protected:
+	std::string name;
+	ValueType value;
+};
+
+template<class ValueType, class RangeType>
+class ParameterWithRange : public Parameter<ValueType>
+{
+public:
+	ParameterWithRange()
+	{
+	}
+
+	~ParameterWithRange()
+	{
+	}
+
+	void SetMin(const RangeType& min_)
+	{
+		min = min_;
+	}
+
+	void SetMax(const RangeType& max_)
+	{
+		max = max_;
+	}
+
+	const RangeType& GetMin() const
+	{
+		return min;
+	}
+
+	const RangeType& GetMax() const
+	{
+		return max;
+	}
+protected:
+	RangeType min;
+	RangeType max;
+};
+
+class Parameters
+{
+public:
+	Parameters()
+	{
+	}
+
+	~Parameters()
+	{
+	}
+
+	bool CreateBool(const Value& boolParamJson)
+	{
+		return true;
+	}
+
+	bool CreateBVector2(const Value& bVector2ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateBVector3(const Value& bVector3ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateBVector4(const Value& bVector4ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateInt(const Value& intParamJson)
+	{
+		return true;
+	}
+
+	bool CreateIVector2(const Value& int2ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateIVector3(const Value& int3ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateIVector4(const Value& int4ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateUInt(const Value& uintParamJson)
+	{
+		return true;
+	}
+
+	bool CreateUVector2(const Value& uint2ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateUVector3(const Value& uint3ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateUVector4(const Value& uint4ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateFloat(const Value& floatParamJson)
+	{
+		return true;
+	}
+
+	bool CreateVector2(const Value& vec2ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateVector3(const Value& vec3ParamJson)
+	{
+		return true;
+	}
+
+	bool CreateVector4(const Value& vec4ParamJson)
+	{
+		return true;
+	}
+
+	bool Create(const Value& parametersJson)
+	{
+		for (auto iter = parametersJson.MemberBegin(); iter != parametersJson.MemberEnd(); ++iter)
+		{
+			auto name = (iter->name).GetString();
+			const Value& parameterJson = parametersJson[name];
+
+			const char* s;
+			float v;
+			if (parameterJson.IsObject())
+			{
+				if(parameterJson.HasMember("type"))
+				{
+					s = parameterJson["type"].GetString();
+				}
+			}
+		}
+
+		return true;
+	}
+protected:
+	std::vector<Parameter<bool>> boolParams;
+	std::vector<Parameter<BVector2>> bVector2Params;
+	std::vector<Parameter<BVector3>> bVector3Params;
+	std::vector<Parameter<BVector4>> bVector4Params;
+
+	std::vector<ParameterWithRange<int, int>> intParams;
+	std::vector<ParameterWithRange<IVector2, int>> iVector2Params;
+	std::vector<ParameterWithRange<IVector3, int>> iVector3Params;
+	std::vector<ParameterWithRange<IVector4, int>> iVector4Params;
+
+	std::vector<ParameterWithRange<unsigned int, unsigned int>> uintParams;
+	std::vector<ParameterWithRange<IVector2, unsigned int>> uVector2Params;
+	std::vector<ParameterWithRange<IVector3, unsigned int>> uVector3Params;
+	std::vector<ParameterWithRange<IVector4, unsigned int>> uVector4Params;
+
+	std::vector<ParameterWithRange<float, float>> floatParams;
+	std::vector<ParameterWithRange<Vector2, float>> fVector2Params;
+	std::vector<ParameterWithRange<Vector3, float>> fVector3Params;
+	std::vector<ParameterWithRange<Vector4, float>> fVector4Params;
+};
 
 class Pass
 {
@@ -511,7 +624,7 @@ public:
 		, primitives()
 		, shaderProgram()
 		, iChannels(CHANNEL_COUNT)
-		, guiTexture()
+		//, uniformGUI()
 		, frameBuffer(nullptr)
 	{
 	}
@@ -521,7 +634,7 @@ public:
 		Destroy();
 	}
 
-	bool Create()
+	bool Create(const rapidjson::Value& json)
 	{
 		Destroy();
 
@@ -541,7 +654,7 @@ public:
 			.Begin()
 			.FillVertices(0, 3, VertexAttribute::DataType::FLOAT, false, 0, 0, vertices, sizeof(vertices) / sizeof(vertices[0]) / 3)
 			.End();
-		if(!success)
+		if (!success)
 		{
 			return false;
 		}
@@ -592,10 +705,10 @@ public:
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
 		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 
-		printf("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
+		Platform::Debug("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 		SYSTEMTIME lt = { 0 };
 		GetLocalTime(&lt);
-		shaderProgram.SetUniform4f("iDate", (float)lt.wYear-1, (float)lt.wMonth-1, (float)lt.wDay, lt.wHour*60.0f *60.0f + lt.wMinute*60.0f + lt.wSecond);
+		shaderProgram.SetUniform4f("iDate", (float)lt.wYear - 1, (float)lt.wMonth - 1, (float)lt.wDay, lt.wHour * 60.0f * 60.0f + lt.wMinute * 60.0f + lt.wSecond);
 		shaderProgram.SetUniform1f("iSampleRate", 48000.0);
 
 		std::vector<Vector3> channelResolutions(CHANNEL_COUNT);
@@ -667,7 +780,7 @@ public:
 			shaderProgram.SetUniform1i(name.c_str(), i);
 		}
 
-		guiTexture.Update(shaderProgram);
+		//uniformGUI.Update(shaderProgram);
 
 		primitives.Bind();
 		primitives.DrawArray(Primitives::Mode::TRIANGLES, 0, primitives.GetCount());
@@ -699,7 +812,7 @@ public:
 		{
 			channel.Destroy();
 		}
-		
+
 		frameBuffer = nullptr;
 		primitives.Destroy();
 	}
@@ -907,7 +1020,7 @@ private:
 	RenderStates renderStates;
 	ShaderProgram shaderProgram;
 	std::vector<Channel> iChannels;
-	GUITexture guiTexture;
+	//UniformGUI uniformGUI;
 	FlipFrameBuffer* frameBuffer;
 	Primitives primitives;
 };
@@ -1132,6 +1245,14 @@ public:
 		Platform::Debug("Error: %s\n", msg);
 	}
 
+	bool Create(const char* folder_)
+	{
+		if (!CreateScene(folder_, "scene.json"))
+			return false;
+
+		return true;
+	}
+
 	bool CreateScene(const char* folder_, const char* scenefile_)
 	{
 		std::vector<char> colors(32 * 32 * 4);
@@ -1187,23 +1308,57 @@ public:
 		}
 		catch (std::ifstream::failure&)
 		{
-			printf("Failed to Open %s\n", url.c_str());
+			Platform::Debug("Failed to Open %s\n", url.c_str());
 			return false;
 		}
 
 		Document shaderToyDoc;
 		shaderToyDoc.Parse(shaderToyCode.c_str());
 
-		const char* commonShaderURL = nullptr;
+		const char* commonShaderURL = CreateCommon(shaderToyDoc);
+
+		std::string customUniform;
+		if (!CreateParameters(shaderToyDoc))
+			return false;
+		
+		if (!CreatePasses(shaderToyDoc, folder, commonShaderURL))
+			return false;
+
+		return true;
+	}
+
+	const char* CreateCommon(rapidjson::Document& shaderToyDoc)
+	{
 		if (shaderToyDoc.HasMember("common"))
 		{
 			Value& commonsJson = shaderToyDoc["common"];
 
 			if (commonsJson.HasMember("shader"))
 			{
-				commonShaderURL = commonsJson["shader"].GetString();
+				return commonsJson["shader"].GetString();
 			}
 		}
+
+		return nullptr;
+	}
+
+	bool CreateParameters(rapidjson::Document& shaderToyDoc)
+	{
+		if (shaderToyDoc.HasMember("parameters"))
+		{
+			Value& parametersJson = shaderToyDoc["parameters"];
+			if (parametersJson.IsObject())
+			{
+				if (!parameters.Create(parametersJson))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool CreatePasses(rapidjson::Document& shaderToyDoc, std::string& folder, const char* commonShaderURL)
+	{
 		if (shaderToyDoc.HasMember("passes"))
 		{
 			Value& passesJson = shaderToyDoc["passes"];
@@ -1212,247 +1367,8 @@ public:
 				passes.resize(passesJson.Size());
 				for (int i = 0; i < passes.size(); i++)
 				{
-					if (!passes[i].Create())
-					{
-						printf("Failed to Create Pass %d\n", i);
+					if (!CreatePass(i, passesJson, folder, commonShaderURL))
 						return false;
-					}
-
-					Value& passJson = passesJson[i];
-					if (passJson.IsObject())
-					{
-						if (passJson.HasMember("rendertarget"))
-						{
-							std::string rendertargetname = passJson["rendertarget"].GetString();
-
-							if (rendertargetname != "image")
-							{
-								FlipFrameBuffer* rendertarget = GetFrameBuffer(rendertargetname.c_str());
-								if (!rendertarget)
-								{
-									printf("rendertarget=%s not supported\n", rendertargetname.c_str());
-									return false;
-								}
-
-								passes[i].SetFrameBuffer(rendertarget);
-							}
-							else
-							{
-								passes[i].SetFrameBuffer(nullptr);
-							}
-						}
-						else
-						{
-							printf("Pass must have Render Target\n");
-							return false;
-						}
-
-						for (int j = 0; j < CHANNEL_COUNT; j++)
-						{
-							passes[i].SetChannelTexture(j, &black);
-
-							std::string name = "ichannel";
-							name += ('0' + j);
-
-							if (passJson.HasMember(name.c_str()))
-							{
-								Value& channelJson = passJson[name.c_str()];
-								if (channelJson.IsObject())
-								{
-									if (channelJson.HasMember("filter"))
-									{
-										Pass::Filter channelFilter = GetFilter(channelJson["filter"].GetString());
-										passes[i].SetFilter(j, channelFilter);
-									}
-									if (channelJson.HasMember("wrap"))
-									{
-										Pass::Wrap channelWrap = GetWrap(channelJson["wrap"].GetString());
-										passes[i].SetWrap(j, channelWrap);
-									}
-									if (channelJson.HasMember("vflip"))
-									{
-										bool vFlip = channelJson["vflip"].GetBool();
-										passes[i].SetVFlip(j, vFlip);
-									}
-
-									if (channelJson.HasMember("keyboard"))
-									{
-										Texture* texture = AddKeyboardTexture();
-										if (!texture)
-											return false;
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-#if 0
-									if (channelJson.HasMember("gui"))
-									{
-										Value& guisJson = channelJson["gui"];
-
-										if (guisJson.IsArray())
-										{
-											GUITexture* guiTexture = AddGUITexture();
-											if (!guiTexture)
-												return false;
-											passes[i].SetChannelTexture(j, guiTexture);
-
-											for (unsigned k = 0; k < guisJson.Size(); k++)
-											{
-												if (guisJson[k].IsObject())
-												{
-													if (guisJson[k].HasMember("checkbox"))
-													{
-														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value"))
-														{
-															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetBool());
-														}
-													}
-													else if (guisJson[k].HasMember("intslider"))
-													{
-														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
-														{
-															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetInt(), guisJson[k]["min"].GetInt(), guisJson[k]["max"].GetInt());
-														}
-													}
-													else if (guisJson[k].HasMember("floatslider"))
-													{
-														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
-														{
-															guiTexture->AddValue(guisJson[k]["name"].GetString(), guisJson[k]["value"].GetFloat(), guisJson[k]["min"].GetFloat(), guisJson[k]["max"].GetFloat());
-														}
-													}
-													else if (guisJson[k].HasMember("vec4slider"))
-													{
-														if (guisJson[k].HasMember("name") && guisJson[k].HasMember("value") && guisJson[k].HasMember("min") && guisJson[k].HasMember("max"))
-														{
-															if (guisJson[k]["value"].IsArray() && guisJson[k]["value"].Size()==4)
-															{
-																Vector4 v;
-																v[0] = guisJson[k]["value"][0].GetFloat();
-																v[1] = guisJson[k]["value"][1].GetFloat();
-																v[2] = guisJson[k]["value"][2].GetFloat();
-																v[3] = guisJson[k]["value"][3].GetFloat();
-																guiTexture->AddValue(guisJson[k]["name"].GetString(), v, guisJson[k]["min"].GetFloat(), guisJson[k]["max"].GetFloat());
-															}
-														}
-													}
-												}
-											}
-										}
-										else
-										{
-											printf("gui is not an object\n");
-										}
-
-									}
-#endif
-									else if (channelJson.HasMember("webcam"))
-									{
-										Texture* texture = AddWebcamTexture(passes[i].GetChannel(j).vFlip);
-										if (!texture)
-											return false;
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("microphone"))
-									{
-										Texture* texture = AddMicrophoneTexture();
-										if (!texture)
-											return false;
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("soundcloud"))
-									{
-										std::string url = channelJson["soundcloud"].GetString();
-
-										Texture* texture = AddSoundCloudTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
-										if (!texture)
-										{
-											printf("channel %d: failed to load soundcloud %s\n", j, url.c_str());
-											return false;
-										}
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("texture2d"))
-									{
-										std::string url = folder;
-										url += "/";
-										url += channelJson["texture2d"].GetString();
-
-										Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
-										if (!texture)
-										{
-											printf("channel %d: failed to load texture2d %s\n", j, url.c_str());
-											return false;
-										}
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("texturecubemap"))
-									{
-										std::string url = folder;
-										url += "/";
-										url += channelJson["texturecubemap"].GetString();
-
-										Texture* texture = AddTextureCubemap(url.c_str(), passes[i].GetChannel(j).vFlip);
-										if (!texture)
-										{
-											printf("channel %d: failed to load texturecubemap %s\n", j, url.c_str());
-											return false;
-										}
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("texturevideo"))
-									{
-										std::string url = folder;
-										url += "/";
-										url += channelJson["texturevideo"].GetString();
-
-										Texture* texture = AddVideoTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
-										if (!texture)
-										{
-											printf("channel %d: failed to load texture video %s\n", j, url.c_str());
-											return false;
-										}
-
-										passes[i].SetChannelTexture(j, texture);
-									}
-									else if (channelJson.HasMember("buffer"))
-									{
-										std::string buffername = channelJson["buffer"].GetString();
-
-										FlipFrameBuffer* fb = GetFrameBuffer(buffername.c_str());
-										if (!fb)
-										{
-											printf("channel %d: buffer=%s is not supported\n", j, buffername.c_str());
-											return false;
-										}
-
-										passes[i].SetChannelFrameBuffer(j, fb);
-									}
-									else
-									{
-										printf("channel%d: must have texture or frame buffer specified or texture type is not supported\n", j);
-										return false;
-									}
-								}
-							}
-						}
-						if (passJson.HasMember("shader"))
-						{
-							const char* shaderURL = passJson["shader"].GetString();
-							if (!passes[i].SetShader(folder.c_str(), shaderURL, commonShaderURL))
-							{
-								return false;
-							}
-						}
-						else
-						{
-							printf("channel%d: must have shader specified\n", i);
-						}
-					}
 				}
 			}
 		}
@@ -1460,11 +1376,187 @@ public:
 		return true;
 	}
 
-
-	bool Create(const char* folder_)
+	bool CreatePass(int i, rapidjson::Value& passesJson, std::string& folder, const char* commonShaderURL)
 	{
-		if (!CreateScene(folder_, "scene.json"))
+		if (!passes[i].Create(passesJson[i]))
+		{
+			Platform::Debug("Failed to Create Pass %d\n", i);
 			return false;
+		}
+
+		Value& passJson = passesJson[i];
+		if (passJson.IsObject())
+		{
+			if (passJson.HasMember("rendertarget"))
+			{
+				std::string rendertargetname = passJson["rendertarget"].GetString();
+
+				if (rendertargetname != "image")
+				{
+					FlipFrameBuffer* rendertarget = this->GetFrameBuffer(rendertargetname.c_str());
+					if (!rendertarget)
+					{
+						Platform::Debug("rendertarget=%s not supported\n", rendertargetname.c_str());
+						return false;
+					}
+
+					passes[i].SetFrameBuffer(rendertarget);
+				}
+				else
+				{
+					passes[i].SetFrameBuffer(nullptr);
+				}
+			}
+			else
+			{
+				Platform::Debug("Pass must have Render Target\n");
+				return false;
+			}
+
+			for (int j = 0; j < CHANNEL_COUNT; j++)
+			{
+				passes[i].SetChannelTexture(j, &black);
+
+				std::string name = "ichannel";
+				name += ('0' + j);
+
+				if (passJson.HasMember(name.c_str()))
+				{
+					Value& channelJson = passJson[name.c_str()];
+					if (channelJson.IsObject())
+					{
+						if (channelJson.HasMember("filter"))
+						{
+							Pass::Filter channelFilter = GetFilter(channelJson["filter"].GetString());
+							passes[i].SetFilter(j, channelFilter);
+						}
+						if (channelJson.HasMember("wrap"))
+						{
+							Pass::Wrap channelWrap = GetWrap(channelJson["wrap"].GetString());
+							passes[i].SetWrap(j, channelWrap);
+						}
+						if (channelJson.HasMember("vflip"))
+						{
+							bool vFlip = channelJson["vflip"].GetBool();
+							passes[i].SetVFlip(j, vFlip);
+						}
+
+						if (channelJson.HasMember("keyboard"))
+						{
+							Texture* texture = AddKeyboardTexture();
+							if (!texture)
+								return false;
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("webcam"))
+						{
+							Texture* texture = AddWebcamTexture(passes[i].GetChannel(j).vFlip);
+							if (!texture)
+								return false;
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("microphone"))
+						{
+							Texture* texture = AddMicrophoneTexture();
+							if (!texture)
+								return false;
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("soundcloud"))
+						{
+							std::string url = channelJson["soundcloud"].GetString();
+
+							Texture* texture = AddSoundCloudTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
+							if (!texture)
+							{
+								Platform::Debug("channel %d: failed to load soundcloud %s\n", j, url.c_str());
+								return false;
+							}
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("texture2d"))
+						{
+							std::string url = folder;
+							url += "/";
+							url += channelJson["texture2d"].GetString();
+
+							Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
+							if (!texture)
+							{
+								Platform::Debug("channel %d: failed to load texture2d %s\n", j, url.c_str());
+								return false;
+							}
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("texturecubemap"))
+						{
+							std::string url = folder;
+							url += "/";
+							url += channelJson["texturecubemap"].GetString();
+
+							Texture* texture = AddTextureCubemap(url.c_str(), passes[i].GetChannel(j).vFlip);
+							if (!texture)
+							{
+								Platform::Debug("channel %d: failed to load texturecubemap %s\n", j, url.c_str());
+								return false;
+							}
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("texturevideo"))
+						{
+							std::string url = folder;
+							url += "/";
+							url += channelJson["texturevideo"].GetString();
+
+							Texture* texture = AddVideoTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
+							if (!texture)
+							{
+								Platform::Debug("channel %d: failed to load texture video %s\n", j, url.c_str());
+								return false;
+							}
+
+							passes[i].SetChannelTexture(j, texture);
+						}
+						else if (channelJson.HasMember("buffer"))
+						{
+							std::string buffername = channelJson["buffer"].GetString();
+
+							FlipFrameBuffer* fb = GetFrameBuffer(buffername.c_str());
+							if (!fb)
+							{
+								Platform::Debug("channel %d: buffer=%s is not supported\n", j, buffername.c_str());
+								return false;
+							}
+
+							passes[i].SetChannelFrameBuffer(j, fb);
+						}
+						else
+						{
+							Platform::Debug("channel%d: must have texture or frame buffer specified or texture type is not supported\n", j);
+							return false;
+						}
+					}
+				}
+			}
+			if (passJson.HasMember("shader"))
+			{
+				const char* shaderURL = passJson["shader"].GetString();
+				if (!passes[i].SetShader(folder.c_str(), shaderURL, commonShaderURL))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				Platform::Debug("channel%d: must have shader specified\n", i);
+			}
+		}
 
 		return true;
 	}
@@ -1524,6 +1616,7 @@ private:
 	FlipTextureCubeMapFrameBuffer cubeMapDFrameBuffer;
 
 	std::vector<Pass> passes;
+	Parameters parameters;
 };
 
 class MacShaderDemoApp : public FrameWork
@@ -1548,7 +1641,7 @@ public:
 		double coeff = 8.0 *
 			Math::Pow(Math::OnePi, 3.0) *
 			Math::Sqr((Math::Sqr(n) - 1.0)) / 3.0 / N / Math::Sqr((Math::Sqr(lamda)));
-		
+
 		return coeff * exp(h / Hr);
 	}
 
@@ -1573,8 +1666,8 @@ public:
 		//return macShaderDemo.Create("Demos/PathTracings/PBR Material Gold");
 		//return macShaderDemo.Create("Demos/PathTracings/Room DI");
 		//return macShaderDemo.Create("Demos/Post process - SSAO");
-		
-		return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
+
+		//return macShaderDemo.Create("Demos/Scattering/Atmospheric scattering explained");
 		//return macShaderDemo.Create("Demos/Scattering/Atmospheric Scattering Fog");
 		//return macShaderDemo.Create("Demos/Scattering/Fast Atmospheric Scattering");
 		//return macShaderDemo.Create("Demos/Scattering/RayleighMieDayNight");
