@@ -11,6 +11,7 @@
 
 #include "Platform.h"
 #include "Vector4.h"
+#include "ShaderProgram.h"
 
 struct IValue
 {
@@ -42,6 +43,7 @@ public:
 	std::map<const char*, Vec4Value>& vec4Values);
 
 	static void Test2(int& lod, float& ratio, bool& wireframe, float& v);
+	static void UpdateShader(ShaderProgram& shaderProgram);
 };
 
 #endif

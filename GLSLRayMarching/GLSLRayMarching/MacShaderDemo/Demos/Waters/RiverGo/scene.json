@@ -1,4 +1,232 @@
 {
+  "parameters": {
+    "float1": {
+      "type": "float",
+      "value": 1.0,
+      "min": 2.0,
+      "max": 3.0
+    },
+    "float2": {
+      "type": "vec2",
+      "value": [
+        1.0,
+        2.0
+      ],
+      "min": 3.0,
+      "max": 4.0
+    },
+    "float3": {
+      "type": "vec3",
+      "value": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "min": 4.0,
+      "max": 5.0
+    },
+    "float4": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "min": 5.0,
+      "max": 6.0
+    },
+    "int1": {
+      "type": "int",
+      "value": 1,
+      "min": 2,
+      "max": 3
+    },
+    "int2": {
+      "type": "ivec2",
+      "value": [
+        1,
+        2
+      ],
+      "min": 3,
+      "max": 4
+    },
+    "int3": {
+      "type": "ivec3",
+      "value": [
+        1,
+        2,
+        3
+      ],
+      "min": 4,
+      "max": 5
+    },
+    "int4": {
+      "type": "ivec4",
+      "value": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "min": 5,
+      "max": 6
+    },
+    "bool1": {
+      "type": "bool",
+      "value": true
+    },
+    "bool2": {
+      "type": "bvec2",
+      "value": [
+        true,
+        false
+      ]
+    },
+    "bool3": {
+      "type": "bvec3",
+      "value": [
+        true,
+        false,
+        true
+      ]
+    },
+    "bool4": {
+      "type": "bvec4",
+      "value": [
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    "matrix2": {
+      "type": "mat2",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0
+      ]
+    },
+    "matrix2x3": {
+      "type": "mat2x3",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ]
+    },
+    "matrix2x4": {
+      "type": "mat2x4",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0
+      ]
+    },
+    "matrix3x2": {
+      "type": "mat3x2",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ]
+    },
+    "matrix3": {
+      "type": "mat3x3",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0
+      ]
+    },
+    "matrix3x4": {
+      "type": "mat3x4",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0
+      ]
+    },
+    "matrix4x2": {
+      "type": "mat4x2",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0
+      ]
+    },
+    "matrix4x3": {
+      "type": "mat4x3",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0
+      ]
+    },
+    "matrix4x4": {
+      "type": "mat4x4",
+      "value": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0
+      ]
+    }
+  },
   "passes": [
     {
       "shader": "image.glsl",
