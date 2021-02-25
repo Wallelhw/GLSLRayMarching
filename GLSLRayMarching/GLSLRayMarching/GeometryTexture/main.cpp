@@ -16,52 +16,52 @@
 #define GEOMETRY_TEXTURE_SIZE 1024
 #define NORMAL_TEXTURE_SIZE 512
 
+class Camera
+{
+public:
+	Camera()
+	{
+	}
+
+	~Camera()
+	{
+	}
+
+	void SetWorldTransform(const Matrix4& worldTransform_)
+	{
+		worldTransform = worldTransform_;
+
+		viewTransform = worldTransform.Inverse();
+	}
+
+	const Matrix4& GetWorldTransform() const
+	{
+		return worldTransform;
+	}
+
+	const Matrix4& GetViewTransform() const
+	{
+		return viewTransform;
+	}
+
+	void SetProjectionTransform(const Matrix4& projectionTransform_)
+	{
+		projectionTransform = projectionTransform_;
+	}
+
+	const Matrix4& GetProjectionTransform() const
+	{
+		return projectionTransform;
+	}
+
+	Matrix4 worldTransform;
+	Matrix4 viewTransform;
+	Matrix4 projectionTransform;
+};
+
 class GeometryTexture : public FrameWork
 {
 public:
-	class Camera
-	{
-	public:
-		Camera()
-		{
-		}
-
-		~Camera()
-		{
-		}
-
-		void SetWorldTransform(const Matrix4& worldTransform_)
-		{
-			worldTransform = worldTransform_;
-
-			viewTransform = worldTransform.Inverse();
-		}
-
-		const Matrix4& GetWorldTransform() const
-		{
-			return worldTransform;
-		}
-
-		const Matrix4& GetViewTransform() const
-		{
-			return viewTransform;
-		}
-
-		void SetProjectionTransform(const Matrix4& projectionTransform_)
-		{
-			projectionTransform = projectionTransform_;
-		}
-
-		const Matrix4& GetProjectionTransform() const
-		{
-			return projectionTransform;
-		}
-
-		Matrix4 worldTransform;
-		Matrix4 viewTransform;
-		Matrix4 projectionTransform;
-	};
-
 	GeometryTexture()
 		: FrameWork("GeometryTexture")
 	{

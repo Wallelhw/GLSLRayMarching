@@ -238,4 +238,7 @@
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\GeoMipmapDemo\GeoMipmapDemo.vcxproj" />
+  </ItemGroup>
 </Project>

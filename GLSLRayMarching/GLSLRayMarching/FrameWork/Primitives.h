@@ -60,8 +60,8 @@ public:
 	virtual ~Primitives();
 
 	Primitives& Begin();
-	Primitives& FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, float* vertices_, int verticesCount_);
-	Primitives& FillIndices(unsigned int* indices_, int indicesCount_);
+	Primitives& FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const float* vertices_, int verticesCount_);
+	Primitives& FillIndices(const unsigned int* indices_, int indicesCount_);
 	bool End();
 	
 	void Destroy();
