@@ -96,7 +96,7 @@ Primitives& Primitives::Begin()
 	return *this;	
 }
 
-Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, float* vertices_, int verticesCount_)
+Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const float* vertices_, int verticesCount_)
 {
 	if (vbos.find(index_) == vbos.end())
 	{
@@ -122,7 +122,7 @@ Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, Ver
 	return *this;
 }
 
-Primitives& Primitives::FillIndices(unsigned int* indices_, int indicesCount_)
+Primitives& Primitives::FillIndices(const unsigned int* indices_, int indicesCount_)
 {
 	glGenBuffers(1, &ebo);
 	Assert(ebo);

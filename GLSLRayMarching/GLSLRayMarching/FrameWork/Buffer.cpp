@@ -140,7 +140,7 @@ Buffer& Buffer::Begin(Buffer::Type type_, Buffer::Usage usage_)
 }
 
 #define USE_MAPPING
-Buffer& Buffer::Fill(void* src_, int size_)
+Buffer& Buffer::Fill(const void* src_, int size_)
 {
 	Assert(impl);
 
@@ -170,7 +170,7 @@ Buffer& Buffer::Fill(void* src_, int size_)
 	return *this;
 }
 
-Buffer& Buffer::Update(int offset_, void* src_, int size_)
+Buffer& Buffer::Update(int offset_, const void* src_, int size_)
 {
 	Assert(impl);
 

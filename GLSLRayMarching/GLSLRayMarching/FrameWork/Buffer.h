@@ -53,8 +53,8 @@ public:
 	unsigned int GetHandle() const;
 
 	Buffer& Begin(Buffer::Type type_, Buffer::Usage usage_);
-	Buffer& Fill(void* src_, int size_);
-	Buffer& Update(int offset_, void* src_, int size_);
+	Buffer& Fill(const void* src_, int size_);
+	Buffer& Update(int offset_, const void* src_, int size_);
 	bool End();	
 
 	friend void Copy(Buffer& src_, unsigned int srcOffset_, Buffer& dst_, unsigned int dstOffset_, unsigned int size_);

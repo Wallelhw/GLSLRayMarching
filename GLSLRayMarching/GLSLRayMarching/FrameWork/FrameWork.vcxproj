@@ -249,6 +249,9 @@
     <ClInclude Include="Vector4.h" />
     <ClInclude Include="Primitives.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\GeoMipmapDemo\GeoMipmapDemo.vcxproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

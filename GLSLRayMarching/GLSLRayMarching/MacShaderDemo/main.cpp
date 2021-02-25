@@ -1480,18 +1480,9 @@ public:
 						}
 						else if (channelJson.HasMember("texture2d"))
 						{
-							std::string url = folder;
-							url += "/";
-							url += channelJson["texture2d"].GetString();
-
-							Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
-							if (!texture)
-							{
-								Platform::Debug("channel %d: failed to load texture2d %s\n", j, url.c_str());
-								return false;
-							}
-
-							passes[i].SetChannelTexture(j, texture);
+							bool retflag;
+							bool retval = ABC(folder, channelJson, i, j, retflag);
+							if (retflag) return retval;
 						}
 						else if (channelJson.HasMember("texturecubemap"))
 						{
@@ -1559,6 +1550,25 @@ public:
 		}
 
 		return true;
+	}
+
+	bool ABC(std::string& folder, rapidjson::Value& channelJson, int i, int j, bool& retflag)
+	{
+		retflag = true;
+		std::string url = folder;
+		url += "/";
+		url += channelJson["texture2d"].GetString();
+
+		Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
+		if (!texture)
+		{
+			Platform::Debug("channel %d: failed to load texture2d %s\n", j, url.c_str());
+			return false;
+		}
+
+		passes[i].SetChannelTexture(j, texture);
+		retflag = false;
+		return {};
 	}
 
 	bool Update(unsigned int width, unsigned int height, double time, double deltaTime, Vector4 mouse, Vector2 mouseDelta, int frameCounter)
