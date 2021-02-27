@@ -52,10 +52,9 @@ out vec4 color;
 
 void main()
 {
-	vec4 height = texture(heightMap, vertex / patchSize) * 10.0;
+	vec4 height = textureLod(heightMap, vertex / patchSize, 0);
 
-	gl_Position = projTransform * viewTransform * worldTransform * 
-						vec4(vertex.x, height.x, vertex.y, 1.0);
+	gl_Position = projTransform * viewTransform * worldTransform * vec4(vertex.x, height.x * 10.0, vertex.y, 1.0);
 	
 	/*
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);
