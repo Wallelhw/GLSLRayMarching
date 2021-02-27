@@ -66,20 +66,20 @@ public:
 	class Patch
 	{
 	public:
-		Patch(std::vector<T>& vertices, unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		Patch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
 		{
-			width = width_;
-			height = height_;
+			size = size_;
+			stride = stride_;
 			baseVertexIndex = vertices.size();
 
-			for (int y = 0; y < height; y += 2)
+			for (int y = 0; y < size; y += stride * 2)
 			{
-				for (int x = 0; x < width; x += 2)
+				for (int x = 0; x < size; x += stride * 2)
 				{
 					bool lodLeft = coarseLeft_ && (x == 0);
-					bool lodRight = coarseRight_ && (x == width - 2);
+					bool lodRight = coarseRight_ && (x == size - 2);
 					bool lodTop = coarseTop_ && (y == 0);
-					bool lodBottom = coarseBottom_ && (y == height - 2);
+					bool lodBottom = coarseBottom_ && (y == size - 2);
 
 					AddBigQuad(vertices, x, y, lodLeft, lodRight, lodTop, lodBottom);
 				}
@@ -92,14 +92,9 @@ public:
 		{
 		}
 
-		unsigned int GetWidth() const
+		unsigned int GetSize() const
 		{
-			return width;
-		}
-
-		unsigned int GetHeight() const
-		{
-			return height;
+			return size;
 		}
 
 		unsigned int GetBaseVertexIndex() const
@@ -114,6 +109,12 @@ public:
 	private:
 		void AddBigQuad(std::vector<T>& vertices_, unsigned int x_, unsigned int y_, bool L, bool R, bool T, bool B)
 		{
+#define X0 ((x_))
+#define X1 ((x_) + stride)
+#define X2 ((x_) + stride + stride)
+#define Y0 ((y_))
+#define Y1 ((y_) + stride)
+#define Y2 ((y_) + stride + stride)
 			// http://tma.main.jp/logic/index_en.html
 			// TL
 			// L R T B    NE NW SE SW
@@ -172,19 +173,19 @@ public:
 				}
 				else
 				{
-					AddTriangleSouthWest(vertices_, x_ + 0, y_ + 0);
+					AddTriangleSouthWest(vertices_, X0, Y0);
 				}
 			}
 			else
 			{
 				if (L)
 				{
-					AddTriangleNorthEast(vertices_, x_ + 0, y_ + 0);
+					AddTriangleNorthEast(vertices_, X0, Y0);
 				}
 				else
 				{
-					AddTriangleNorthWest(vertices_, x_ + 0, y_ + 0);
-					AddTriangleSouthEast(vertices_, x_ + 0, y_ + 0);
+					AddTriangleNorthWest(vertices_, X0, Y0);
+					AddTriangleSouthEast(vertices_, X0, Y0);
 				}
 			}
 
@@ -200,19 +201,19 @@ public:
 				}
 				else
 				{
-					AddTriangleSouthEast(vertices_, x_ + 1, y_ + 0);
+					AddTriangleSouthEast(vertices_, X1, Y0);
 				}
 			}
 			else
 			{
 				if (R)
 				{
-					AddTriangleNorthWest(vertices_, x_ + 1, y_ + 0);
+					AddTriangleNorthWest(vertices_, X1, Y0);
 				}
 				else
 				{
-					AddTriangleNorthEast(vertices_, x_ + 1, y_ + 0);
-					AddTriangleSouthWest(vertices_, x_ + 1, y_ + 0);
+					AddTriangleNorthEast(vertices_, X1, Y0);
+					AddTriangleSouthWest(vertices_, X1, Y0);
 				}
 			}
 
@@ -228,19 +229,19 @@ public:
 				}
 				else
 				{
-					AddTriangleNorthWest(vertices_, x_ + 0, y_ + 1);
+					AddTriangleNorthWest(vertices_, X0, Y1);
 				}
 			}
 			else
 			{
 				if (L)
 				{
-					AddTriangleSouthEast(vertices_, x_ + 0, y_ + 1);
+					AddTriangleSouthEast(vertices_, X0, Y1);
 				}
 				else
 				{
-					AddTriangleNorthEast(vertices_, x_ + 0, y_ + 1);
-					AddTriangleSouthWest(vertices_, x_ + 0, y_ + 1);
+					AddTriangleNorthEast(vertices_, X0, Y1);
+					AddTriangleSouthWest(vertices_, X0, Y1);
 				}
 			}
 
@@ -256,98 +257,98 @@ public:
 				}
 				else
 				{
-					AddTriangleNorthEast(vertices_, x_ + 1, y_ + 1);
+					AddTriangleNorthEast(vertices_, X1, Y1);
 				}
 			}
 			else
 			{
 				if (R)
 				{
-					AddTriangleSouthWest(vertices_, x_ + 1, y_ + 1);
+					AddTriangleSouthWest(vertices_, X1, Y1);
 				}
 				else
 				{
-					AddTriangleSouthEast(vertices_, x_ + 1, y_ + 1);
-					AddTriangleNorthWest(vertices_, x_ + 1, y_ + 1);
+					AddTriangleSouthEast(vertices_, X1, Y1);
+					AddTriangleNorthWest(vertices_, X1, Y1);
 				}
 			}
 
 			///////////////////////////////////////////////////////////////////////
 			if (T)
 			{
-				AddTriangleTop(vertices_, x_ + 0, y_ + 0);
+				AddTriangleTop(vertices_, X0, Y0);
 			}
 
 			if (B)
 			{
-				AddTriangleBottom(vertices_, x_ + 0, y_ + 0);
+				AddTriangleBottom(vertices_, X0, Y0);
 			}
 
 			if (L)
 			{
-				AddTriangleLeft(vertices_, x_ + 0, y_ + 0);
+				AddTriangleLeft(vertices_, X0, Y0);
 			}
 
 			if (R)
 			{
-				AddTriangleRight(vertices_, x_ + 0, y_ + 0);
+				AddTriangleRight(vertices_, X0, Y0);
 			}
 		}
 
 		void AddTriangleNorthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 0);
-			AddVertex(vertices_, x_ + 0, y_ + 1);
-			AddVertex(vertices_, x_ + 1, y_ + 0);
+			AddVertex(vertices_, X0, Y0);
+			AddVertex(vertices_, X0, Y1);
+			AddVertex(vertices_, X1, Y0);
 		}
 
 		void AddTriangleNorthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 1, y_ + 1);
-			AddVertex(vertices_, x_ + 1, y_ + 0);
-			AddVertex(vertices_, x_ + 0, y_ + 0);
+			AddVertex(vertices_, X1, Y1);
+			AddVertex(vertices_, X1, Y0);
+			AddVertex(vertices_, X0, Y0);
 		}
 
 		void AddTriangleSouthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 1);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
-			AddVertex(vertices_, x_ + 1, y_ + 0);
+			AddVertex(vertices_, X0, Y1);
+			AddVertex(vertices_, X1, Y1);
+			AddVertex(vertices_, X1, Y0);
 		}
 
 		void AddTriangleSouthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 1);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
-			AddVertex(vertices_, x_ + 0, y_ + 0);
+			AddVertex(vertices_, X0, Y1);
+			AddVertex(vertices_, X1, Y1);
+			AddVertex(vertices_, X0, Y0);
 		}
 
 		void AddTriangleLeft(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 0);
-			AddVertex(vertices_, x_ + 0, y_ + 2);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, X0, Y0);
+			AddVertex(vertices_, X0, Y2);
+			AddVertex(vertices_, X1, Y1);
 		}
 
 		void AddTriangleRight(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 2, y_ + 0);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
-			AddVertex(vertices_, x_ + 2, y_ + 2);
+			AddVertex(vertices_, X2, Y0);
+			AddVertex(vertices_, X1, Y1);
+			AddVertex(vertices_, X2, Y2);
 		}
 
 		void AddTriangleTop(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 0);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
-			AddVertex(vertices_, x_ + 2, y_ + 0);
+			AddVertex(vertices_, X0, Y0);
+			AddVertex(vertices_, X1, Y1);
+			AddVertex(vertices_, X2, Y0);
 		}
 
 		void AddTriangleBottom(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(vertices_, x_ + 0, y_ + 2);
-			AddVertex(vertices_, x_ + 2, y_ + 2);
-			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, X0, Y2);
+			AddVertex(vertices_, X2, Y2);
+			AddVertex(vertices_, X1, Y1);
 		}
 
 		void AddVertex(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
@@ -355,8 +356,8 @@ public:
 			vertices_.push_back(Vector2(x_, y_));
 		}
 
-		unsigned int width;
-		unsigned int height;
+		unsigned int size;
+		unsigned int stride;
 		unsigned int baseVertexIndex;
 		unsigned int vertexCount;
 	};
@@ -364,33 +365,33 @@ public:
 	class Level
 	{
 	public:
-		Level(std::vector<T>& vertices, unsigned int width_, unsigned int height_)
+		Level(std::vector<T>& vertices, unsigned int size_, unsigned int stride_)
 		{
 			// 0
-			AddPatch(vertices, width_, height_, false, false, false, false);
+			AddPatch(vertices, size_, stride_, false, false, false, false);
 
 			// 1
-			AddPatch(vertices, width_, height_, true, false, false, false);
-			AddPatch(vertices, width_, height_, false, true, false, false);
-			AddPatch(vertices, width_, height_, false, false, true, false);
-			AddPatch(vertices, width_, height_, false, false, false, true);
+			AddPatch(vertices, size_, stride_, true, false, false, false);
+			AddPatch(vertices, size_, stride_, false, true, false, false);
+			AddPatch(vertices, size_, stride_, false, false, true, false);
+			AddPatch(vertices, size_, stride_, false, false, false, true);
 
 			// 2
-			AddPatch(vertices, width_, height_, true, true, false, false);
-			AddPatch(vertices, width_, height_, true, false, true, false); //o
-			AddPatch(vertices, width_, height_, true, false, false, true);
-			AddPatch(vertices, width_, height_, false, true, true, false);
-			AddPatch(vertices, width_, height_, false, true, false, true); //o
-			AddPatch(vertices, width_, height_, false, false, true, true);
+			AddPatch(vertices, size_, stride_, true, true, false, false);
+			AddPatch(vertices, size_, stride_, true, false, true, false); //o
+			AddPatch(vertices, size_, stride_, true, false, false, true);
+			AddPatch(vertices, size_, stride_, false, true, true, false);
+			AddPatch(vertices, size_, stride_, false, true, false, true); //o
+			AddPatch(vertices, size_, stride_, false, false, true, true);
 
 			// 3
-			AddPatch(vertices, width_, height_, false, true, true, true);
-			AddPatch(vertices, width_, height_, true, false, true, true);
-			AddPatch(vertices, width_, height_, true, true, false, true);
-			AddPatch(vertices, width_, height_, true, true, true, false);
+			AddPatch(vertices, size_, stride_, false, true, true, true);
+			AddPatch(vertices, size_, stride_, true, false, true, true);
+			AddPatch(vertices, size_, stride_, true, true, false, true);
+			AddPatch(vertices, size_, stride_, true, true, true, false);
 
 			//4
-			AddPatch(vertices, width_, height_, true, true, true, true);
+			AddPatch(vertices, size_, stride_, true, true, true, true);
 		}
 
 		~Level()
@@ -407,9 +408,9 @@ public:
 			return patches[i];
 		}
 	private:
-		void AddPatch(std::vector<T>& vertices, unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		void AddPatch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
 		{
-			patches.push_back(Patch(vertices, width_, height_, coarseLeft_, coarseRight_, coarseTop_, coarseBottom_));
+			patches.push_back(Patch(vertices, size_, stride_, coarseLeft_, coarseRight_, coarseTop_, coarseBottom_));
 		}
 
 		std::vector<Patch> patches;
@@ -423,14 +424,13 @@ public:
 	{
 	}
 
-	bool Create(unsigned int width_, unsigned int height_)
+	bool Create(unsigned int size_)
 	{
-		while (width_ >= 2)
-		{
-			AddLevel(width_, height_);
+		unsigned int mipLevelCount = log(size_) / log(2);
 
-			width_ >>= 1;
-			height_ >>= 1;
+		for (unsigned int mipLevel_ = 0; mipLevel_ < mipLevelCount; mipLevel_++)
+		{
+			AddLevel(size_, mipLevel_);
 		}
 
 		return true;
@@ -456,9 +456,10 @@ public:
 		return vertices;
 	}
 private:
-	void AddLevel(unsigned int width_, unsigned int height_)
+	void AddLevel(unsigned int size_, unsigned int mipLevel_)
 	{
-		levels.push_back(Level(vertices, width_, height_));
+		unsigned int stride = pow(2, mipLevel_);
+		levels.push_back(Level(vertices, size_, stride));
 	}
 
 	std::vector<Level> levels;
@@ -722,7 +723,7 @@ public:
 	};
 
 	GeoMipmapDemo()
-	: FrameWork("GeoMipmapDemo")
+		: FrameWork("GeoMipmapDemo")
 	{
 	}
 
@@ -732,7 +733,7 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		if (!geoMipmap.Create(64, 64))
+		if (!geoMipmap.Create(64))
 		{
 			return false;
 		}
@@ -823,10 +824,10 @@ public:
 
 		///////////////////////////////////////////////////////
 		static float t = 0.0;
-		t += 0.001f;
+		t += 0.003f;
 
 		Matrix4 cameraTransform;
-		cameraTransform.SetLookAt(Vector3(50 + 300 * Math::Sin(t), 50, 50), Vector3(300 * Math::Sin(t), 0, 50), Vector3(0, 1, 0));
+		cameraTransform.SetLookAt(Vector3(50 + 400 * Math::Sin(t), 50, 50), Vector3(400 * Math::Sin(t), 0, 50), Vector3(0, 1, 0));
 		camera.SetWorldTransform(cameraTransform);
 
 		Matrix4 projectionTransform;
@@ -852,22 +853,21 @@ public:
 		};
 		///////////////////////////////////////////////////////
 		primitives.Bind();
-		for (int i = 0; i <geoMipmap.GetLevelsCount(); i++)
+		for (int i = 0; i < geoMipmap.GetLevelsCount(); i++)
 		{
 			const GeoMipmap<Vector2>::Level& level = geoMipmap.GetLevel(i);
 			for (int j = 0; j < level.GetPatchCount(); j++)
 			{
 				const GeoMipmap<Vector2>::Patch& patch = level.GetPatch(j);
-				
-				Vector3 p(i * 64, 0, j*64);
+
+				int patchSize = pow(2, geoMipmap.GetLevelsCount());
+				Vector3 p(i * patchSize, 0, j * patchSize);
 				worldTransform.SetTranslateRotXYZScale(p.X(), p.Y(), p.Z(), 0, 0, 0, 1.0);
 
 				heightMapShaderProgram.Bind();
 				heightMapShaderProgram.SetUniform1i("heightMap", 0);
 				heightMapShaderProgram.SetUniform4f("colors", colors[j][0], colors[j][1], colors[j][2], colors[j][3]);
-
-				int lod = pow(2, (geoMipmap.GetLevelsCount() - i));
-				heightMapShaderProgram.SetUniform1i("lod", lod);
+				heightMapShaderProgram.SetUniform1i("patchSize", patchSize);
 				heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
 
 #define USE_UNIFORM_BLOCK
@@ -882,7 +882,7 @@ public:
 #endif
 
 				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
-			}		
+			}
 		}
 
 		return true;
