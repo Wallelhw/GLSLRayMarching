@@ -66,46 +66,53 @@ public:
 	class Patch
 	{
 	public:
-		Patch(unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		Patch(std::vector<T>& vertices, unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
 		{
 			width = width_;
 			height = height_;
+			baseVertexIndex = vertices.size();
 
 			for (int y = 0; y < height; y += 2)
 			{
 				for (int x = 0; x < width; x += 2)
 				{
-					AddBigQuad(x, y,
-						coarseLeft_ && (x == 0),
-						coarseRight_ && (x == width - 2),
-						coarseTop_ && (y == 0),
-						coarseBottom_ && (y == height - 2));
+					bool lodLeft = coarseLeft_ && (x == 0);
+					bool lodRight = coarseRight_ && (x == width - 2);
+					bool lodTop = coarseTop_ && (y == 0);
+					bool lodBottom = coarseBottom_ && (y == height - 2);
+
+					AddBigQuad(vertices, x, y, lodLeft, lodRight, lodTop, lodBottom);
 				}
 			}
+
+			vertexCount = vertices.size() - baseVertexIndex;
 		}
 
 		~Patch()
 		{
 		}
 
-		const std::vector<T>& GetIndices() const
+		unsigned int GetWidth() const
 		{
-			return indices;
+			return width;
 		}
 
-		unsigned int GetIndicesCount()
+		unsigned int GetHeight() const
 		{
-			unsigned int total = 0;
+			return height;
+		}
 
-			total += indices.size();
+		unsigned int GetBaseVertexIndex() const
+		{
+			return baseVertexIndex;
+		}
 
-			return total;
+		unsigned int GetVertexCount() const
+		{
+			return vertexCount;
 		}
 	private:
-
-#define AddVertex(x_, y_) (indices.push_back((y_) * width + (x_)))
-
-		void AddBigQuad(unsigned int x_, unsigned int y_, bool L, bool R, bool T, bool B)
+		void AddBigQuad(std::vector<T>& vertices_, unsigned int x_, unsigned int y_, bool L, bool R, bool T, bool B)
 		{
 			// http://tma.main.jp/logic/index_en.html
 			// TL
@@ -153,7 +160,7 @@ public:
 			// SW = R && !B
 
 
-
+			///////////////////////////////////////////////////////////////////////
 			// NE = L && !T
 			// NW = !(L && T)
 			// SE = !(L && T)
@@ -165,22 +172,23 @@ public:
 				}
 				else
 				{
-					AddTriangleSouthWest(x_ + 0, y_ + 0);
+					AddTriangleSouthWest(vertices_, x_ + 0, y_ + 0);
 				}
 			}
 			else
 			{
 				if (L)
 				{
-					AddTriangleNorthEast(x_ + 0, y_ + 0);
+					AddTriangleNorthEast(vertices_, x_ + 0, y_ + 0);
 				}
 				else
 				{
-					AddTriangleNorthWest(x_ + 0, y_ + 0);
-					AddTriangleSouthEast(x_ + 0, y_ + 0);
+					AddTriangleNorthWest(vertices_, x_ + 0, y_ + 0);
+					AddTriangleSouthEast(vertices_, x_ + 0, y_ + 0);
 				}
 			}
 
+			///////////////////////////////////////////////////////////////////////
 			// NE = !(R && T)
 			// NW = R && !T
 			// SE = !R && T
@@ -192,23 +200,23 @@ public:
 				}
 				else
 				{
-					AddTriangleSouthEast(x_ + 1, y_ + 0);
+					AddTriangleSouthEast(vertices_, x_ + 1, y_ + 0);
 				}
 			}
 			else
 			{
 				if (R)
 				{
-					AddTriangleNorthWest(x_ + 1, y_ + 0);
+					AddTriangleNorthWest(vertices_, x_ + 1, y_ + 0);
 				}
 				else
 				{
-					AddTriangleNorthEast(x_ + 1, y_ + 0);
-					AddTriangleSouthWest(x_ + 1, y_ + 0);
+					AddTriangleNorthEast(vertices_, x_ + 1, y_ + 0);
+					AddTriangleSouthWest(vertices_, x_ + 1, y_ + 0);
 				}
 			}
 
-
+			///////////////////////////////////////////////////////////////////////
 			// NE = !(L && B)
 			// NW = !L && B
 			// SE = L && !B
@@ -220,23 +228,23 @@ public:
 				}
 				else
 				{
-					AddTriangleNorthWest(x_ + 0, y_ + 1);
+					AddTriangleNorthWest(vertices_, x_ + 0, y_ + 1);
 				}
 			}
 			else
 			{
 				if (L)
 				{
-					AddTriangleSouthEast(x_ + 0, y_ + 1);
+					AddTriangleSouthEast(vertices_, x_ + 0, y_ + 1);
 				}
 				else
 				{
-					AddTriangleNorthEast(x_ + 0, y_ + 1);
-					AddTriangleSouthWest(x_ + 0, y_ + 1);
+					AddTriangleNorthEast(vertices_, x_ + 0, y_ + 1);
+					AddTriangleSouthWest(vertices_, x_ + 0, y_ + 1);
 				}
 			}
 
-
+			///////////////////////////////////////////////////////////////////////
 			// NE = !R && B
 			// NW = !(R && B)
 			// SE = !(R && B)
@@ -248,141 +256,148 @@ public:
 				}
 				else
 				{
-					AddTriangleNorthEast(x_ + 1, y_ + 1);
+					AddTriangleNorthEast(vertices_, x_ + 1, y_ + 1);
 				}
 			}
 			else
 			{
 				if (R)
 				{
-					AddTriangleSouthWest(x_ + 1, y_ + 1);
+					AddTriangleSouthWest(vertices_, x_ + 1, y_ + 1);
 				}
 				else
 				{
-					AddTriangleSouthEast(x_ + 1, y_ + 1);
-					AddTriangleNorthWest(x_ + 1, y_ + 1);
+					AddTriangleSouthEast(vertices_, x_ + 1, y_ + 1);
+					AddTriangleNorthWest(vertices_, x_ + 1, y_ + 1);
 				}
 			}
 
+			///////////////////////////////////////////////////////////////////////
 			if (T)
 			{
-				AddTriangleTop(x_ + 0, y_ + 0);
+				AddTriangleTop(vertices_, x_ + 0, y_ + 0);
 			}
 
 			if (B)
 			{
-				AddTriangleBottom(x_ + 0, y_ + 0);
+				AddTriangleBottom(vertices_, x_ + 0, y_ + 0);
 			}
 
 			if (L)
 			{
-				AddTriangleLeft(x_ + 0, y_ + 0);
+				AddTriangleLeft(vertices_, x_ + 0, y_ + 0);
 			}
 
 			if (R)
 			{
-				AddTriangleRight(x_ + 0, y_ + 0);
+				AddTriangleRight(vertices_, x_ + 0, y_ + 0);
 			}
 		}
 
-		void AddTriangleNorthWest(unsigned int x_, unsigned int y_)
+		void AddTriangleNorthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 0);
-			AddVertex(x_ + 1, y_ + 0);
-			AddVertex(x_ + 0, y_ + 1);
+			AddVertex(vertices_, x_ + 0, y_ + 0);
+			AddVertex(vertices_, x_ + 0, y_ + 1);
+			AddVertex(vertices_, x_ + 1, y_ + 0);
 		}
 
-		void AddTriangleNorthEast(unsigned int x_, unsigned int y_)
+		void AddTriangleNorthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 1, y_ + 1);
-			AddVertex(x_ + 0, y_ + 0);
-			AddVertex(x_ + 1, y_ + 0);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 1, y_ + 0);
+			AddVertex(vertices_, x_ + 0, y_ + 0);
 		}
 
-		void AddTriangleSouthEast(unsigned int x_, unsigned int y_)
+		void AddTriangleSouthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 1);
-			AddVertex(x_ + 1, y_ + 0);
-			AddVertex(x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 0, y_ + 1);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 1, y_ + 0);
 		}
 
-		void AddTriangleSouthWest(unsigned int x_, unsigned int y_)
+		void AddTriangleSouthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 1);
-			AddVertex(x_ + 1, y_ + 1);
-			AddVertex(x_ + 0, y_ + 0);
+			AddVertex(vertices_, x_ + 0, y_ + 1);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 0, y_ + 0);
 		}
 
-		void AddTriangleLeft(unsigned int x_, unsigned int y_)
+		void AddTriangleLeft(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 0);
-			AddVertex(x_ + 1, y_ + 1);
-			AddVertex(x_ + 0, y_ + 2);
+			AddVertex(vertices_, x_ + 0, y_ + 0);
+			AddVertex(vertices_, x_ + 0, y_ + 2);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
 		}
 
-		void AddTriangleRight(unsigned int x_, unsigned int y_)
+		void AddTriangleRight(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 2, y_ + 0);
-			AddVertex(x_ + 2, y_ + 2);
-			AddVertex(x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 2, y_ + 0);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 2, y_ + 2);
 		}
 
-		void AddTriangleTop(unsigned int x_, unsigned int y_)
+		void AddTriangleTop(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 0);
-			AddVertex(x_ + 2, y_ + 0);
-			AddVertex(x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 0, y_ + 0);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+			AddVertex(vertices_, x_ + 2, y_ + 0);
 		}
 
-		void AddTriangleBottom(unsigned int x_, unsigned int y_)
+		void AddTriangleBottom(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
 		{
-			AddVertex(x_ + 0, y_ + 2);
-			AddVertex(x_ + 1, y_ + 1);
-			AddVertex(x_ + 2, y_ + 2);
+			AddVertex(vertices_, x_ + 0, y_ + 2);
+			AddVertex(vertices_, x_ + 2, y_ + 2);
+			AddVertex(vertices_, x_ + 1, y_ + 1);
+		}
+
+		void AddVertex(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		{
+			vertices_.push_back(Vector2(x_, y_));
 		}
 
 		unsigned int width;
 		unsigned int height;
-		std::vector<unsigned short> indices;
+		unsigned int baseVertexIndex;
+		unsigned int vertexCount;
 	};
 
 	class Level
 	{
 	public:
-		Level(unsigned int width_, unsigned int height_)
+		Level(std::vector<T>& vertices, unsigned int width_, unsigned int height_)
 		{
 			// 0
-			AddPatch(width_, height_, false, false, false, false);
+			AddPatch(vertices, width_, height_, false, false, false, false);
 
 			// 1
-			AddPatch(width_, height_, true, false, false, false);
-			//AddPatch(width_, height_, false, true, false, false);
-			//AddPatch(width_, height_, false, false, true, false);
-			//AddPatch(width_, height_, false, false, false, true);
+			AddPatch(vertices, width_, height_, true, false, false, false);
+			AddPatch(vertices, width_, height_, false, true, false, false);
+			AddPatch(vertices, width_, height_, false, false, true, false);
+			AddPatch(vertices, width_, height_, false, false, false, true);
 
 			// 2
-			AddPatch(width_, height_, true, true, false, false);
-			AddPatch(width_, height_, true, false, true, false); //o
-			//AddPatch(width_, height_, true, false, false, true);
-			//AddPatch(width_, height_, false, true, true, false);
-			//AddPatch(width_, height_, false, true, false, true); //o
-			//AddPatch(width_, height_, false, false, true, true);
+			AddPatch(vertices, width_, height_, true, true, false, false);
+			AddPatch(vertices, width_, height_, true, false, true, false); //o
+			AddPatch(vertices, width_, height_, true, false, false, true);
+			AddPatch(vertices, width_, height_, false, true, true, false);
+			AddPatch(vertices, width_, height_, false, true, false, true); //o
+			AddPatch(vertices, width_, height_, false, false, true, true);
 
 			// 3
-			AddPatch(width_, height_, false, true, true, true);
-			//AddPatch(width_, height_, true, false, true, true);
-			//AddPatch(width_, height_, true, true, false, true);
-			//AddPatch(width_, height_, true, true, true, false);
+			AddPatch(vertices, width_, height_, false, true, true, true);
+			AddPatch(vertices, width_, height_, true, false, true, true);
+			AddPatch(vertices, width_, height_, true, true, false, true);
+			AddPatch(vertices, width_, height_, true, true, true, false);
 
 			//4
-			AddPatch(width_, height_, true, true, true, true);
+			AddPatch(vertices, width_, height_, true, true, true, true);
 		}
 
 		~Level()
 		{
 		}
 
-		unsigned int GetPatchesCount()
+		unsigned int GetPatchCount() const
 		{
 			return patches.size();
 		}
@@ -391,28 +406,24 @@ public:
 		{
 			return patches[i];
 		}
-
-		unsigned int GetIndicesCount()
-		{
-			unsigned int total = 0;
-
-			for (auto& patch : patches)
-			{
-				total += patch.GetIndicesCount();
-			}
-
-			return total;
-		}
 	private:
-		void AddPatch(unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		void AddPatch(std::vector<T>& vertices, unsigned int width_, unsigned int height_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
 		{
-			patches.push_back(Patch(width_, height_, coarseLeft_, coarseRight_, coarseTop_, coarseBottom_));
+			patches.push_back(Patch(vertices, width_, height_, coarseLeft_, coarseRight_, coarseTop_, coarseBottom_));
 		}
 
 		std::vector<Patch> patches;
 	};
 public:
-	GeoMipmap(unsigned int width_, unsigned int height_)
+	GeoMipmap()
+	{
+	}
+
+	~GeoMipmap()
+	{
+	}
+
+	bool Create(unsigned int width_, unsigned int height_)
 	{
 		while (width_ >= 2)
 		{
@@ -421,13 +432,11 @@ public:
 			width_ >>= 1;
 			height_ >>= 1;
 		}
+
+		return true;
 	}
 
-	~GeoMipmap()
-	{
-	}
-
-	unsigned int GetLevelsCount()
+	unsigned int GetLevelsCount() const
 	{
 		return levels.size();
 	}
@@ -437,24 +446,23 @@ public:
 		return levels[i];
 	}
 
-	unsigned int GetIndicesCount()
+	unsigned int GetVerticesCount() const
 	{
-		unsigned int total = 0;
+		return vertices.size();
+	}
 
-		for (auto& level : levels)
-		{
-			total += level.GetIndicesCount();
-		}
-
-		return total;
+	const std::vector<T>& GetVertices() const
+	{
+		return vertices;
 	}
 private:
 	void AddLevel(unsigned int width_, unsigned int height_)
 	{
-		levels.push_back(Level(width_, height_));
+		levels.push_back(Level(vertices, width_, height_));
 	}
 
 	std::vector<Level> levels;
+	std::vector<T> vertices;
 };
 
 
@@ -599,9 +607,9 @@ public:
 	};
 
 	Terrain()
-	: componentSize(0, 0)
-	, heightField()
-	, components()
+		: componentSize(0, 0)
+		, heightField()
+		, components()
 	{
 	}
 
@@ -610,9 +618,9 @@ public:
 	}
 
 	bool Create(const IVector2& componentSize_,
-				const IVector2& sectionsPerComponent_,
-				const IVector2& sectionsSize_,
-				const float* heightData_)
+		const IVector2& sectionsPerComponent_,
+		const IVector2& sectionsSize_,
+		const float* heightData_)
 	{
 		componentSize = componentSize_;
 
@@ -706,8 +714,15 @@ public:
 class GeoMipmapDemo : public FrameWork
 {
 public:
+	class TransformData
+	{
+	public:
+		Matrix4 viewTransform;
+		Matrix4 projTransform;
+	};
+
 	GeoMipmapDemo()
-		: FrameWork("GeoMipmapDemo")
+	: FrameWork("GeoMipmapDemo")
 	{
 	}
 
@@ -715,43 +730,17 @@ public:
 	{
 	}
 
-	class TestTransformData
-	{
-	public:
-		Matrix4 viewTransform;
-		Matrix4 projTransform;
-		int lod;
-		float ratio;
-	};
-
-#define VECTOR_WIDTH  4
-	struct TestShaderBufferData
-	{
-		float px[VECTOR_WIDTH];
-		float py[VECTOR_WIDTH];
-	};
-
 	virtual bool OnCreate() override
 	{
-		GeoMipmap<unsigned short> geoMipmaps(32, 32);
-
-		Platform::Debug("%d\n", geoMipmaps.GetIndicesCount());
+		if (!geoMipmap.Create(64, 64))
+		{
+			return false;
+		}
 
 		////////////////////////////////////////////////////////////
-		float vertices[] =
-		{
-			0.0,
-			0.0,
-			1.0,
-
-			1.0,
-			0.0,
-			1.0,
-		};
-
 		bool success = primitives
 			.Begin()
-			.FillVertices(0, 1, VertexAttribute::DataType::FLOAT, false, 0, 0, &vertices[0], sizeof(vertices) / sizeof(vertices[0]))
+			.FillVertices(0, 2, VertexAttribute::DataType::FLOAT, false, 0, 0, &geoMipmap.GetVertices()[0], geoMipmap.GetVerticesCount())
 			.End();
 		if (!success)
 		{
@@ -759,136 +748,54 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!geometryTexture.Create("bunny.p65.gim256.fmp.bmp", false))
+		if (!heightMap.Create("heightMap.bmp", false))
 		{
 			return false;
 		}
-		geometryTexture.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
-		geometryTexture.SetMagFilter(Texture::MagFilter::Linear);
-		geometryTexture.SetWarpS(Texture::Wrap::Clamp);
-		geometryTexture.SetWarpR(Texture::Wrap::Clamp);
-		geometryTexture.SetWarpT(Texture::Wrap::Clamp);
-
-		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
-		{
-			return false;
-		}
-		normalTexture.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
-		normalTexture.SetMagFilter(Texture::MagFilter::Linear);
-		normalTexture.SetWarpS(Texture::Wrap::Repeat);
-		normalTexture.SetWarpR(Texture::Wrap::Repeat);
-		normalTexture.SetWarpT(Texture::Wrap::Repeat);
+		heightMap.SetMinFilter(Texture::MinFilter::Nearest);
+		heightMap.SetMagFilter(Texture::MagFilter::Nearest);
+		heightMap.SetWarpS(Texture::Wrap::Clamp);
+		heightMap.SetWarpR(Texture::Wrap::Clamp);
+		heightMap.SetWarpT(Texture::Wrap::Clamp);
 
 		////////////////////////////////////////////////////////////
-		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
+		if (!heightMapShaderProgram.Create("TerrainVS.glsl", "TerrainPS.glsl"))
 		{
 			return false;
 		}
 
-		TestShaderBufferData temp[] =
-		{
-			{
-				{  0.0,  0.0,  0.0,  0.0}, {  4.0,  5.0,  6.0,  7.0},
-			},
-			{
-				{  8.0,  9.0, 10.0, 11.0}, { 12.0, 13.0, 14.0, 15.0},
-			},
-			{
-				{ 16.0, 17.0, 18.0, 19.0}, { 20.0, 21.0, 22.0, 23.0},
-			},
-			{
-				{ 24.0, 25.0, 26.0, 27.0}, { 28.0, 29.0, 30.0, 31.0},
-			}
-		};
-		memcpy(testShaderBufferData, temp, sizeof(TestShaderBufferData) * 4);
-
+		/*
 		if (!shaderStorageBlockBuffer
 			.Begin(Buffer::Type::SHADER_STORAGE_BUFFER, Buffer::Usage::STATIC_DRAW)
-			.Fill(testShaderBufferData, sizeof(TestShaderBufferData) * 4)
+			.Fill(&geoMipmaps.GetIndices()[0], geoMipmaps.GetIndicesCount() * sizeof(geoMipmaps.GetIndices()[0]))
 			.End()
 			)
 		{
 			return false;
 		}
-		//buffer.BindShaderStorage(geometryTextureShaderProgram, 0);
-		geometryTextureShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "VertexData", 0);
-		// geometryTextureShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, 0);
+		//shaderStorageBlockBuffer.BindShaderStorage(heightMapShaderProgram, 0);
+		heightMapShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "HeightMap", 0);
+		*/
 
 		////////////////////////////////////////////////////////////
-		TestTransformData transformData;
+		TransformData transformData;
 		if (!uniformBlockBuffer
 			.Begin(Buffer::Type::UNIFORM_BUFFER, Buffer::Usage::STATIC_DRAW)
-			.Fill(&transformData, sizeof(TestTransformData))
+			.Fill(&transformData, sizeof(TransformData))
 			.End()
 			)
 		{
 			return false;
 		}
 
-		geometryTextureShaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
-		// geometryTextureShaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
+		heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
+		// heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
 
 		return true;
 	}
 
-	void UpdateShader(bool& wireframe, int& lod, float& ratio)
-	{
-		GUI::Test2(lod, ratio, wireframe, testShaderBufferData[0].px[0]);
-
-		geometryTextureShaderProgram.Bind();
-		geometryTextureShaderProgram.SetUniform1i("geometryTexture", 0);
-		geometryTextureShaderProgram.SetUniform1i("normalTexture", 1);
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
-
-#define USE_UNIFORM_BLOCK
-#ifdef USE_UNIFORM_BLOCK
-		TestTransformData transformData;
-		transformData.viewTransform = camera.GetViewTransform().Transpose();
-		transformData.projTransform = camera.GetProjectionTransform().Transpose();
-		transformData.lod = lod;
-		transformData.ratio = ratio / 100.0f;
-		uniformBlockBuffer.Update(0, &transformData, sizeof(TestTransformData));
-#else
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
-		geometryTextureShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
-		geometryTextureShaderProgram.SetUniform1i("lod", lod);
-		geometryTextureShaderProgram.SetUniform1f("ratio", ratio / 100.0f);
-#endif
-
-		shaderStorageBlockBuffer.Update(0, testShaderBufferData, sizeof(TestShaderBufferData) * 4);
-	}
-
 	virtual bool OnUpdate() override
 	{
-		unsigned int count = geometryTextureShaderProgram.GetActiveUniformCount();
-
-		std::string name;
-		UniformType uniformType;
-		int size;
-		for (int i = 0; i < count; i++)
-		{
-			geometryTextureShaderProgram.GetActiveUniformInfo(i, name, uniformType, size);
-		}
-
-		static int lod = 0;
-		static bool wireframe = true;
-		static float ratio = 0.0;
-		UpdateShader(wireframe, lod, ratio);
-
-		static float test1 = 0.0f;
-		test1 += 1;
-		//worldTransform.SetTranslate(test1, 0, 0);
-		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 6.0);
-		camera.SetWorldTransform(worldTransform);
-
-		Matrix4 cameraTransform;
-		cameraTransform.SetLookAt(Vector3(5, 5, 5), Vector3(0, 0, 0), Vector3(0, 1, 0));
-		camera.SetWorldTransform(cameraTransform);
-
-		Matrix4 projectionTransform;
-		projectionTransform.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
-		camera.SetProjectionTransform(projectionTransform);
-
 		//////////////////////////////////////////////////////
 		renderStates.scissorTestState.enabled = true;
 		renderStates.scissorTestState.pos = Vector2(0, 0);
@@ -904,49 +811,106 @@ public:
 		renderStates.clearState.enableClearStencil = true;
 
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
-		if (wireframe)
-			renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
-		else
-			renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
+		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
 
 		renderStates.depthTestState.depthTestEnabled = true;
 		renderStates.depthTestState.depthWriteEnabled = true;
 		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 		renderStates.Apply();
 
-		geometryTexture.Bind(0);
-		normalTexture.Bind(1);
+		///////////////////////////////////////////////////////
+		heightMap.Bind(0);
 
-		float scale = powf(2.0f, floor(lod));
-		int triangleCount = (int)(GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale));
-		Platform::Debug("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
+		///////////////////////////////////////////////////////
+		static float t = 0.0;
+		t += 0.001f;
 
+		Matrix4 cameraTransform;
+		cameraTransform.SetLookAt(Vector3(50 + 300 * Math::Sin(t), 50, 50), Vector3(300 * Math::Sin(t), 0, 50), Vector3(0, 1, 0));
+		camera.SetWorldTransform(cameraTransform);
+
+		Matrix4 projectionTransform;
+		projectionTransform.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
+		camera.SetProjectionTransform(projectionTransform);
+
+		ColorRGBA colors[] =
+		{
+			ColorRGBA(0.2, 0.2, 0.5, 1.0),
+			ColorRGBA(0.2, 0.5, 0.2, 1.0),
+			ColorRGBA(0.2, 0.5, 0.5, 1.0),
+			ColorRGBA(0.5, 0.2, 0.2, 1.0),
+			ColorRGBA(0.5, 0.2, 0.5, 1.0),
+			ColorRGBA(0.5, 0.5, 0.2, 1.0),
+			ColorRGBA(0.5, 0.5, 0.5, 1.0),
+			ColorRGBA(0.2, 0.2, 1.0, 1.0),
+			ColorRGBA(0.2, 1.0, 0.2, 1.0),
+			ColorRGBA(0.2, 1.0, 1.0, 1.0),
+			ColorRGBA(1.0, 0.2, 0.2, 1.0),
+			ColorRGBA(1.0, 0.2, 1.0, 1.0),
+			ColorRGBA(1.0, 1.0, 0.2, 1.0),
+			ColorRGBA(1.0, 1.0, 1.0, 1.0)
+		};
+		///////////////////////////////////////////////////////
 		primitives.Bind();
-		primitives.DrawArrayInstanced(Primitives::Mode::TRIANGLES, 0, primitives.GetCount(), triangleCount);
+		for (int i = 0; i <geoMipmap.GetLevelsCount(); i++)
+		{
+			const GeoMipmap<Vector2>::Level& level = geoMipmap.GetLevel(i);
+			for (int j = 0; j < level.GetPatchCount(); j++)
+			{
+				const GeoMipmap<Vector2>::Patch& patch = level.GetPatch(j);
+				
+				Vector3 p(i * 64, 0, j*64);
+				worldTransform.SetTranslateRotXYZScale(p.X(), p.Y(), p.Z(), 0, 0, 0, 1.0);
+
+				heightMapShaderProgram.Bind();
+				heightMapShaderProgram.SetUniform1i("heightMap", 0);
+				heightMapShaderProgram.SetUniform4f("colors", colors[j][0], colors[j][1], colors[j][2], colors[j][3]);
+
+				int lod = pow(2, (geoMipmap.GetLevelsCount() - i));
+				heightMapShaderProgram.SetUniform1i("lod", lod);
+				heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+				TransformData transformData;
+				transformData.viewTransform = camera.GetViewTransform().Transpose();
+				transformData.projTransform = camera.GetProjectionTransform().Transpose();
+				uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
+#else
+				heightMapShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+				heightMapShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+#endif
+
+				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+			}		
+		}
 
 		return true;
 	}
 
 	void OnDestroy() override
 	{
-		geometryTexture.Destroy();
-		normalTexture.Destroy();
+		heightMap.Destroy();
+		shaderStorageBlockBuffer.Destroy();
 
-		geometryTextureShaderProgram.Destroy();
+		uniformBlockBuffer.Destroy();
+		heightMapShaderProgram.Destroy();
+		renderStates.Destroy();
+
 		primitives.Destroy();
 	}
 private:
 	Matrix4 worldTransform;
 	Camera camera;
 
-	TestShaderBufferData testShaderBufferData[sizeof(TestShaderBufferData) * 4];
-
-	Texture2DFile geometryTexture;
-	Texture2DFile normalTexture;
-	ShaderProgram geometryTextureShaderProgram;
+	Texture2DFile heightMap;
 	Buffer shaderStorageBlockBuffer;
+
 	Buffer uniformBlockBuffer;
+	ShaderProgram heightMapShaderProgram;
 	RenderStates renderStates;
+
+	GeoMipmap<Vector2> geoMipmap;
 	Primitives primitives;
 };
 
