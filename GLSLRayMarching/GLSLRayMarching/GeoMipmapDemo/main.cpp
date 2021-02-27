@@ -76,10 +76,15 @@ public:
 			{
 				for (int x = 0; x < size; x += stride * 2)
 				{
+					if ((x == size - stride * 2))
+						x = x;
+					if ((y == size - stride * 2))
+						y = y;
+
 					bool lodLeft = coarseLeft_ && (x == 0);
-					bool lodRight = coarseRight_ && (x == size - 2);
+					bool lodRight = coarseRight_ && (x == size - stride * 2);
 					bool lodTop = coarseTop_ && (y == 0);
-					bool lodBottom = coarseBottom_ && (y == size - 2);
+					bool lodBottom = coarseBottom_ && (y == size - stride * 2);
 
 					AddBigQuad(vertices, x, y, lodLeft, lodRight, lodTop, lodBottom);
 				}
@@ -90,6 +95,24 @@ public:
 
 		~Patch()
 		{
+		}
+
+		Patch(const Patch& other)
+		{
+			size = other.size;
+			stride = other.stride;
+			baseVertexIndex = other.baseVertexIndex;
+			vertexCount = other.vertexCount;
+		}
+
+		Patch& operator = (const Patch& other)
+		{
+			size = other.size;
+			stride = other.stride;
+			baseVertexIndex = other.baseVertexIndex;
+			vertexCount = other.vertexCount;
+
+			return *this;
 		}
 
 		unsigned int GetSize() const
@@ -396,6 +419,18 @@ public:
 
 		~Level()
 		{
+		}
+
+		Level(const Level& other)
+		{
+			patches = other.patches;
+		}
+
+		Level &operator = (const Level& other)
+		{
+			patches = other.patches;
+
+			return *this;
 		}
 
 		unsigned int GetPatchCount() const
@@ -826,8 +861,12 @@ public:
 		static float t = 0.0;
 		t += 0.003f;
 
+		int patchSize = pow(2, geoMipmap.GetLevelsCount());
+
 		Matrix4 cameraTransform;
-		cameraTransform.SetLookAt(Vector3(50 + 400 * Math::Sin(t), 50, 50), Vector3(400 * Math::Sin(t), 0, 50), Vector3(0, 1, 0));
+		Vector3 p0(500 * Math::FAbs(Math::Sin(t)) - 40, 0, patchSize * 1.2 * 13.5);
+		Vector3 p1 = p0 + Vector3(50.0, 50.0, 0.0);
+		cameraTransform.SetLookAt(p1, p0, Vector3(0, 1, 0));
 		camera.SetWorldTransform(cameraTransform);
 
 		Matrix4 projectionTransform;
@@ -836,21 +875,24 @@ public:
 
 		ColorRGBA colors[] =
 		{
-			ColorRGBA(0.2, 0.2, 0.5, 1.0),
-			ColorRGBA(0.2, 0.5, 0.2, 1.0),
-			ColorRGBA(0.2, 0.5, 0.5, 1.0),
-			ColorRGBA(0.5, 0.2, 0.2, 1.0),
-			ColorRGBA(0.5, 0.2, 0.5, 1.0),
-			ColorRGBA(0.5, 0.5, 0.2, 1.0),
+			ColorRGBA(0.0, 0.0, 0.0, 1.0),
+			ColorRGBA(0.0, 0.0, 0.5, 1.0),
+			ColorRGBA(0.0, 0.5, 0.0, 1.0),
+			ColorRGBA(0.0, 0.5, 0.5, 1.0),
+			ColorRGBA(0.5, 0.0, 0.0, 1.0),
+			ColorRGBA(0.5, 0.0, 0.5, 1.0),
+			ColorRGBA(0.5, 0.5, 0.0, 1.0),
 			ColorRGBA(0.5, 0.5, 0.5, 1.0),
-			ColorRGBA(0.2, 0.2, 1.0, 1.0),
-			ColorRGBA(0.2, 1.0, 0.2, 1.0),
-			ColorRGBA(0.2, 1.0, 1.0, 1.0),
-			ColorRGBA(1.0, 0.2, 0.2, 1.0),
-			ColorRGBA(1.0, 0.2, 1.0, 1.0),
-			ColorRGBA(1.0, 1.0, 0.2, 1.0),
+			ColorRGBA(0.0, 0.0, 0.0, 1.0),
+			ColorRGBA(0.0, 0.0, 1.0, 1.0),
+			ColorRGBA(0.0, 1.0, 0.0, 1.0),
+			ColorRGBA(0.0, 1.0, 1.0, 1.0),
+			ColorRGBA(1.0, 0.0, 0.0, 1.0),
+			ColorRGBA(1.0, 0.0, 1.0, 1.0),
+			ColorRGBA(1.0, 1.0, 0.0, 1.0),
 			ColorRGBA(1.0, 1.0, 1.0, 1.0)
 		};
+
 		///////////////////////////////////////////////////////
 		primitives.Bind();
 		for (int i = 0; i < geoMipmap.GetLevelsCount(); i++)
@@ -860,8 +902,7 @@ public:
 			{
 				const GeoMipmap<Vector2>::Patch& patch = level.GetPatch(j);
 
-				int patchSize = pow(2, geoMipmap.GetLevelsCount());
-				Vector3 p(i * patchSize, 0, j * patchSize);
+				Vector3 p(i * patchSize * 1.2, 0, j * patchSize * 1.2);
 				worldTransform.SetTranslateRotXYZScale(p.X(), p.Y(), p.Z(), 0, 0, 0, 1.0);
 
 				heightMapShaderProgram.Bind();
