@@ -9,55 +9,15 @@
 #include "Vector4.h"
 #include "Matrix4.h"
 #include "GUI.h"
+#include "AABB3.h"
 
 #define SCR_WIDTH (800*2)
 #define SCR_HEIGHT (400*2)
 
 #define GEOMETRY_TEXTURE_SIZE 1024
 #define NORMAL_TEXTURE_SIZE 512
-
-class Camera
-{
-public:
-	Camera()
-	{
-	}
-
-	~Camera()
-	{
-	}
-
-	void SetWorldTransform(const Matrix4& worldTransform_)
-	{
-		worldTransform = worldTransform_;
-
-		viewTransform = worldTransform.Inverse();
-	}
-
-	const Matrix4& GetWorldTransform() const
-	{
-		return worldTransform;
-	}
-
-	const Matrix4& GetViewTransform() const
-	{
-		return viewTransform;
-	}
-
-	void SetProjectionTransform(const Matrix4& projectionTransform_)
-	{
-		projectionTransform = projectionTransform_;
-	}
-
-	const Matrix4& GetProjectionTransform() const
-	{
-		return projectionTransform;
-	}
-
-	Matrix4 worldTransform;
-	Matrix4 viewTransform;
-	Matrix4 projectionTransform;
-};
+#define MAX_LOD 5
+#define PATCH_SIZE (32)
 
 template<class T>
 class GeoMipmap
@@ -66,10 +26,19 @@ public:
 	class Patch
 	{
 	public:
-		Patch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		enum class Edge
+		{
+			Left = 8,
+			Right = 4,
+			Top = 2,
+			Bottom = 1
+		};
+
+		Patch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
 		{
 			size = size_;
 			stride = stride_;
+
 			baseVertexIndex = vertices.size();
 
 			for (int y = 0; y < size; y += stride * 2)
@@ -81,11 +50,10 @@ public:
 					if ((y == size - stride * 2))
 						y = y;
 
-					bool lodLeft = coarseLeft_ && (x == 0);
-					bool lodRight = coarseRight_ && (x == size - stride * 2);
-					bool lodTop = coarseTop_ && (y == 0);
-					bool lodBottom = coarseBottom_ && (y == size - stride * 2);
-
+					bool lodLeft = ((edge_ & (int)Edge::Left) && (x == 0));
+					bool lodRight = ((edge_ & (int)Edge::Right) && (x == size - stride * 2));
+					bool lodTop = ((edge_ & (int)Edge::Top) && (y == 0));
+					bool lodBottom = ((edge_ & (int)Edge::Bottom) && (y == size - stride * 2));
 					AddBigQuad(vertices, x, y, lodLeft, lodRight, lodTop, lodBottom);
 				}
 			}
@@ -390,31 +358,23 @@ public:
 	public:
 		Level(std::vector<T>& vertices, unsigned int size_, unsigned int stride_)
 		{
-			// 0
-			AddPatch(vertices, size_, stride_, false, false, false, false);
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, false, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, false, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, true, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, true, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, true, false, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, true, false, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, true, true, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(false, true, true, true));
 
-			// 1
-			AddPatch(vertices, size_, stride_, true, false, false, false);
-			AddPatch(vertices, size_, stride_, false, true, false, false);
-			AddPatch(vertices, size_, stride_, false, false, true, false);
-			AddPatch(vertices, size_, stride_, false, false, false, true);
-
-			// 2
-			AddPatch(vertices, size_, stride_, true, true, false, false);
-			AddPatch(vertices, size_, stride_, true, false, true, false); //o
-			AddPatch(vertices, size_, stride_, true, false, false, true);
-			AddPatch(vertices, size_, stride_, false, true, true, false);
-			AddPatch(vertices, size_, stride_, false, true, false, true); //o
-			AddPatch(vertices, size_, stride_, false, false, true, true);
-
-			// 3
-			AddPatch(vertices, size_, stride_, false, true, true, true);
-			AddPatch(vertices, size_, stride_, true, false, true, true);
-			AddPatch(vertices, size_, stride_, true, true, false, true);
-			AddPatch(vertices, size_, stride_, true, true, true, false);
-
-			//4
-			AddPatch(vertices, size_, stride_, true, true, true, true);
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, false, false, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, false, false, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, false, true, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, false, true, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, true, false, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, true, false, true));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, true, true, false));
+			AddPatch(vertices, size_, stride_, GetPatchIndex(true, true, true, true));
 		}
 
 		~Level()
@@ -426,7 +386,7 @@ public:
 			patches = other.patches;
 		}
 
-		Level &operator = (const Level& other)
+		Level& operator = (const Level& other)
 		{
 			patches = other.patches;
 
@@ -438,14 +398,32 @@ public:
 			return patches.size();
 		}
 
+		static unsigned int GetPatchIndex(bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		{
+			unsigned int result = 0;
+			if (coarseLeft_)
+				result |= (int)Patch::Edge::Left;
+
+			if (coarseRight_)
+				result |= (int)Patch::Edge::Right;
+
+			if (coarseTop_)
+				result |= (int)Patch::Edge::Top;
+
+			if (coarseBottom_)
+				result |= (int)Patch::Edge::Bottom;
+
+			return result;
+		}
+
 		const Patch& GetPatch(int i) const
 		{
 			return patches[i];
 		}
 	private:
-		void AddPatch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, bool coarseLeft_, bool coarseRight_, bool coarseTop_, bool coarseBottom_)
+		void AddPatch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
 		{
-			patches.push_back(Patch(vertices, size_, stride_, coarseLeft_, coarseRight_, coarseTop_, coarseBottom_));
+			patches.push_back(Patch(vertices, size_, stride_, edge_));
 		}
 
 		std::vector<Patch> patches;
@@ -459,13 +437,13 @@ public:
 	{
 	}
 
-	bool Create(unsigned int size_)
+	bool Create(std::vector<T>& vertices_, unsigned int size_)
 	{
 		unsigned int mipLevelCount = log(size_) / log(2);
 
 		for (unsigned int mipLevel_ = 0; mipLevel_ < mipLevelCount; mipLevel_++)
 		{
-			AddLevel(size_, mipLevel_);
+			AddLevel(vertices_, size_, mipLevel_);
 		}
 
 		return true;
@@ -480,29 +458,15 @@ public:
 	{
 		return levels[i];
 	}
-
-	unsigned int GetVerticesCount() const
-	{
-		return vertices.size();
-	}
-
-	const std::vector<T>& GetVertices() const
-	{
-		return vertices;
-	}
 private:
-	void AddLevel(unsigned int size_, unsigned int mipLevel_)
+	void AddLevel(std::vector<T>& vertices_, unsigned int size_, unsigned int mipLevel_)
 	{
 		unsigned int stride = pow(2, mipLevel_);
-		levels.push_back(Level(vertices, size_, stride));
+		levels.push_back(Level(vertices_, size_, stride));
 	}
 
 	std::vector<Level> levels;
-	std::vector<T> vertices;
 };
-
-
-
 
 class Terrain
 {
@@ -757,6 +721,14 @@ public:
 		Matrix4 projTransform;
 	};
 
+	class TerrainRenderInfo
+	{
+	public:
+		Vector3 offset;
+		unsigned int lodLevel;
+		unsigned int patchID;
+	};
+
 	GeoMipmapDemo()
 		: FrameWork("GeoMipmapDemo")
 	{
@@ -768,7 +740,9 @@ public:
 
 	virtual bool OnCreate() override
 	{
-		if (!geoMipmap.Create(64))
+		std::vector<Vector2> vertices;
+
+		if (!geoMipmap.Create(vertices, PATCH_SIZE))
 		{
 			return false;
 		}
@@ -776,7 +750,7 @@ public:
 		////////////////////////////////////////////////////////////
 		bool success = primitives
 			.Begin()
-			.FillVertices(0, 2, VertexAttribute::DataType::FLOAT, false, 0, 0, &geoMipmap.GetVertices()[0], geoMipmap.GetVerticesCount())
+			.FillVertices(0, 2, VertexAttribute::DataType::FLOAT, false, 0, 0, &vertices[0], vertices.size())
 			.End();
 		if (!success)
 		{
@@ -784,7 +758,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap.bmp", false))
+		if (!heightMap.Create("heightMap.hdr", false))
 		{
 			return false;
 		}
@@ -800,19 +774,6 @@ public:
 			return false;
 		}
 
-		/*
-		if (!shaderStorageBlockBuffer
-			.Begin(Buffer::Type::SHADER_STORAGE_BUFFER, Buffer::Usage::STATIC_DRAW)
-			.Fill(&geoMipmaps.GetIndices()[0], geoMipmaps.GetIndicesCount() * sizeof(geoMipmaps.GetIndices()[0]))
-			.End()
-			)
-		{
-			return false;
-		}
-		//shaderStorageBlockBuffer.BindShaderStorage(heightMapShaderProgram, 0);
-		heightMapShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "HeightMap", 0);
-		*/
-
 		////////////////////////////////////////////////////////////
 		TransformData transformData;
 		if (!uniformBlockBuffer
@@ -825,6 +786,19 @@ public:
 		}
 
 		heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
+
+		/*
+		if (!shaderStorageBlockBuffer
+			.Begin(Buffer::Type::SHADER_STORAGE_BUFFER, Buffer::Usage::STATIC_DRAW)
+			.Fill(&geoMipmaps.GetIndices()[0], geoMipmaps.GetIndicesCount() * sizeof(geoMipmaps.GetIndices()[0]))
+			.End()
+			)
+		{
+			return false;
+		}
+		//shaderStorageBlockBuffer.BindShaderStorage(heightMapShaderProgram, 0);
+		heightMapShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "HeightMap", 0);
+		*/
 		// heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
 
 		return true;
@@ -833,6 +807,7 @@ public:
 	virtual bool OnUpdate() override
 	{
 		//////////////////////////////////////////////////////
+		// RS
 		renderStates.scissorTestState.enabled = true;
 		renderStates.scissorTestState.pos = Vector2(0, 0);
 		renderStates.scissorTestState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
@@ -855,60 +830,92 @@ public:
 		renderStates.Apply();
 
 		///////////////////////////////////////////////////////
+		// TexMap
 		heightMap.Bind(0);
 
 		///////////////////////////////////////////////////////
-		static float t = 0.0;
-		t += 0.003f;
-
-		int patchSize = pow(2, geoMipmap.GetLevelsCount());
-
-		Matrix4 cameraTransform;
-		Vector3 p0(500 * Math::FAbs(Math::Sin(t)) - 40, 0, patchSize * 1.2 * 13.5);
-		Vector3 p1 = p0 + Vector3(50.0, 50.0, 0.0);
-		cameraTransform.SetLookAt(p1, p0, Vector3(0, 1, 0));
-		camera.SetWorldTransform(cameraTransform);
-
-		Matrix4 projectionTransform;
-		projectionTransform.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
-		camera.SetProjectionTransform(projectionTransform);
-
-		ColorRGBA colors[] =
-		{
-			ColorRGBA(0.0, 0.0, 0.0, 1.0),
-			ColorRGBA(0.0, 0.0, 0.5, 1.0),
-			ColorRGBA(0.0, 0.5, 0.0, 1.0),
-			ColorRGBA(0.0, 0.5, 0.5, 1.0),
-			ColorRGBA(0.5, 0.0, 0.0, 1.0),
-			ColorRGBA(0.5, 0.0, 0.5, 1.0),
-			ColorRGBA(0.5, 0.5, 0.0, 1.0),
-			ColorRGBA(0.5, 0.5, 0.5, 1.0),
-			ColorRGBA(0.0, 0.0, 0.0, 1.0),
-			ColorRGBA(0.0, 0.0, 1.0, 1.0),
-			ColorRGBA(0.0, 1.0, 0.0, 1.0),
-			ColorRGBA(0.0, 1.0, 1.0, 1.0),
-			ColorRGBA(1.0, 0.0, 0.0, 1.0),
-			ColorRGBA(1.0, 0.0, 1.0, 1.0),
-			ColorRGBA(1.0, 1.0, 0.0, 1.0),
-			ColorRGBA(1.0, 1.0, 1.0, 1.0)
-		};
+		// Transform State
+		CalculateCamera();
 
 		///////////////////////////////////////////////////////
 		primitives.Bind();
-		for (int i = 0; i < geoMipmap.GetLevelsCount(); i++)
-		{
-			const GeoMipmap<Vector2>::Level& level = geoMipmap.GetLevel(i);
-			for (int j = 0; j < level.GetPatchCount(); j++)
-			{
-				const GeoMipmap<Vector2>::Patch& patch = level.GetPatch(j);
 
-				Vector3 p(i * patchSize * 1.2, 0, j * patchSize * 1.2);
+		// frustum culling
+		// area = b * sqrt(b*b + h*h)
+		std::vector<TerrainRenderInfo> terrainRenderInfos;
+		CalculatePatches(terrainRenderInfos, camera);
+
+		heightMapShaderProgram.Bind();
+		heightMapShaderProgram.SetUniform1i("heightMap", 0);
+		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, 0, 0, 1.0);
+		heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+		TransformData transformData;
+		transformData.viewTransform = camera.GetViewTransform().Transpose();
+		transformData.projTransform = camera.GetProjectionTransform().Transpose();
+		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
+#else
+		heightMapShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		heightMapShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+#endif
+		for (int i = 0; i < terrainRenderInfos.size(); i++)
+		{
+			const GeoMipmap<Vector2>::Patch& patch = geoMipmap.GetLevel(terrainRenderInfos[i].lodLevel).GetPatch(terrainRenderInfos[i].patchID);
+			float c = ((float)(MAX_LOD - terrainRenderInfos[i].lodLevel)) / MAX_LOD;
+			heightMapShaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
+			heightMapShaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
+
+			//renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
+			//renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
+			//renderStates.Apply();
+			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+		}
+
+		/*
+		heightMapShaderProgram.Bind();
+		heightMapShaderProgram.SetUniform1i("heightMap", 0);
+		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, 0, 0, 1.0);
+		heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+		TransformData transformData;
+		transformData.viewTransform = camera.GetViewTransform().Transpose();
+		transformData.projTransform = camera.GetProjectionTransform().Transpose();
+		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
+#else
+		heightMapShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		heightMapShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+#endif
+
+		for (int j = 0; j < heightMap.GetHeight(); j += PATCH_SIZE)
+		{
+			for (int i = 0; i < heightMap.GetWidth(); i += PATCH_SIZE)
+			{
+				const GeoMipmap<Vector2>::Patch& patch = geoMipmap.GetLevel(0).GetPatch(0);
+
+				heightMapShaderProgram.SetUniform4fv("colors", 1, colors[(j + i) % 16]);
+				heightMapShaderProgram.SetUniform2i("offset", i, j);
+
+				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+			}
+		}
+		*/
+
+		/*
+		for (int j = 0; j < heightMap.GetHeight(); j += PATCH_SIZE)
+		{
+			for (int i = 0; i < heightMap.GetWidth(); i += PATCH_SIZE)
+			{
+				const GeoMipmap<Vector2>::Patch& patch = geoMipmap.GetLevel(0).GetPatch(0);
+
+				Vector3 p(i, 0, j);
 				worldTransform.SetTranslateRotXYZScale(p.X(), p.Y(), p.Z(), 0, 0, 0, 1.0);
 
 				heightMapShaderProgram.Bind();
 				heightMapShaderProgram.SetUniform1i("heightMap", 0);
-				heightMapShaderProgram.SetUniform4f("colors", colors[j][0], colors[j][1], colors[j][2], colors[j][3]);
-				heightMapShaderProgram.SetUniform1i("patchSize", patchSize);
+				heightMapShaderProgram.SetUniform4fv("colors", 1, colors[(j+i)%16]);
+				heightMapShaderProgram.SetUniform2i("offset", i, j);
 				heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
 
 #define USE_UNIFORM_BLOCK
@@ -925,6 +932,7 @@ public:
 				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
 			}
 		}
+		*/
 
 		return true;
 	}
@@ -939,6 +947,114 @@ public:
 		renderStates.Destroy();
 
 		primitives.Destroy();
+	}
+
+	unsigned int EstimateLOD(Camera& camera, Vector3 worldpos)
+	{
+		Vector3 viewpos = camera.GetViewTransform() * Vector3(worldpos.X(), worldpos.Y(), worldpos.Z());
+		//viewpos.Y() = 0;
+		float dist = viewpos.Length();
+
+#define SCALE 10
+		float maxdist = 10;
+		for (int i = 0; i < MAX_LOD; i++)
+		{
+			if (dist < maxdist * SCALE)
+			{
+				return i;
+			}
+			maxdist *= 2;
+		}
+
+		return MAX_LOD - 1;
+	}
+
+	void CalculatePatches(std::vector<TerrainRenderInfo>& terrainRenderInfos_, Camera& camera)
+	{
+		Frustum f = camera.GetFrustum();
+		terrainRenderInfos_.resize(heightMap.GetWidth() / PATCH_SIZE * heightMap.GetHeight() / PATCH_SIZE);
+
+		for (int z = 0; z < heightMap.GetHeight() / PATCH_SIZE; z++)
+		{
+			for (int x = 0; x < heightMap.GetWidth() / PATCH_SIZE; x++)
+			{
+				int idx = z * (heightMap.GetWidth() / PATCH_SIZE) + x;
+				TerrainRenderInfo& info = terrainRenderInfos_[idx];
+
+				info.offset = Vector3(x * PATCH_SIZE, 0, z * PATCH_SIZE);
+				info.lodLevel = EstimateLOD(camera, info.offset + Vector3(PATCH_SIZE / 2, 0, PATCH_SIZE / 2));
+				info.patchID = 0;
+			}
+		}
+
+		for (int z = 0; z < heightMap.GetHeight() / PATCH_SIZE; z++)
+		{
+			for (int x = 0; x < heightMap.GetWidth() / PATCH_SIZE; x++)
+			{
+				int idxC = (z + 0) * (heightMap.GetWidth() / PATCH_SIZE) + (x + 0);
+				int idxL = (z + 0) * (heightMap.GetWidth() / PATCH_SIZE) + (x - 1);
+				int idxR = (z + 0) * (heightMap.GetWidth() / PATCH_SIZE) + (x + 1);
+				int idxT = (z - 1) * (heightMap.GetWidth() / PATCH_SIZE) + (x + 0);
+				int idxB = (z + 1) * (heightMap.GetWidth() / PATCH_SIZE) + (x + 0);
+
+				bool coarseL = ((x - 1) >= 0) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxL].lodLevel) : false;
+				bool coarseR = ((x + 1) <= (heightMap.GetWidth() / PATCH_SIZE) - 1) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxR].lodLevel) : false;
+				bool coarseT = ((z - 1) >= 0) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxT].lodLevel) : false;
+				bool coarseB = ((z + 1) <= (heightMap.GetHeight() / PATCH_SIZE) - 1) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxB].lodLevel) : false;
+
+				terrainRenderInfos_[idxC].patchID = GeoMipmap<IVector2>::Level::GetPatchIndex(coarseL, coarseR, coarseT, coarseB);
+			}
+		}
+	}
+
+	void CalculateCamera()
+	{
+		Vector4 mouse = GetMouse();
+		float phi = (mouse.X() - (SCR_WIDTH / 2)) / (SCR_WIDTH / 2) * 180 * Math::Degree2Radian;
+		if (phi > 180 * Math::Degree2Radian)
+			phi = 180 * Math::Degree2Radian;
+		if (phi < -180 * Math::Degree2Radian)
+			phi = -180 * Math::Degree2Radian;
+
+		float theta = (mouse.Y() - (SCR_HEIGHT / 2)) / (SCR_HEIGHT / 2) * 90 * Math::Degree2Radian;
+		if (theta > 70 * Math::Degree2Radian)
+			theta = 70 * Math::Degree2Radian;
+		if (theta < -70 * Math::Degree2Radian)
+			theta = -70 * Math::Degree2Radian;
+		Platform::Debug("%f, %f\n", phi, theta);
+		//Platform::Debug("%f, %f\n", mouse.X(), mouse.Y());
+
+		Vector4 a = camera.GetWorldTransform().GetColumn(3);
+		Vector3 pos(a.X(), a.Y(), a.Z());
+		Vector3 zAxis = Vector3(Math::Cos(theta) * Math::Cos(phi), Math::Sin(theta), Math::Cos(theta) * Math::Sin(phi)); zAxis.Normalize();
+		Vector3 xAxis = zAxis.Cross(Vector3::UnitY); xAxis.Normalize();
+
+		if (IsKeyPressed('W'))
+		{
+			pos += zAxis;
+		}
+
+		if (IsKeyPressed('S'))
+		{
+			pos -= zAxis;
+		}
+
+		if (IsKeyPressed('A'))
+		{
+			pos -= xAxis;
+		}
+
+		if (IsKeyPressed('D'))
+		{
+			pos += xAxis;
+		}
+		Vector3 obj = pos + zAxis;
+
+		Matrix4 cameraTransform;
+		cameraTransform.SetLookAt(pos, obj, Vector3::UnitY);
+
+		camera.SetWorldTransform(cameraTransform);
+		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
 	}
 private:
 	Matrix4 worldTransform;
