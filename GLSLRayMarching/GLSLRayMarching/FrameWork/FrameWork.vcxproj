@@ -182,6 +182,7 @@
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FrameWork.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GUI.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FrameWork.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="GZFileIO.h" />

@@ -130,6 +130,9 @@
     <ClCompile Include="Rect2.cpp">
       <Filter>Source Files\Maths</Filter>
     </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Source Files\Maths</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imgui.h">
@@ -235,6 +238,9 @@
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Rect2.h">
+      <Filter>Source Files\Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
   </ItemGroup>
