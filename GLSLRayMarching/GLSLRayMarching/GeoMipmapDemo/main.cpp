@@ -483,7 +483,7 @@ public:
 		heightMap.SetWarpT(Texture::Wrap::Clamp);
 
 		////////////////////////////////////////////////////////////
-		if (!heightMapShaderProgram.Create("TerrainVS.glsl", "TerrainPS.glsl"))
+		if (!shaderProgram.Create("GeoMipMapVS.glsl", "GeoMipMapPS.glsl"))
 		{
 			return false;
 		}
@@ -499,7 +499,7 @@ public:
 			return false;
 		}
 
-		heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
+		shaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
 
 		/*
 		if (!shaderStorageBlockBuffer
@@ -510,10 +510,10 @@ public:
 		{
 			return false;
 		}
-		//shaderStorageBlockBuffer.BindShaderStorage(heightMapShaderProgram, 0);
-		heightMapShaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "HeightMap", 0);
+		//shaderStorageBlockBuffer.BindShaderStorage(shaderProgram, 0);
+		shaderProgram.BindShaderStorageBuffer(shaderStorageBlockBuffer, "HeightMap", 0);
 		*/
-		// heightMapShaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
+		// shaderProgram.BindUniformBlock(uniformBlockBuffer, 0);
 
 		return true;
 	}
@@ -616,11 +616,11 @@ public:
 		std::vector<RenderInfo> terrainRenderInfos;
 		CalculatePatches(terrainRenderInfos, camera);
 
-		heightMapShaderProgram.Bind();
-		heightMapShaderProgram.SetUniform1i("heightMap", 0);
+		shaderProgram.Bind();
+		shaderProgram.SetUniform1i("heightMap", 0);
 		Matrix4 worldTransform;
 		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, 0, 0, 1.0);
-		heightMapShaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+		shaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
 #define USE_UNIFORM_BLOCK
 #ifdef USE_UNIFORM_BLOCK
 		TransformData transformData;
@@ -628,8 +628,8 @@ public:
 		transformData.projTransform = camera.GetProjectionTransform().Transpose();
 		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
 #else
-		heightMapShaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
-		heightMapShaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+		shaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		shaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
 #endif
 
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
@@ -639,8 +639,8 @@ public:
 		{
 			const GeoMipmap<Vector2>::Patch& patch = GetLevel(terrainRenderInfos[i].lodLevel).GetPatch(terrainRenderInfos[i].patchID);
 			float c = ((float)(MAX_LOD - terrainRenderInfos[i].lodLevel)) / MAX_LOD;
-			heightMapShaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
-			heightMapShaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
+			shaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
+			shaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
 
 			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
 		}
@@ -652,8 +652,8 @@ public:
 		{
 			const GeoMipmap<Vector2>::Patch& patch = GetLevel(terrainRenderInfos[i].lodLevel).GetPatch(terrainRenderInfos[i].patchID);
 			float c = ((float)(MAX_LOD - terrainRenderInfos[i].lodLevel)) / MAX_LOD;
-			heightMapShaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
-			heightMapShaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
+			shaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
+			shaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
 
 			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
 		}
@@ -665,7 +665,7 @@ public:
 		shaderStorageBlockBuffer.Destroy();
 
 		uniformBlockBuffer.Destroy();
-		heightMapShaderProgram.Destroy();
+		shaderProgram.Destroy();
 		renderStates.Destroy();
 
 		primitives.Destroy();
@@ -690,11 +690,76 @@ private:
 	Texture2DFile heightMap;
 	Buffer shaderStorageBlockBuffer;
 
-	Buffer uniformBlockBuffer;
-	ShaderProgram heightMapShaderProgram;
-	RenderStates renderStates;
-	Primitives primitives;
 	std::vector<Level> levels;
+
+	RenderStates renderStates;
+	ShaderProgram shaderProgram;
+	Buffer uniformBlockBuffer;
+	Primitives primitives;
+};
+
+class MorphQuad
+{
+public:
+	MorphQuad()
+	{
+	}
+
+	~MorphQuad()
+	{
+	}
+
+	bool Create()
+	{
+		std::vector<Vector4> vertices;
+		//for (unsigned int mipLevel_ = 0; mipLevel_ < mipLevelCount; mipLevel_++)
+		//{
+			//AddLevel(vertices, size_, mipLevel_);
+		//}
+
+		////////////////////////////////////////////////////////////
+		bool success = primitives
+			.Begin()
+			.FillVertices(0, 4, VertexAttribute::DataType::FLOAT, false, 0, 0, &vertices[0], vertices.size())
+			.End();
+		if (!success)
+		{
+			return false;
+		}
+
+		////////////////////////////////////////////////////////////
+		if (!heightMap.Create("heightMap.hdr", false))
+		{
+			return false;
+		}
+		heightMap.SetMinFilter(Texture::MinFilter::Nearest);
+		heightMap.SetMagFilter(Texture::MagFilter::Nearest);
+		heightMap.SetWarpS(Texture::Wrap::Clamp);
+		heightMap.SetWarpR(Texture::Wrap::Clamp);
+		heightMap.SetWarpT(Texture::Wrap::Clamp);
+
+		////////////////////////////////////////////////////////////
+		if (!shaderProgram.Create("MorphQuadVS.glsl", "MorphQuadPS.glsl"))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	void Update()
+	{
+	}
+
+	void Destroy()
+	{
+	}
+private:
+	Texture2DFile heightMap;
+
+	RenderStates renderStates;
+	ShaderProgram shaderProgram;
+	Primitives primitives;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -790,6 +855,7 @@ private:
 	Vector3 dir;
 
 	GeoMipmap<Vector2> geoMipmap;
+	//MorphQuad<Vector2> morphQuad;
 };
 
 int main(int argc, char* argv[])
