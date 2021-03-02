@@ -46,15 +46,17 @@ layout (std140, binding=0) uniform TransformData
 uniform mat4 worldTransform;
 uniform sampler2D heightMap;
 uniform vec4 colors;
-uniform int patchSize;
+uniform ivec2 offset;
 
 out vec4 color;
 
 void main()
 {
-	vec4 height = textureLod(heightMap, vertex / patchSize, 0);
+	ivec2 textureSize = textureSize(heightMap, 0);
+	vec4 height = textureLod(heightMap, (offset + vertex) / textureSize, 0);
 
-	gl_Position = projTransform * viewTransform * worldTransform * vec4(vertex.x, height.x * 10.0, vertex.y, 1.0);
+	gl_Position = projTransform * viewTransform * worldTransform * 
+				vec4(vertex.x + offset.x, height.x * 20.0, vertex.y + offset.y, 1.0);
 	
 	/*
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);
