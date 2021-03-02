@@ -60,7 +60,7 @@ public:
 	virtual ~Primitives();
 
 	Primitives& Begin();
-	Primitives& FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const float* vertices_, int verticesCount_);
+	Primitives& FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const void* vertices_, int verticesCount_);
 	Primitives& FillIndices(const unsigned int* indices_, int indicesCount_);
 	bool End();
 	
@@ -70,8 +70,8 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////////
 	void DrawArray(Primitives::Mode mode_, int first_, int count_);
-	void DrawArrayInstanced(Primitives::Mode mode_, int first_, int count_, unsigned int instancedCount_);
-	void DrawArrayInstancedBaseInstance(Primitives::Mode mode_, int first_, int count_, unsigned int instancedCount_, unsigned int baseInstance_);
+	void DrawArrayInstanced(Primitives::Mode mode_, int first_, int count_, int instancedCount_);
+	void DrawArrayInstancedBaseInstance(Primitives::Mode mode_, int first_, int count_, int instancedCount_, int baseInstance_);
 
 	////////////////////////////////////////////////////////////////////////////////////
 	void DrawIndices(Primitives::Mode mode_, void* indices_, int count_);

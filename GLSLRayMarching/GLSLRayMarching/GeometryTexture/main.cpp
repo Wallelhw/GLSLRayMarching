@@ -16,49 +16,6 @@
 #define GEOMETRY_TEXTURE_SIZE 1024
 #define NORMAL_TEXTURE_SIZE 512
 
-class Camera
-{
-public:
-	Camera()
-	{
-	}
-
-	~Camera()
-	{
-	}
-
-	void SetWorldTransform(const Matrix4& worldTransform_)
-	{
-		worldTransform = worldTransform_;
-
-		viewTransform = worldTransform.Inverse();
-	}
-
-	const Matrix4& GetWorldTransform() const
-	{
-		return worldTransform;
-	}
-
-	const Matrix4& GetViewTransform() const
-	{
-		return viewTransform;
-	}
-
-	void SetProjectionTransform(const Matrix4& projectionTransform_)
-	{
-		projectionTransform = projectionTransform_;
-	}
-
-	const Matrix4& GetProjectionTransform() const
-	{
-		return projectionTransform;
-	}
-
-	Matrix4 worldTransform;
-	Matrix4 viewTransform;
-	Matrix4 projectionTransform;
-};
-
 class GeometryTexture : public FrameWork
 {
 public:
@@ -236,10 +193,8 @@ public:
 		Matrix4 cameraTransform;
 		cameraTransform.SetLookAt(Vector3(5, 5, 5), Vector3(0, 0, 0), Vector3(0, 1, 0));
 		camera.SetWorldTransform(cameraTransform);
-
-		Matrix4 projectionTransform;
-		projectionTransform.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
-		camera.SetProjectionTransform(projectionTransform);
+		
+		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
 
 		//////////////////////////////////////////////////////
 		renderStates.scissorTestState.enabled = true;

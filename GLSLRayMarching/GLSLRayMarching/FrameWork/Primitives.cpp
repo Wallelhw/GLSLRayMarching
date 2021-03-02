@@ -96,7 +96,7 @@ Primitives& Primitives::Begin()
 	return *this;	
 }
 
-Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const float* vertices_, int verticesCount_)
+Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const void* vertices_, int verticesCount_)
 {
 	if (vbos.find(index_) == vbos.end())
 	{
@@ -188,7 +188,7 @@ void Primitives::DrawArray(Primitives::Mode mode_, int first_, int count_)
 	glDrawArrays(primModes[(int)mode_], first_, count_);
 }
 
-void Primitives::DrawArrayInstanced(Primitives::Mode mode_, int first_, int count_, unsigned int instancedCount_)
+void Primitives::DrawArrayInstanced(Primitives::Mode mode_, int first_, int count_, int instancedCount_)
 {
 	/*
 	if ( mode or count is invalid )
@@ -208,7 +208,7 @@ void Primitives::DrawArrayInstanced(Primitives::Mode mode_, int first_, int coun
 	glDrawArraysInstanced(primModes[(int)mode_], first_, count_, instancedCount_);
 }
 
-void Primitives::DrawArrayInstancedBaseInstance(Primitives::Mode mode_, int first_, int count_, unsigned int instancedCount_, unsigned int baseInstance_)
+void Primitives::DrawArrayInstancedBaseInstance(Primitives::Mode mode_, int first_, int count_, int instancedCount_, int baseInstance_)
 {
 	/*
 	if ( mode or count is invalid )

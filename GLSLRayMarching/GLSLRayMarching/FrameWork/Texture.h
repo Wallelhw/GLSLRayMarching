@@ -6,6 +6,142 @@
 
 class TextureImpl;
 
+#include "Matrix4.h"
+#include "Frustum.h"
+
+class Camera
+{
+public:
+	enum class ProjectionMode
+	{
+		Orthogonal = 0,
+		Perspective
+	};
+
+	Camera()
+		: worldTransform(Matrix4::Identity)
+
+		, viewInvalid(false)
+		, viewTransform(Matrix4::Identity)
+
+
+		, l(-1)
+		, r(1)
+		, t(-1)
+		, b(1)
+		, n(1)
+		, f(100)
+
+		, projectionInvalid(true)
+		, projectionTransform(Matrix4::Identity)
+
+		, projectionMode(ProjectionMode::Perspective)
+	{
+	}
+
+	~Camera()
+	{
+	}
+
+	void SetWorldTransform(const Matrix4& worldTransform_)
+	{
+		worldTransform = worldTransform_;
+
+		viewInvalid = true;
+		frustumInvalid = true;
+	}
+
+	const Matrix4& GetWorldTransform() const
+	{
+		return worldTransform;
+	}
+
+	const Matrix4& GetViewTransform()
+	{
+		if (viewInvalid)
+		{
+			viewTransform = worldTransform.Inverse();
+			viewInvalid = false;
+		}
+
+		return viewTransform;
+	}
+
+	void SetProjection(float l_, float r_, float t_, float b_, float n_, float f_)
+	{
+		l = l_;
+		r = r_;
+		t = t_;
+		b = b_;
+		n = n_;
+		f = f_;
+
+		frustumInvalid = true;
+		projectionInvalid = true;
+	}
+
+	void SetPerspectiveFov(float fovY_, float aspect_, float n_, float f_)
+	{
+		t = Math::Tan(fovY_ * Math::Degree2Radian / 2.0) * n_;
+		r = t * aspect_;
+
+		b = -t;
+		l = -r;
+
+		n = n_;
+		f = f_;
+
+		frustumInvalid = true;
+		projectionInvalid = true;
+	}
+	
+	const Matrix4& GetProjectionTransform()
+	{
+		if (projectionInvalid)
+		{
+			if (projectionMode == ProjectionMode::Perspective)
+				projectionTransform.SetPerspectiveOffCenter(l, r, b, t, n, f);
+			else
+				projectionTransform.SetOrthogonalOffCenter(l, r, b, t, n, f);
+
+			projectionInvalid = false;
+		}
+
+		return projectionTransform;
+	}
+
+	const Frustum& GetFrustum()
+	{
+		if (frustumInvalid)
+		{
+			frustum = Frustum(worldTransform, l, r, b, t, n, f);
+
+			frustumInvalid = false;
+		}
+
+		return frustum;
+	}
+
+	Matrix4 worldTransform;
+	
+	bool viewInvalid;
+	Matrix4 viewTransform;
+
+	bool projectionInvalid;
+	float l;
+	float r;
+	float t;
+	float b;
+	float n;
+	float f;
+	Matrix4 projectionTransform;
+	ProjectionMode projectionMode;
+
+	bool frustumInvalid;
+	Frustum frustum;
+};
+
+
 class Texture
 {
 public:
