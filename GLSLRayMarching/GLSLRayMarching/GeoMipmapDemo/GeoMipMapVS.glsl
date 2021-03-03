@@ -56,7 +56,7 @@ void main()
 	vec4 height = textureLod(heightMap, (offset + vertex) / textureSize, 0);
 
 	gl_Position = projTransform * viewTransform * worldTransform * 
-				vec4(vertex.x + offset.x, height.x * 20.0, vertex.y + offset.y, 1.0);
+				vec4(vertex.x + offset.x, height.x * 100.0, vertex.y + offset.y, 1.0);
 	
 	/*
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);

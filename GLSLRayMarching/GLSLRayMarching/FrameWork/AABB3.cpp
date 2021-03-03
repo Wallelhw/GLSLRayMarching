@@ -63,6 +63,16 @@
 		return max;
 	}
 
+	Vector3 AABB3::Center() const
+	{
+		return (max + min) / 2.0;
+	}
+
+	Vector3 AABB3::Extent() const
+	{
+		return Vector3::FAbs(max - min) / 2.0;
+	}
+
 	AABB3& AABB3::operator+= (const AABB3& other)
 	{
 		min = Vector3::Min(min, other.min);

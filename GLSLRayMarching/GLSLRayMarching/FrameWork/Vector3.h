@@ -228,9 +228,9 @@ public:
 		}
 		else
 		{
-			quotient.m[0] = Math::MaxFloat;
-			quotient.m[1] = Math::MaxFloat;
-			quotient.m[2] = Math::MaxFloat;
+			quotient.m[0] = Math::MaxValue;
+			quotient.m[1] = Math::MaxValue;
+			quotient.m[2] = Math::MaxValue;
 		}
 
 		return quotient;

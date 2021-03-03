@@ -30,6 +30,8 @@
 		Vector3& Max();
 		const Vector3& Min() const;
 		const Vector3& Max() const;
+		Vector3 Center() const;
+		Vector3 Extent() const;
 
 		AABB3& operator+= (const AABB3& other);
 
