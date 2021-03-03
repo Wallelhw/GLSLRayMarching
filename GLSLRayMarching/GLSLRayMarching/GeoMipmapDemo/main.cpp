@@ -472,7 +472,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap.hdr", false))
+		if (!heightMap.Create("heightMap.png", false))
 		{
 			return false;
 		}
@@ -536,6 +536,31 @@ public:
 		}
 
 		return MAX_LOD - 1;
+	}
+
+	bool IntersectAABBFrustum(Frustum& f, AABB3& aabb)
+	{
+		float m, n; 
+		int i;
+		int result = true;
+
+		Vector3 bm = aabb.Center();
+		Vector3 bd = aabb.Extent();
+
+		for (i = 0; i < f.GetPlaneCount(); i++)
+		{
+			Plane3& p = f.GetPlane(i);
+
+			m = (bm.X() * p.Normal().X()) + (bm.Y() * p.Normal().Y()) + (bm.Z() * p.Normal().Z()) + p.Constant();
+			n = (bd.X() * Math::FAbs(p.Normal().X())) + (bd.Y() * Math::FAbs(p.Normal().Y())) + (bm.Z() * Math::FAbs(p.Normal().Z()));
+
+			if (m + n < 0)
+				return false;
+			if (m - n < 0)
+				result = true;
+		} 
+
+		return result;
 	}
 
 	void CalculatePatches(std::vector<RenderInfo>& terrainRenderInfos_, Camera& camera)
@@ -631,19 +656,6 @@ public:
 		shaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
 		shaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
 #endif
-
-		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
-		renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
-		renderStates.Apply();
-		for (int i = 0; i < terrainRenderInfos.size(); i++)
-		{
-			const GeoMipmap<Vector2>::Patch& patch = GetLevel(terrainRenderInfos[i].lodLevel).GetPatch(terrainRenderInfos[i].patchID);
-			float c = ((float)(MAX_LOD - terrainRenderInfos[i].lodLevel)) / MAX_LOD;
-			shaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
-			shaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
-
-			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
-		}
 
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
 		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
