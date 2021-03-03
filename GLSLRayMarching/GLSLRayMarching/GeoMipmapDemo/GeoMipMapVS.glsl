@@ -44,20 +44,26 @@ layout (std140, binding=0) uniform TransformData
 #endif
 
 uniform mat4 worldTransform;
-uniform sampler2D heightMap;
 uniform vec4 colors;
 uniform ivec2 offset;
+uniform float patchSize;
+uniform sampler2D heightMap;
 
+out vec2 texcoord0;
+out vec2 texcoord1;
 out vec4 color;
 
 void main()
 {
-	ivec2 textureSize = textureSize(heightMap, 0);
-	vec4 height = textureLod(heightMap, (offset + vertex) / textureSize, 0);
+	ivec2 heightMapTextureSize = textureSize(heightMap, 0);
+	vec4 height = textureLod(heightMap, (offset + vertex) / heightMapTextureSize, 0);
+
+	texcoord0 = vertex / patchSize;
+	texcoord1 = (offset + vertex) / heightMapTextureSize;
 
 	gl_Position = projTransform * viewTransform * worldTransform * 
 				vec4(vertex.x + offset.x, height.x * 100.0, vertex.y + offset.y, 1.0);
-	
+
 	/*
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);
 	vec4 lightcolor = vec4(1.0, 1.0, 1.0, 1.0);
