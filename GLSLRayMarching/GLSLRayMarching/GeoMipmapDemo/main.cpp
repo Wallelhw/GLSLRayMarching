@@ -19,8 +19,8 @@ template<class T>
 class GeoMipmap
 {
 public:
-	#define MAX_LOD 6
-	#define PATCH_SIZE (64)
+#define MAX_LOD 6
+#define PATCH_SIZE (64)
 
 	class Patch
 	{
@@ -438,6 +438,7 @@ public:
 	class RenderInfo
 	{
 	public:
+		bool visible;
 		Vector3 offset;
 		unsigned int lodLevel;
 		unsigned int patchID;
@@ -481,6 +482,57 @@ public:
 		heightMap.SetWarpS(Texture::Wrap::Clamp);
 		heightMap.SetWarpR(Texture::Wrap::Clamp);
 		heightMap.SetWarpT(Texture::Wrap::Clamp);
+
+
+		if (!texture0.Create("texture0.jpg", false))
+		{
+			return false;
+		}
+		texture0.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		texture0.SetMagFilter(Texture::MagFilter::Linear);
+		texture0.SetWarpS(Texture::Wrap::Repeat);
+		texture0.SetWarpR(Texture::Wrap::Repeat);
+		texture0.SetWarpT(Texture::Wrap::Repeat);
+
+		if (!texture1.Create("texture1.jpg", false))
+		{
+			return false;
+		}
+		texture1.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		texture1.SetMagFilter(Texture::MagFilter::Linear);
+		texture1.SetWarpS(Texture::Wrap::Repeat);
+		texture1.SetWarpR(Texture::Wrap::Repeat);
+		texture1.SetWarpT(Texture::Wrap::Repeat);
+
+		if (!texture2.Create("texture2.jpg", false))
+		{
+			return false;
+		}
+		texture2.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		texture2.SetMagFilter(Texture::MagFilter::Linear);
+		texture2.SetWarpS(Texture::Wrap::Repeat);
+		texture2.SetWarpR(Texture::Wrap::Repeat);
+		texture2.SetWarpT(Texture::Wrap::Repeat);
+
+		if (!texture3.Create("texture3.jpg", false))
+		{
+			return false;
+		}
+		texture3.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		texture3.SetMagFilter(Texture::MagFilter::Linear);
+		texture3.SetWarpS(Texture::Wrap::Repeat);
+		texture3.SetWarpR(Texture::Wrap::Repeat);
+		texture3.SetWarpT(Texture::Wrap::Repeat);
+
+		if (!splatMap.Create("splatmap.png", false))
+		{
+			return false;
+		}
+		splatMap.SetMinFilter(Texture::MinFilter::LinearMipmapLinear);
+		splatMap.SetMagFilter(Texture::MagFilter::Linear);
+		splatMap.SetWarpS(Texture::Wrap::Repeat);
+		splatMap.SetWarpR(Texture::Wrap::Repeat);
+		splatMap.SetWarpT(Texture::Wrap::Repeat);
 
 		////////////////////////////////////////////////////////////
 		if (!shaderProgram.Create("GeoMipMapVS.glsl", "GeoMipMapPS.glsl"))
@@ -540,7 +592,7 @@ public:
 
 	bool IntersectAABBFrustum(Frustum& f, AABB3& aabb)
 	{
-		float m, n; 
+		float m, n;
 		int i;
 		int result = true;
 
@@ -549,7 +601,7 @@ public:
 
 		for (i = 0; i < f.GetPlaneCount(); i++)
 		{
-			Plane3& p = f.GetPlane(i);
+			const Plane3& p = f.GetPlane(i);
 
 			m = (bm.X() * p.Normal().X()) + (bm.Y() * p.Normal().Y()) + (bm.Z() * p.Normal().Z()) + p.Constant();
 			n = (bd.X() * Math::FAbs(p.Normal().X())) + (bd.Y() * Math::FAbs(p.Normal().Y())) + (bm.Z() * Math::FAbs(p.Normal().Z()));
@@ -558,7 +610,7 @@ public:
 				return false;
 			if (m - n < 0)
 				result = true;
-		} 
+		}
 
 		return result;
 	}
@@ -575,6 +627,8 @@ public:
 				int idx = z * (heightMap.GetWidth() / PATCH_SIZE) + x;
 				RenderInfo& info = terrainRenderInfos_[idx];
 
+				AABB3 aabb3(Vector3(x * PATCH_SIZE, 0, z * PATCH_SIZE), Vector3((x + 1) * PATCH_SIZE, 0, (z + 1) * PATCH_SIZE));
+				info.visible = true;// IntersectAABBFrustum(f, aabb3);
 				info.offset = Vector3(x * PATCH_SIZE, 0, z * PATCH_SIZE);
 				info.lodLevel = EstimateLOD(camera, info.offset + Vector3(PATCH_SIZE / 2, 0, PATCH_SIZE / 2));
 				info.patchID = 0;
@@ -601,7 +655,7 @@ public:
 		}
 	}
 
-	void Update(Camera& camera)
+	void DrawMipmap(Camera& camera)
 	{
 		//////////////////////////////////////////////////////
 		// RS
@@ -632,6 +686,11 @@ public:
 		///////////////////////////////////////////////////////
 		// TexMap
 		heightMap.Bind(0);
+		texture0.Bind(1);
+		texture1.Bind(2);
+		texture2.Bind(3);
+		texture3.Bind(4);
+		splatMap.Bind(5);
 
 		///////////////////////////////////////////////////////
 		primitives.Bind();
@@ -643,6 +702,13 @@ public:
 
 		shaderProgram.Bind();
 		shaderProgram.SetUniform1i("heightMap", 0);
+		shaderProgram.SetUniform1i("texture0", 1);
+		shaderProgram.SetUniform1i("texture1", 2);
+		shaderProgram.SetUniform1i("texture2", 3);
+		shaderProgram.SetUniform1i("texture3", 4);
+		shaderProgram.SetUniform1i("splatMap", 5);
+		shaderProgram.SetUniform1f("patchSize", PATCH_SIZE);
+
 		Matrix4 worldTransform;
 		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, 0, 0, 1.0);
 		shaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
@@ -657,18 +723,35 @@ public:
 		shaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
 #endif
 
+		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
-		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
+		renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
 		renderStates.Apply();
 		for (int i = 0; i < terrainRenderInfos.size(); i++)
 		{
-			const GeoMipmap<Vector2>::Patch& patch = GetLevel(terrainRenderInfos[i].lodLevel).GetPatch(terrainRenderInfos[i].patchID);
-			float c = ((float)(MAX_LOD - terrainRenderInfos[i].lodLevel)) / MAX_LOD;
-			shaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
-			shaderProgram.SetUniform2i("offset", terrainRenderInfos[i].offset.X(), terrainRenderInfos[i].offset.Z());
+			RenderInfo& info = terrainRenderInfos[i];
+			if (info.visible)
+			{
+				const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+				float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
+				shaderProgram.SetUniform4f("colors", c, c, c, 1.0f);
+				shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
 
-			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+			}
 		}
+	}
+
+	void DrawCamera(Camera& camera)
+	{
+		Primitives primitives;
+	}
+
+	void Update(Camera& camera)
+	{
+		DrawMipmap(camera);
+
+		DrawCamera(camera);
 	}
 
 	void Destroy()
@@ -698,6 +781,12 @@ private:
 		unsigned int stride = pow(2, mipLevel_);
 		levels.push_back(Level(vertices_, size_, stride));
 	}
+
+	Texture2DFile texture0;
+	Texture2DFile texture1;
+	Texture2DFile texture2;
+	Texture2DFile texture3;
+	Texture2DFile splatMap;
 
 	Texture2DFile heightMap;
 	Buffer shaderStorageBlockBuffer;
@@ -832,7 +921,7 @@ public:
 
 		dir = Vector3(Math::Cos(theta) * Math::Cos(phi), Math::Sin(theta), Math::Cos(theta) * Math::Sin(phi)); dir.Normalize();
 		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
-		
+
 		Platform::Debug("%f %f\n", theta, phi);
 
 		if (IsKeyPressed('W'))
