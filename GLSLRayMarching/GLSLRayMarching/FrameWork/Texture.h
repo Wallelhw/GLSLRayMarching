@@ -122,8 +122,51 @@ public:
 		return frustum;
 	}
 
+	void GetFrustumVertices(std::vector<Vector3>& vertices_)
+	{
+		Vector3 v0 = Vector3(l, t, -n);
+		Vector3 v1 = Vector3(l * f / n, t * f / n, -n * f / n);
+		Vector3 v2 = Vector3(l * f / n, b * f / n, -n * f / n);
+		Vector3 v3 = Vector3(l, b, -n);
+
+		Vector3 v4 = Vector3(r, t, -n);
+		Vector3 v5 = Vector3(r, b, -n);
+		Vector3 v6 = Vector3(r * f / n, b * f / n, -n * f / n);
+		Vector3 v7 = Vector3(r * f / n, t * f / n, -n * f / n);
+		
+		vertices_.push_back(v0);
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
+		vertices_.push_back(v3);
+
+		vertices_.push_back(v4);
+		vertices_.push_back(v5);
+		vertices_.push_back(v6);
+		vertices_.push_back(v7);
+
+		vertices_.push_back(v0);
+		vertices_.push_back(v4);
+		vertices_.push_back(v7);
+		vertices_.push_back(v1);
+
+		vertices_.push_back(v3);
+		vertices_.push_back(v2);
+		vertices_.push_back(v5);
+		vertices_.push_back(v6);
+
+		vertices_.push_back(v0);
+		vertices_.push_back(v3);
+		vertices_.push_back(v5);
+		vertices_.push_back(v4);
+
+		vertices_.push_back(v7);
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
+		vertices_.push_back(v6);
+	}
+
 	Matrix4 worldTransform;
-	
+
 	bool viewInvalid;
 	Matrix4 viewTransform;
 
@@ -285,13 +328,13 @@ public:
 
 	Texture(Texture::Type type_);
 	virtual ~Texture();
-	
+
 	virtual bool Create();
 	virtual void Destroy();
 
 	void Bind(unsigned int texStage_);
 	void Unbind();
-	
+
 	Texture::Type GetType() const;
 	Texture::Format GetFormat()  const;
 	unsigned int GetHandle() const;
@@ -348,7 +391,7 @@ class Texture2D : public Texture
 public:
 	Texture2D();
 	virtual ~Texture2D();
-	
+
 	bool Create(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
 	bool Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
 	void Destroy();

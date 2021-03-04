@@ -725,7 +725,7 @@ public:
 
 		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
-		renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
+		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
 		renderStates.Apply();
 		for (int i = 0; i < terrainRenderInfos.size(); i++)
 		{
