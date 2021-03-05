@@ -20,6 +20,8 @@ void main()
 	vec4 t3 = texture(texture3, texcoord0);
 	vec4 s = texture(splatMap, texcoord1);
 
-	//FragColor = (t0 * s.r + t1 * s.g + t2 * s.b) / (s.r + s.g + s.b);
-	FragColor = vec4(1.0, 1.0 ,1.0, 1.0);
+	FragColor = (t0 * s.r + t1 * s.g + t2 * s.b) / (s.r + s.g + s.b);
+	//FragColor = (t0 * s.r + t1 * s.g + t2 * s.b);
+	//FragColor = s;
+	//FragColor = vec4(1.0, 1.0 ,1.0, 1.0);
 }

@@ -473,7 +473,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap.png", false))
+		if (!heightMap.Create("heightMap.hdr", false))
 		{
 			return false;
 		}
@@ -524,7 +524,7 @@ public:
 		texture3.SetWarpR(Texture::Wrap::Repeat);
 		texture3.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!splatMap.Create("splatmap.png", false))
+		if (!splatMap.Create("splatmap.jpg", false))
 		{
 			return false;
 		}
@@ -709,8 +709,11 @@ public:
 		shaderProgram.SetUniform1i("splatMap", 5);
 		shaderProgram.SetUniform1f("patchSize", PATCH_SIZE);
 
+		shaderProgram.SetUniform2i("heightMapSize", heightMap.GetWidth(), heightMap.GetHeight());
+		shaderProgram.SetUniform2i("splatMapSize", splatMap.GetWidth(), splatMap.GetHeight());
+
 		Matrix4 worldTransform;
-		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, 0, 0, 1.0);
+		worldTransform.SetTranslateRotXYZScale(0, -30, 0, 0, 0, 0, 1.0);
 		shaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
 #define USE_UNIFORM_BLOCK
 #ifdef USE_UNIFORM_BLOCK
@@ -725,7 +728,7 @@ public:
 
 		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
-		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
+		renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
 		renderStates.Apply();
 		for (int i = 0; i < terrainRenderInfos.size(); i++)
 		{
@@ -926,29 +929,29 @@ public:
 
 		if (IsKeyPressed('W'))
 		{
-			pos += dir;
+			pos += dir * 10;
 		}
 
 		if (IsKeyPressed('S'))
 		{
-			pos -= dir;
+			pos -= dir * 10;
 		}
 
 		if (IsKeyPressed('A'))
 		{
-			pos -= xAxis;
+			pos -= xAxis * 10;
 		}
 
 		if (IsKeyPressed('D'))
 		{
-			pos += xAxis;
+			pos += xAxis * 10;
 		}
 		Vector3 obj = pos + dir;
 
 		Matrix4 cameraTransform;
 		cameraTransform.SetLookAt(pos, obj, Vector3::UnitY);
 		camera.SetWorldTransform(cameraTransform);
-		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
+		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 5000.0f);
 	}
 private:
 	Camera camera;
