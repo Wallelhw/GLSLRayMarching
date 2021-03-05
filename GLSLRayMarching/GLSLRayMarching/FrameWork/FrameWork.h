@@ -27,7 +27,9 @@ protected:
 	double GetDeltaTime() const;
 	Vector4 GetMouse() const;
 	Vector2 GetMouseDelta() const;
-	int GetMouseButtonStatus() const;
+	int GetMouseLeftButtonStatus() const;
+	int GetMouseMidButtonStatus() const;
+	int GetMouseRightButtonStatus() const;
 	int GetFrameCounter() const;
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
