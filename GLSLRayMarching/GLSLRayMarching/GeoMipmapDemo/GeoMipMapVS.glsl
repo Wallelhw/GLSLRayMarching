@@ -45,9 +45,13 @@ layout (std140, binding=0) uniform TransformData
 
 uniform mat4 worldTransform;
 uniform vec4 colors;
+
 uniform ivec2 offset;
+
 uniform float patchSize;
 uniform sampler2D heightMap;
+uniform ivec2 heightMapSize;
+uniform ivec2 splatMapSize;
 
 out vec2 texcoord0;
 out vec2 texcoord1;
@@ -55,29 +59,19 @@ out vec4 color;
 
 void main()
 {
-	ivec2 heightMapTextureSize = textureSize(heightMap, 0);
-	vec4 height = textureLod(heightMap, (offset + vertex) / heightMapTextureSize, 0);
+	vec4 height = textureLod(heightMap, (offset + vertex) / heightMapSize, 0); // 0.5m per pixel
 
 	texcoord0 = vertex / patchSize;
-	texcoord1 = (offset + vertex) / heightMapTextureSize;
+	texcoord1 = (offset + vertex) / splatMapSize;
 
 	gl_Position = projTransform * viewTransform * worldTransform * 
-				vec4(vertex.x + offset.x, height.x * 100.0, vertex.y + offset.y, 1.0);
+				vec4( (vertex.x + offset.x) * 0.5, height.x*500, (vertex.y + offset.y) * 0.5, 1.0);
 
-	/*
 	vec4 ambientLightColor = vec4(0.2, 0.2, 0.2, 1.0);
 	vec4 lightcolor = vec4(1.0, 1.0, 1.0, 1.0);
 	vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
-
 	vec4 diffuseMaterial = vec4(0.8, 0.8, 0.8, 1.0);
 	
-	color = lightcolor * max(dot(lightDir, normal.xyz), 0) + ambientLightColor;
+	color = lightcolor * max(dot(lightDir, vec3(0.0, 1.0, 0.0)), 0) + ambientLightColor;
 	color *= diffuseMaterial;
-	
-	//color = normal;
-	//color = vec4(uv.xy, 0.0, 1.0);
-	color.w = 1.0;
-	*/
-
-	color = colors;//vec4(0.3, 0.6, 0.6, 1.0);
 }
