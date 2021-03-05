@@ -21,7 +21,9 @@ public:
 		, frameCounter(0)
 		, mouse(0.0, 0.0, 0.0, 0.0)
 		, mouseDelta(0.0, 0.0)
-		, mouseButtonStatus(0)
+		, mouseLButtonStatus(0)
+		, mouseMButtonStatus(0)
+		, mouseRButtonStatus(0)
 		, moved(false)
 	{
 	}
@@ -37,7 +39,9 @@ public:
 	double deltaTime;
 	int frameCounter;
 
-	int mouseButtonStatus;
+	int mouseLButtonStatus;
+	int mouseMButtonStatus;
+	int mouseRButtonStatus;
 	Vector4 mouse;
 	Vector2 mouseDelta;
 
@@ -67,16 +71,24 @@ void FrameWork::processInput(void* win)
 		glfwSetWindowShouldClose(window, true);
 	}
 
+	static double xlastpos = 0;
+	static double ylastpos = 0;
 	double xpos = 0;
 	double ypos = 0;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	ypos = instance->impl->height - ypos;
+	instance->impl->mouseDelta = Vector2(xpos - xlastpos, ypos - ylastpos);
+	xlastpos = xpos;
+	ylastpos = ypos;
 
-	int oldMouseButtonStatus = instance->impl->mouseButtonStatus;
-	instance->impl->mouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-	if (instance->impl->mouseButtonStatus == GLFW_PRESS)
+	instance->impl->mouseMButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE);
+	instance->impl->mouseRButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+
+	int oldMouseButtonStatus = instance->impl->mouseLButtonStatus;
+	instance->impl->mouseLButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+	if (instance->impl->mouseLButtonStatus == GLFW_PRESS)
 	{
-		if (oldMouseButtonStatus != instance->impl->mouseButtonStatus)
+		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
 		{
 			instance->impl->mouse.Z() = 1;
 			instance->impl->mouse.W() = 1;
@@ -90,9 +102,9 @@ void FrameWork::processInput(void* win)
 		instance->impl->mouse.X() = xpos;
 		instance->impl->mouse.Y() = ypos;
 	}
-	else if (instance->impl->mouseButtonStatus == GLFW_RELEASE)
+	else if (instance->impl->mouseLButtonStatus == GLFW_RELEASE)
 	{
-		if (oldMouseButtonStatus != instance->impl->mouseButtonStatus)
+		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
 		{
 			//Platform::Debug("mouse unclick\n");
 		}
@@ -301,9 +313,19 @@ Vector2 FrameWork::GetMouseDelta() const
 	return impl->mouseDelta;
 }
 
-int FrameWork::GetMouseButtonStatus() const
+int FrameWork::GetMouseLeftButtonStatus() const
 {
-	return impl->mouseButtonStatus;
+	return impl->mouseLButtonStatus;
+}
+
+int FrameWork::GetMouseMidButtonStatus() const
+{
+	return impl->mouseMButtonStatus;
+}
+
+int FrameWork::GetMouseRightButtonStatus() const
+{
+	return impl->mouseRButtonStatus;
 }
 
 int FrameWork::GetFrameCounter() const
