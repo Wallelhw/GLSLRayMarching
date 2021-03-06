@@ -246,6 +246,7 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Segment3.h" />
     <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere3.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />

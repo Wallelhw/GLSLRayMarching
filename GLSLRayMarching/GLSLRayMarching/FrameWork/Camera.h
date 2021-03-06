@@ -35,7 +35,21 @@ public:
 	{
 	}
 
-	void SetProjection(float l_, float r_, float t_, float b_, float n_, float f_)
+	void SetOrthogonal(float width_, float height_, float n_, float f_)
+	{
+		l = -width_/2;
+		r = width_ / 2;
+		t = height_ / 2;
+		b = -height_ / 2;
+		n = n_;
+		f = f_;
+
+		projectionMode = ProjectionMode::Orthogonal;
+
+		InValidateProjection();
+	}
+
+	void SetOrthogonal(float l_, float r_, float t_, float b_, float n_, float f_)
 	{
 		l = l_;
 		r = r_;
@@ -43,6 +57,8 @@ public:
 		b = b_;
 		n = n_;
 		f = f_;
+
+		projectionMode = ProjectionMode::Orthogonal;
 
 		InValidateProjection();
 	}
@@ -57,6 +73,36 @@ public:
 
 		n = n_;
 		f = f_;
+
+		projectionMode = ProjectionMode::Perspective;
+		
+		InValidateProjection();
+	}
+
+	void SetPerspective(float width_, float height_, float n_, float f_)
+	{
+		l = -width_ / 2;
+		r = width_ / 2;
+		t = height_ / 2;
+		b = -height_ / 2;
+		n = n_;
+		f = f_;
+
+		projectionMode = ProjectionMode::Perspective;
+
+		InValidateProjection();
+	}
+
+	void SetPerspective(float l_, float r_, float t_, float b_, float n_, float f_)
+	{
+		l = l_;
+		r = r_;
+		t = t_;
+		b = b_;
+		n = n_;
+		f = f_;
+
+		projectionMode = ProjectionMode::Perspective;
 
 		InValidateProjection();
 	}
