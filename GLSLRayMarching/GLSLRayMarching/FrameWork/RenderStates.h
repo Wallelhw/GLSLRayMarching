@@ -254,7 +254,7 @@ public:
 	void Apply() const
 	{
 		blendState.Apply();
-		clearState.Apply();
+		//clearState.Apply();
 		cullFaceState.Apply();
 		depthTestState.Apply();
 		polygonModeState.Apply();
@@ -265,7 +265,7 @@ public:
 	}
 
 	BlendState blendState;
-	ClearState clearState;
+	//ClearState clearState;
 	CullFaceState cullFaceState;
 	DepthTestState depthTestState;
 	PolygonModeState polygonModeState;

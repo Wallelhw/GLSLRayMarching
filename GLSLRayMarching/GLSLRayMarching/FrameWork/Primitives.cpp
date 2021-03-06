@@ -98,7 +98,7 @@ Primitives& Primitives::Begin()
 
 Primitives& Primitives::FillVertices(unsigned int index_, int elementCount_, VertexAttribute::DataType type_, bool normalized_, unsigned int stride_, unsigned int divisor_, const void* vertices_, int verticesCount_)
 {
-	if (vbos.find(index_) == vbos.end())
+	if (vbos.find(index_) != vbos.end())
 	{
 		vbos.erase(index_);
 		vertexAttributes.erase(index_);
