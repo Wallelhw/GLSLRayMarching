@@ -9,6 +9,7 @@
 #include "Vector4.h"
 #include "Matrix4.h"
 #include "GUI.h"
+#include "Camera.h"
 
 #define SCR_WIDTH (800*2)
 #define SCR_HEIGHT (400*2)
@@ -152,7 +153,7 @@ public:
 #define USE_UNIFORM_BLOCK
 #ifdef USE_UNIFORM_BLOCK
 		TestTransformData transformData;
-		transformData.viewTransform = camera.GetViewTransform().Transpose();
+		transformData.viewTransform = camera.GetInverseGlobalTransform().Transpose();
 		transformData.projTransform = camera.GetProjectionTransform().Transpose();
 		transformData.lod = lod;
 		transformData.ratio = ratio / 100.0f;
@@ -169,8 +170,16 @@ public:
 
 	virtual bool OnUpdate() override
 	{
-		unsigned int count = geometryTextureShaderProgram.GetActiveUniformCount();
+		ClearState clearState;
+		clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+		clearState.clearDepth = 1.0f;
+		clearState.clearStencil = 0;
+		clearState.enableClearColor = true;
+		clearState.enableClearDepth = true;
+		clearState.enableClearStencil = true;
+		clearState.Apply();
 
+		unsigned int count = geometryTextureShaderProgram.GetActiveUniformCount();
 		std::string name;
 		UniformType uniformType;
 		int size;
@@ -188,11 +197,11 @@ public:
 		test1 += 1;
 		//worldTransform.SetTranslate(test1, 0, 0);
 		worldTransform.SetTranslateRotXYZScale(0, 0, 0, 0, test1, 0, 6.0);
-		camera.SetWorldTransform(worldTransform);
+		camera.SetLocalTransform(worldTransform);
 
 		Matrix4 cameraTransform;
 		cameraTransform.SetLookAt(Vector3(5, 5, 5), Vector3(0, 0, 0), Vector3(0, 1, 0));
-		camera.SetWorldTransform(cameraTransform);
+		camera.SetLocalTransform(cameraTransform);
 		
 		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 1000.0f);
 
@@ -202,13 +211,6 @@ public:
 		renderStates.scissorTestState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
 		renderStates.viewportState.pos = Vector2(0, 0);
 		renderStates.viewportState.size = Vector2(SCR_WIDTH, SCR_HEIGHT);
-
-		renderStates.clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
-		renderStates.clearState.clearDepth = 1.0f;
-		renderStates.clearState.clearStencil = 0;
-		renderStates.clearState.enableClearColor = true;
-		renderStates.clearState.enableClearDepth = true;
-		renderStates.clearState.enableClearStencil = true;
 
 		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
 		if (wireframe)

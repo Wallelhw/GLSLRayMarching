@@ -180,6 +180,7 @@
     <ClCompile Include="Capsule3.cpp" />
     <ClCompile Include="ColorRGBA.cpp" />
     <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="Frame3.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FrameWork.cpp" />
     <ClCompile Include="Frustum.cpp" />
@@ -216,9 +217,11 @@
   <ItemGroup>
     <ClInclude Include="AABB3.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Capsule3.h" />
     <ClInclude Include="ColorRGBA.h" />
     <ClInclude Include="FileIO.h" />
+    <ClInclude Include="Frame3.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FrameWork.h" />
     <ClInclude Include="Frustum.h" />

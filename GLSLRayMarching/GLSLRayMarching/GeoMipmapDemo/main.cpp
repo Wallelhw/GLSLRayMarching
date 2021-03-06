@@ -11,6 +11,10 @@
 #include "GUI.h"
 #include "AABB3.h"
 #include "GeoMipmap.h"
+#include "Camera.h"
+
+#define SCR_WIDTH (800*2)
+#define SCR_HEIGHT (400*2)
 
 template<class T>
 class Array2D
@@ -225,9 +229,18 @@ public:
 
 	virtual bool OnUpdate() override
 	{
+		ClearState clearState;
+		clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+		clearState.clearDepth = 1.0f;
+		clearState.clearStencil = 0;
+		clearState.enableClearColor = true;
+		clearState.enableClearDepth = true;
+		clearState.enableClearStencil = true;
+		clearState.Apply();
+
 		UpdateCamera();
 
-		geoMipmap.Update(camera);
+		geoMipmap.Update(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
 
 		return true;
 	}
@@ -284,7 +297,7 @@ public:
 
 		Matrix4 cameraTransform;
 		cameraTransform.SetLookAt(pos, obj, Vector3::UnitY);
-		camera.SetWorldTransform(cameraTransform);
+		camera.SetLocalTransform(cameraTransform);
 		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 5000.0f);
 	}
 private:
@@ -294,7 +307,6 @@ private:
 	float theta;
 
 	GeoMipmap<Vector2> geoMipmap;
-	//MorphQuad<Vector2> morphQuad;
 };
 
 int main(int argc, char* argv[])
