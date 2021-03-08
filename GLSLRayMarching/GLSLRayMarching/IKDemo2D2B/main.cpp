@@ -245,27 +245,19 @@ public:
 	}
 
 	void SetPositions(const Vector2& joint0Position_, 
-					  const Vector2& joint1Position_, const Vector2& effectorPosition_)
+					  const Vector2& joint1Position_, 
+					  const Vector2& joint2Position_,
+					  const Vector2& effectorPosition_)
 	{
 		root = joint0Position_;
 		length[0] = (joint1Position_ - joint0Position_).Length(); // c
-		length[1] = (effectorPosition_ - joint1Position_).Length(); // a
+		length[1] = (joint2Position_ - joint1Position_).Length(); // c
+		length[2] = (effectorPosition_ - joint2Position_).Length(); // a
 
-		Vector2 targetToBase = effectorPosition_ - joint0Position_;
-		float targetToBaseLength = targetToBase.Length();
-		float cosAlpha = (Math::Sqr(targetToBaseLength) + Math::Sqr(length[0]) - Math::Sqr(length[1])) / (2.0 * targetToBaseLength * length[0]);
-		float alpha = Math::ACos(cosAlpha) * Math::Radian2Degree;
-
-		// Inner angle beta
-		float cosBeta = (Math::Sqr(length[1]) + Math::Sqr(length[0]) - Math::Sqr(targetToBaseLength)) / (2.0 * length[1] * length[0]);
-		float beta = Math::ACos(cosBeta) * Math::Radian2Degree;
-
-		// Angle from Joint0 and Target
-		float atan = Math::ATan2(targetToBase.Y(), targetToBase.X()) * Math::Radian2Degree;
-		
 		Begin(5, 5).
-			PushValue(10).
-			PushValue(10).
+			PushValue(0).
+			PushValue(0).
+			PushValue(0).
 		End();
 	}
 
@@ -273,7 +265,11 @@ public:
 	{
 		Matrix4 m;
 
-		Vector3 hand = Vector3(length[1], 0, 0);
+		Vector3 hand = Vector3(length[2], 0, 0);
+		m.SetRotateZ(values[2]);
+		hand = m * hand;
+
+		hand += Vector3(length[1], 0.0, 0.0);
 		m.SetRotateZ(values[1]);
 		hand = m * hand;
 
@@ -281,7 +277,7 @@ public:
 		m.SetRotateZ(values[0]);
 		hand = m * hand;
 
-		return (Vector2(hand.X(), hand.Y()) - target).Length();
+		return (Vector2(hand.X(), hand.Y()) + root - target).Length();
 	}
 
 	const Vector2& GetRoot() const
@@ -300,7 +296,7 @@ public:
 	}
 private:
 	Vector2 root;
-	float length[2];
+	float length[3];
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -337,7 +333,7 @@ public:
 		if (!ikChain2D.Create())
 			return false;
 #else
-		ikChain2D.SetPositions(Vector2(0, 0), Vector2(3, 3), Vector2(6, -2));
+		ikChain2D.SetPositions(Vector2(1, 10), Vector2(3, 3), Vector2(6, -2), Vector2(8, -2));
 		if (!ikChain2D.Create())
 			return false;
 #endif
@@ -345,9 +341,10 @@ public:
 		{
 			ColorRGBA(1.0, 0.0, 0.0, 1.0),
 			ColorRGBA(0.0, 0.0, 1.0, 1.0),
+			ColorRGBA(0.0, 1.0, 0.0, 1.0),
 		};
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			bool success = shape[i].
 				Begin().
@@ -379,7 +376,7 @@ public:
 		clearState.enableClearDepth = true;
 		clearState.enableClearStencil = true;
 		clearState.Apply();
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			shape[i].Render(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
 
 		return true;
@@ -387,7 +384,7 @@ public:
 
 	void OnDestroy() override
 	{
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			shape[i].Destroy();
 	}
 
@@ -425,7 +422,7 @@ public:
 
 		ikChain2D.Update(targetPosition);
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -502,7 +499,7 @@ private:
 #else
 	IKChain2DGradientDescent1 ikChain2D;
 #endif
-	Shape<IKDemo2D2BData> shape[2];
+	Shape<IKDemo2D2BData> shape[3];
 };
 
 int main(int argc, char* argv[])
