@@ -23,6 +23,9 @@
     <Filter Include="Source Files\Graphics\Primitive">
       <UniqueIdentifier>{6638dcd5-15c0-4c14-a32d-0e71cc467715}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System\Service">
+      <UniqueIdentifier>{556045b6-bb04-4a23-a11b-0734f5901f85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -138,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="Frame3.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Service.cpp">
+      <Filter>Source Files\System\Service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -269,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="GradientDescent.h">
       <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="Service.h">
+      <Filter>Source Files\System\Service</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

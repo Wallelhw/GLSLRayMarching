@@ -205,6 +205,7 @@
     <ClCompile Include="Rect2.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Segment3.cpp" />
+    <ClCompile Include="Service.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Sphere3.cpp" />
     <ClCompile Include="System.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="Rect2.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Segment3.h" />
+    <ClInclude Include="Service.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere3.h" />

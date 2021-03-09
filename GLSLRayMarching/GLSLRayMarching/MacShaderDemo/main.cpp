@@ -1672,7 +1672,7 @@ public:
 		//return macShaderDemo.Create("Demos/PathTracings/Bidirectional path tracing");
 		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 1");
 		//return macShaderDemo.Create("Demos/PathTracings/Demofox Path Tracing 2");
-		//return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
+		return macShaderDemo.Create("Demos/PathTracings/Path Tracer MIS");
 		//return macShaderDemo.Create("Demos/PathTracings/PBR Material Gold");
 		//return macShaderDemo.Create("Demos/PathTracings/Room DI");
 		//return macShaderDemo.Create("Demos/Post process - SSAO");
@@ -1690,14 +1690,14 @@ public:
 		//return macShaderDemo.Create("Demos/Terrains/Rainforest");
 		//return macShaderDemo.Create("Demos/Terrains/Sirenian Dawn");
 
-		return macShaderDemo.Create("Demos/Waters/RiverGo");
-		return macShaderDemo.Create("Demos/Waters/Oceanic");
-		return macShaderDemo.Create("Demos/Waters/Ocean");
-		return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
-		return macShaderDemo.Create("Demos/Waters/Water World");
-		return macShaderDemo.Create("Demos/Wave Propagation Effect");
-		return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
-		return macShaderDemo.Create("Demos/Scattering/VolumetricIntegration");
+		//return macShaderDemo.Create("Demos/Waters/RiverGo");
+		//return macShaderDemo.Create("Demos/Waters/Oceanic");
+		//return macShaderDemo.Create("Demos/Waters/Ocean");
+		//return macShaderDemo.Create("Demos/Waters/Very fast procedural ocean");
+		//return macShaderDemo.Create("Demos/Waters/Water World");
+		//return macShaderDemo.Create("Demos/Wave Propagation Effect");
+		//return macShaderDemo.Create("Demos/Beneath the Sea God Ray");
+		//return macShaderDemo.Create("Demos/Scattering/VolumetricIntegration");
 		return macShaderDemo.Create("Demos/Waters/Spout");
 	}
 
