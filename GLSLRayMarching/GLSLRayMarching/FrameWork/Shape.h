@@ -51,65 +51,72 @@ public:
 		return primitives;
 	}
 
-	static bool AddXYRect(std::vector<Vector3>& vertices_, const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
-	{
-		Vector3 halfSize = size_ * 0.5f;
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		return true;
-	}
-
-	static bool AddYZRect(std::vector<Vector3>& vertices_, const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
-	{
-		Vector3 halfSize = size_ * 0.5f;
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		return true;
-	}
-
-	static bool AddZXRect(std::vector<Vector3>& vertices_, const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
-	{
-		Vector3 halfSize = size_ * 0.5f;
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		vertices_.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
-		vertices_.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
-
-		return true;
-	}
-
-	static bool AddBox(std::vector<Vector3>& vertices_, const Vector3& size_)
-	{
-		return true;
-	}
-
-	static bool AddTriangle(std::vector<Vector3>& vertices_, const Vector3& v0_, const Vector3& v1_, const Vector3& v2_)
-	{
-		vertices_.push_back(v0_);
-		vertices_.push_back(v1_);
-		vertices_.push_back(v2_);
-
-		return true;
-	}
-	
 	#define USE_UNIFORM_BLOCK
 
-	bool Create(std::vector<Vector3>& vertices)
+	Shape& Begin()
+	{
+		vertices.clear();
+
+		return *this;
+	}
+
+	Shape& XYRect(const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
+	{
+		Vector3 halfSize = size_ * 0.5f;
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		return *this;
+	}
+
+	Shape& YZRect(const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
+	{
+		Vector3 halfSize = size_ * 0.5f;
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), -halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		return *this;
+	}
+
+	Shape& ZXRect(const Vector3& size_, const Vector3& pivot_ = Vector3::Zero)
+	{
+		Vector3 halfSize = size_ * 0.5f;
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		vertices.push_back(Vector3(-halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), -halfSize.Z() - pivot_.Z()));
+		vertices.push_back(Vector3(+halfSize.X() - pivot_.X(), +halfSize.Y() - pivot_.Y(), +halfSize.Z() - pivot_.Z()));
+
+		return *this;
+	}
+
+	Shape& Box(const Vector3& size_)
+	{
+		return *this;
+	}
+
+	Shape& AddTriangle(const Vector3& v0_, const Vector3& v1_, const Vector3& v2_)
+	{
+		vertices.push_back(v0_);
+		vertices.push_back(v1_);
+		vertices.push_back(v2_);
+
+		return *this;
+	}
+
+	bool End()
 	{
 		////////////////////////////////////////////////////////////
 		bool success = primitives
@@ -120,6 +127,7 @@ public:
 		{
 			return false;
 		}
+		vertices.clear();
 
 		////////////////////////////////////////////////////////////
 		renderStates.scissorTestState.enabled = true;
@@ -201,6 +209,8 @@ private:
 	Buffer shaderStorageBlockBuffer;
 	ShaderProgram shaderProgram;
 	Primitives primitives;
+
+	std::vector<Vector3> vertices;
 };
 
 #endif

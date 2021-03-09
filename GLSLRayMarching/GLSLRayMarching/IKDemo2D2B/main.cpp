@@ -12,333 +12,11 @@
 #include "AABB3.h"
 #include "Shape.h"
 #include "Camera.h"
+#include "IK2DNJoint.h"
+#include "IK2D2Joint.h"
 
 #define SCR_WIDTH (800*2)
 #define SCR_HEIGHT (400*2)
-
-class IKChain2DBase
-{
-public:
-	IKChain2DBase()
-	{
-	}
-
-	virtual ~IKChain2DBase()
-	{
-	}
-
-	bool Create()
-	{
-		return OnCreate();
-	}
-
-	void Update(const Vector2& targetPosition)
-	{
-		OnUpdate(targetPosition);
-	}
-
-	void Destroy()
-	{
-		OnDestroy();
-	}
-protected:
-	virtual bool OnCreate() = 0;
-	virtual void OnUpdate(const Vector2& targetPosition) = 0;
-	virtual void OnDestroy() = 0;
-private:
-};
-
-class IKChain2D2B : public IKChain2DBase
-{
-public:
-	IKChain2D2B()
-	{
-	}
-
-	virtual ~IKChain2D2B()
-	{
-	}
-
-	void SetPositions(const Vector2& joint0Position_, const Vector2& joint1Position_, const Vector2& effectorPosition_)
-	{
-		joint0Position = joint0Position_;
-		joint1Position = joint1Position_;
-		effectorPosition = effectorPosition_;
-
-		length[0] = (joint1Position - joint0Position).Length(); // c
-		length[1] = (effectorPosition - joint1Position).Length(); // a
-	}
-
-	virtual bool OnCreate() override
-	{
-		return true;
-	}
-
-	virtual void OnUpdate(const Vector2& targetPosition) override
-	{
-		// Distance from Joint0 to Target
-		Vector2 targetToBase = (targetPosition - joint0Position);
-		float targetToBaseLength = targetToBase.Length();
-
-		// Inner angle alpha
-		float cosAlpha = (Math::Sqr(targetToBaseLength) + Math::Sqr(length[0]) - Math::Sqr(length[1])) / (2.0 * targetToBaseLength * length[0]);
-		float alpha = Math::ACos(cosAlpha) * Math::Radian2Degree;
-
-		// Inner angle beta
-		float cosBeta = (Math::Sqr(length[1]) + Math::Sqr(length[0]) - Math::Sqr(targetToBaseLength)) / (2.0 * length[1] * length[0]);
-		float beta = Math::ACos(cosBeta) * Math::Radian2Degree;
-
-		// Angle from Joint0 and Target
-		float atan = Math::ATan2(targetToBase.Y(), targetToBase.X()) * Math::Radian2Degree;
-
-		if (length[1] + length[0] < targetToBaseLength)
-		{
-			jointAngle[0] = atan;
-			jointAngle[1] = 0;
-		}
-		else
-		{
-			jointAngle[0] = atan - alpha; // Angle A
-			jointAngle[1] = 180 - beta; // Angle B
-		}
-
-		// Platform::Debug("%f %f %f %f %f %f\n", targetPosition.X(), targetPosition.Y(), jointAngle[0], jointAngle[1]);
-	}
-
-	virtual void OnDestroy() override
-	{
-	}
-
-	const Vector2& GetRoot() const
-	{
-		return joint0Position;
-	}
-
-	float GetLength(int i)
-	{
-		return length[i];
-	}
-
-	float GetJointAngle(int i)
-	{
-		return jointAngle[i];
-	}
-
-	float GetJointCount() const
-	{
-		return 2;
-	}
-
-	const Vector2& GetEffectorToBase()
-	{
-		return effectorPosition - joint0Position;
-	}
-
-	Vector2 joint0Position;
-	Vector2 joint1Position;
-	Vector2 effectorPosition;
-
-	float length[2];
-	float jointAngle[2];
-};
-
-class GradientDescent : public IKChain2DBase
-{
-public:
-	GradientDescent()
-	{
-	}
-
-	virtual ~GradientDescent()
-	{
-	}
-
-	virtual bool OnCreate() override
-	{
-		return true;
-	}
-
-	virtual void OnUpdate(const Vector2& targetPosition) override
-	{
-		for (int i = 0; i < iteration; i++)
-		{
-			GradientDecent(targetPosition, values);
-		}
-		/*
-		for (int i = 0; i < values.size(); i++)
-		{
-			Platform::Debug("%f, ", values[i]);
-		}
-		Platform::Debug("\n");
-		*/
-	}
-
-	virtual void OnDestroy() override
-	{
-	}
-
-	GradientDescent& Begin(float sampleDistance_, float learningRate_, float iteration_=10)
-	{
-		sampleDistance = sampleDistance_;
-		learningRate = learningRate_;
-		iteration = iteration_;
-
-		values.clear();
-
-		return *this;
-	}
-
-	GradientDescent& PushValue(float jointValue)
-	{
-		values.push_back(jointValue);
-		
-		return *this;
-	}
-
-	bool End()
-	{
-		return true;
-	}
-
-	float GetValue(int i) const
-	{
-		return values[i];
-	}
-	
-	int GetValueCount() const
-	{
-		return values.size();
-	}
-protected:
-	virtual float CostFunction(const Vector2& target, const std::vector<float>& values) = 0;
-
-private:
-	float GetPartialGradient(const Vector2& target, std::vector<float>& values, int i)
-	{
-		float tempvalue = values[i];
-
-		float f_x = CostFunction(target, values);
-		
-		values[i] += sampleDistance;
-		float f_x_plus_d = CostFunction(target, values);
-
-		float gradient = (f_x_plus_d - f_x) / sampleDistance;
-
-		values[i] = tempvalue;
-
-		return gradient;
-	}
-
-	void GradientDecent(const Vector2& target, std::vector<float>& values)
-	{
-		for (int i = 0; i < values.size(); i++)
-		{
-			values[i] -= learningRate * GetPartialGradient(target, values, i);
-		}
-	}
-private:
-	float sampleDistance;
-	float learningRate;
-	int iteration;
-	std::vector<float> values;
-};
-
-class IKChain2DNB : public GradientDescent
-{
-public:
-	IKChain2DNB()
-	{
-	}
-
-	virtual ~IKChain2DNB()
-	{
-	}
-
-	IKChain2DNB& Begin(float sampleDistance_, float learningRate_)
-	{
-		GradientDescent::Begin(sampleDistance_, learningRate_);
-		jointPositions.clear();
-
-		return *this;
-	}
-
-	IKChain2DNB& AddJoint(const Vector2& jointPosition_)
-	{
-		GradientDescent::PushValue(0);
-		jointPositions.push_back(jointPosition_);
-
-		return *this;
-	}
-
-	bool End(const Vector2& effectorPosition_)
-	{
-		effectorPosition = effectorPosition_;
-		return GradientDescent::End();
-	}
-
-	virtual float CostFunction(const Vector2& target, const std::vector<float>& values) override
-	{
-		Matrix4 m;
-
-		Vector3 hand;
-		for (int i = jointPositions.size()-1; i>=0; i--)
-		{
-			if(i== jointPositions.size() - 1)
-				hand = Vector3(GetLength(i), 0, 0);
-			else
-				hand += Vector3(GetLength(i), 0, 0);
-			m.SetRotateZ(values[i]);
-			hand = m * hand;
-		}
-		
-		/*
-		Vector3 hand = Vector3(GetLength(2), 0, 0);
-		m.SetRotateZ(values[2]);
-		hand = m * hand;
-
-		hand += Vector3(GetLength(1), 0.0, 0.0);
-		m.SetRotateZ(values[1]);
-		hand = m * hand;
-
-		hand += Vector3(GetLength(0), 0.0, 0.0);
-		m.SetRotateZ(values[0]);
-		hand = m * hand;
-		*/
-
-		return (Vector2(hand.X(), hand.Y()) + GetRoot() - target).Length();
-	}
-
-	const Vector2& GetRoot() const
-	{
-		return jointPositions[0];
-	}
-
-	const Vector2& GetEffectorPosition() const
-	{
-		return effectorPosition;
-	}
-
-	float GetLength(int i) const
-	{
-		if(i < jointPositions.size() - 1)
-			return (jointPositions[i + 1] - jointPositions[i]).Length();
-		else
-			return (effectorPosition - jointPositions[i]).Length();
-	}
-
-	float GetJointCount() const
-	{
-		return GetValueCount();
-	}
-
-	float GetJointAngle(int i) const
-	{
-		return GetValue(i);
-	}
-private:
-	Vector2 effectorPosition;
-	std::vector<Vector2> jointPositions;
-};
 
 //////////////////////////////////////////////////////////////////////
 class IKDemo2DNB : public FrameWork
@@ -365,7 +43,7 @@ public:
 	{
 	}
 
-#define JOINT_COUNT 4
+#define JOINT_COUNT 6
 
 	virtual bool OnCreate() override
 	{
@@ -374,7 +52,7 @@ public:
 		ikChain2D.Begin(1, 10);
 		for (int i = 0; i < JOINT_COUNT; i++)
 		{
-			ikChain2D.AddJoint(pos);
+			ikChain2D.AddJoint(pos, i==0?-90:-45, i == 0 ? 90 : 45);
 			pos += Vector2(Math::IntervalRandom(-2, 2), Math::IntervalRandom(-2, 2));
 		}
 		ikChain2D.End(pos);
@@ -386,7 +64,7 @@ public:
 		{
 			bool success = 
 				shapes[i].Begin().
-					AddXYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
+					XYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
 				End();
 
 			if (!success)
@@ -503,7 +181,7 @@ private:
 	float phi;
 	float theta;
 
-	IKChain2DNB ikChain2D;
+	IK2DNJoint ikChain2D;
 	std::vector<Shape<IKDemo2DNBData>> shapes;
 };
 
@@ -543,7 +221,7 @@ public:
 		{
 			bool success =
 				shapes[i].Begin().
-				AddXYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
+					XYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
 				End();
 
 			if (!success)
@@ -660,7 +338,7 @@ private:
 	float phi;
 	float theta;
 
-	IKChain2D2B ikChain2D;
+	IK2D2Joint ikChain2D;
 	std::vector<Shape<IKDemo2D2BData>> shapes;
 };
 
