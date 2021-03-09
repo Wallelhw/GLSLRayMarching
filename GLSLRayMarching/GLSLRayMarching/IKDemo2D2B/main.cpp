@@ -160,23 +160,28 @@ public:
 
 	virtual void OnUpdate(const Vector2& targetPosition) override
 	{
-		GradientDecent(targetPosition, values);
-
+		for (int i = 0; i < iteration; i++)
+		{
+			GradientDecent(targetPosition, values);
+		}
+		/*
 		for (int i = 0; i < values.size(); i++)
 		{
 			Platform::Debug("%f, ", values[i]);
 		}
 		Platform::Debug("\n");
+		*/
 	}
 
 	virtual void OnDestroy() override
 	{
 	}
 
-	GradientDescent& Begin(float sampleDistance_, float learningRate_)
+	GradientDescent& Begin(float sampleDistance_, float learningRate_, float iteration_=10)
 	{
 		sampleDistance = sampleDistance_;
 		learningRate = learningRate_;
+		iteration = iteration_;
 
 		values.clear();
 
@@ -234,6 +239,7 @@ private:
 private:
 	float sampleDistance;
 	float learningRate;
+	int iteration;
 	std::vector<float> values;
 };
 
