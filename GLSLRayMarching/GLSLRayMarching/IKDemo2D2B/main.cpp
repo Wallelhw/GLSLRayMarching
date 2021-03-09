@@ -48,14 +48,14 @@ protected:
 private:
 };
 
-class IKChain2D : public IKChain2DBase
+class IKChain2D2B : public IKChain2DBase
 {
 public:
-	IKChain2D()
+	IKChain2D2B()
 	{
 	}
 
-	virtual ~IKChain2D()
+	virtual ~IKChain2D2B()
 	{
 	}
 
@@ -124,6 +124,11 @@ public:
 		return jointAngle[i];
 	}
 
+	float GetJointCount() const
+	{
+		return 2;
+	}
+
 	const Vector2& GetEffectorToBase()
 	{
 		return effectorPosition - joint0Position;
@@ -137,14 +142,14 @@ public:
 	float jointAngle[2];
 };
 
-class IKChain2DGradientDescent : public IKChain2DBase
+class GradientDescent : public IKChain2DBase
 {
 public:
-	IKChain2DGradientDescent()
+	GradientDescent()
 	{
 	}
 
-	virtual ~IKChain2DGradientDescent()
+	virtual ~GradientDescent()
 	{
 	}
 
@@ -161,7 +166,6 @@ public:
 		{
 			Platform::Debug("%f, ", values[i]);
 		}
-
 		Platform::Debug("\n");
 	}
 
@@ -169,7 +173,7 @@ public:
 	{
 	}
 
-	IKChain2DGradientDescent& Begin(float sampleDistance_, float learningRate_)
+	GradientDescent& Begin(float sampleDistance_, float learningRate_)
 	{
 		sampleDistance = sampleDistance_;
 		learningRate = learningRate_;
@@ -179,9 +183,9 @@ public:
 		return *this;
 	}
 
-	IKChain2DGradientDescent& PushValue(float value)
+	GradientDescent& PushValue(float jointValue)
 	{
-		values.push_back(value);
+		values.push_back(jointValue);
 		
 		return *this;
 	}
@@ -233,61 +237,92 @@ private:
 	std::vector<float> values;
 };
 
-class IKChain2DGradientDescent1 : public IKChain2DGradientDescent
+class IKChain2DNB : public GradientDescent
 {
 public:
-	IKChain2DGradientDescent1()
+	IKChain2DNB()
 	{
 	}
 
-	virtual ~IKChain2DGradientDescent1()
+	virtual ~IKChain2DNB()
 	{
 	}
 
-	void SetPositions(const Vector2& joint0Position_, 
-					  const Vector2& joint1Position_, 
-					  const Vector2& joint2Position_,
-					  const Vector2& effectorPosition_)
+	IKChain2DNB& Begin(float sampleDistance_, float learningRate_)
 	{
-		root = joint0Position_;
-		length[0] = (joint1Position_ - joint0Position_).Length(); // c
-		length[1] = (joint2Position_ - joint1Position_).Length(); // c
-		length[2] = (effectorPosition_ - joint2Position_).Length(); // a
+		GradientDescent::Begin(sampleDistance_, learningRate_);
+		jointPositions.clear();
 
-		Begin(5, 5).
-			PushValue(0).
-			PushValue(0).
-			PushValue(0).
-		End();
+		return *this;
+	}
+
+	IKChain2DNB& AddJoint(const Vector2& jointPosition_)
+	{
+		GradientDescent::PushValue(0);
+		jointPositions.push_back(jointPosition_);
+
+		return *this;
+	}
+
+	bool End(const Vector2& effectorPosition_)
+	{
+		effectorPosition = effectorPosition_;
+		return GradientDescent::End();
 	}
 
 	virtual float CostFunction(const Vector2& target, const std::vector<float>& values) override
 	{
 		Matrix4 m;
 
-		Vector3 hand = Vector3(length[2], 0, 0);
+		Vector3 hand;
+		for (int i = jointPositions.size()-1; i>=0; i--)
+		{
+			if(i== jointPositions.size() - 1)
+				hand = Vector3(GetLength(i), 0, 0);
+			else
+				hand += Vector3(GetLength(i), 0, 0);
+			m.SetRotateZ(values[i]);
+			hand = m * hand;
+		}
+		
+		/*
+		Vector3 hand = Vector3(GetLength(2), 0, 0);
 		m.SetRotateZ(values[2]);
 		hand = m * hand;
 
-		hand += Vector3(length[1], 0.0, 0.0);
+		hand += Vector3(GetLength(1), 0.0, 0.0);
 		m.SetRotateZ(values[1]);
 		hand = m * hand;
 
-		hand += Vector3(length[0], 0.0, 0.0);
+		hand += Vector3(GetLength(0), 0.0, 0.0);
 		m.SetRotateZ(values[0]);
 		hand = m * hand;
+		*/
 
-		return (Vector2(hand.X(), hand.Y()) + root - target).Length();
+		return (Vector2(hand.X(), hand.Y()) + GetRoot() - target).Length();
 	}
 
 	const Vector2& GetRoot() const
 	{
-		return root;
+		return jointPositions[0];
+	}
+
+	const Vector2& GetEffectorPosition() const
+	{
+		return effectorPosition;
 	}
 
 	float GetLength(int i) const
 	{
-		return length[i];
+		if(i < jointPositions.size() - 1)
+			return (jointPositions[i + 1] - jointPositions[i]).Length();
+		else
+			return (effectorPosition - jointPositions[i]).Length();
+	}
+
+	float GetJointCount() const
+	{
+		return GetValueCount();
 	}
 
 	float GetJointAngle(int i) const
@@ -295,15 +330,15 @@ public:
 		return GetValue(i);
 	}
 private:
-	Vector2 root;
-	float length[3];
+	Vector2 effectorPosition;
+	std::vector<Vector2> jointPositions;
 };
 
 //////////////////////////////////////////////////////////////////////
-class IKDemo2D2B : public FrameWork
+class IKDemo2DNB : public FrameWork
 {
 public:
-	class IKDemo2D2BData
+	class IKDemo2DNBData
 	{
 	public:
 		Matrix4 worldTransform;
@@ -312,7 +347,7 @@ public:
 		ColorRGBA color;
 	};
 
-	IKDemo2D2B()
+	IKDemo2DNB()
 		: FrameWork("IKDemo2D2B")
 		, pos(100, 600, 100)
 		, phi(0.7343)
@@ -320,44 +355,42 @@ public:
 	{
 	}
 
-	virtual ~IKDemo2D2B()
+	virtual ~IKDemo2DNB()
 	{
 	}
 
-#define USE_GRADIENT
+#define JOINT_COUNT 4
 
 	virtual bool OnCreate() override
 	{
-#ifndef USE_GRADIENT
-		ikChain2D.SetPositions(Vector2(0, 0), Vector2(3, 3), Vector2(6, -2));
-		if (!ikChain2D.Create())
-			return false;
-#else
-		ikChain2D.SetPositions(Vector2(1, 10), Vector2(3, 3), Vector2(6, -2), Vector2(8, -2));
-		if (!ikChain2D.Create())
-			return false;
-#endif
-		ColorRGBA colors[] =
-		{
-			ColorRGBA(1.0, 0.0, 0.0, 1.0),
-			ColorRGBA(0.0, 0.0, 1.0, 1.0),
-			ColorRGBA(0.0, 1.0, 0.0, 1.0),
-		};
+		Vector2 pos(1, 3);
 
-		for (int i = 0; i < 3; i++)
+		ikChain2D.Begin(1, 10);
+		for (int i = 0; i < JOINT_COUNT; i++)
 		{
-			bool success = shape[i].
-				Begin().
-				AddXYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
+			ikChain2D.AddJoint(pos);
+			pos += Vector2(Math::IntervalRandom(-2, 2), Math::IntervalRandom(-2, 2));
+		}
+		ikChain2D.End(pos);
+		if (!ikChain2D.Create())
+			return false;
+
+		shapes.resize(ikChain2D.GetJointCount());
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			bool success = 
+				shapes[i].Begin().
+					AddXYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
 				End();
 
 			if (!success)
 				return false;
 
-			shape[i].GetUniformBlockData().color = colors[i];
+			ColorRGBA color = ColorRGBA(Math::UnitRandom(), Math::UnitRandom(), Math::UnitRandom());
+			shapes[i].GetUniformBlockData().color = color;
 
 			if (i - 1 >= 0)
-				shape[i - 1].AddChild(&shape[i]);
+				shapes[i - 1].AddChild(&shapes[i]);
 		}
 
 		return true;
@@ -366,82 +399,15 @@ public:
 	virtual bool OnUpdate() override
 	{
 		UpdateCamera();
+		
 		UpdateJoint();
 
-		ClearState clearState;
-		clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
-		clearState.clearDepth = 1.0f;
-		clearState.clearStencil = 0;
-		clearState.enableClearColor = true;
-		clearState.enableClearDepth = true;
-		clearState.enableClearStencil = true;
-		clearState.Apply();
-		for (int i = 0; i < 3; i++)
-			shape[i].Render(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
-
 		return true;
-	}
-
-	void OnDestroy() override
-	{
-		for (int i = 0; i < 3; i++)
-			shape[i].Destroy();
-	}
-
-	void UpdateJoint()
-	{
-#ifndef USE_GRADIENT
-		Vector4 mouse = GetMouse();
-		Vector2 targetPosition = Vector2
-		(
-			-(mouse.X() - SCR_WIDTH / 2) / (SCR_WIDTH / 2) * 10.0f,
-			(mouse.Y() - SCR_HEIGHT / 2) / (SCR_HEIGHT / 2) * (10.0f * SCR_HEIGHT) / SCR_WIDTH
-		);
-
-		ikChain2D.Update(targetPosition);
-
-		for (int i = 0; i < 2; i++)
-		{
-			if (i == 0)
-			{
-				shape[i].SetTranslateRotZXYScale(ikChain2D.GetRoot().X(), ikChain2D.GetRoot().Y(), 0,
-					ikChain2D.GetJointAngle(i), 0, 0, 1.0);
-	}
-			else
-			{
-				shape[i].SetTranslateRotZXYScale((i - 1 >= 0 ? ikChain2D.GetLength(i - 1) : 0), 0, 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
-			}
-}
-#else
-		Vector4 mouse = GetMouse();
-		Vector2 targetPosition = Vector2
-		(
-			-(mouse.X() - SCR_WIDTH / 2) / (SCR_WIDTH / 2) * 10.0f,
-			(mouse.Y() - SCR_HEIGHT / 2) / (SCR_HEIGHT / 2) * (10.0f * SCR_HEIGHT) / SCR_WIDTH
-		);
-
-		ikChain2D.Update(targetPosition);
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (i == 0)
-			{
-				shape[i].SetTranslateRotZXYScale(ikChain2D.GetRoot().X(), ikChain2D.GetRoot().Y(), 0,
-					                                 ikChain2D.GetJointAngle(i), 0, 0, 1.0);
-			}
-			else
-			{
-				shape[i].SetTranslateRotZXYScale((i - 1 >= 0 ? ikChain2D.GetLength(i - 1) : 0), 0, 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
-			}
-		}
-#endif
 	}
 
 	void UpdateCamera()
 	{
 		Vector2 mousedelta = GetMouseDelta();
-		//Platform::Debug("%f %f\n", mousedelta.X(), mousedelta.Y());
-
 		if (GetMouseRightButtonStatus())
 		{
 			phi += mousedelta.X() / (SCR_WIDTH / 2) * 180 * Math::Degree2Radian;
@@ -488,21 +454,211 @@ public:
 		camera.SetLocalTransform(cameraTransform);
 		camera.SetOrthogonal(20.0f, (20.0f * SCR_HEIGHT) / SCR_WIDTH, 1.0f, 5000.0f);
 	}
+
+	void UpdateJoint()
+	{
+		Vector4 mouse = GetMouse();
+		Vector2 targetPosition = Vector2
+		(
+			-(mouse.X() - SCR_WIDTH / 2) / (SCR_WIDTH / 2) * 10.0f,
+			(mouse.Y() - SCR_HEIGHT / 2) / (SCR_HEIGHT / 2) * (10.0f * SCR_HEIGHT) / SCR_WIDTH
+		);
+
+		ikChain2D.Update(targetPosition);
+
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			if (i == 0)
+				shapes[i].SetTranslateRotZXYScale(ikChain2D.GetRoot().X(), ikChain2D.GetRoot().Y(), 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+			else
+				shapes[i].SetTranslateRotZXYScale((i - 1 >= 0 ? ikChain2D.GetLength(i - 1) : 0), 0, 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+		}
+
+		ClearState clearState;
+		clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+		clearState.clearDepth = 1.0f;
+		clearState.clearStencil = 0;
+		clearState.enableClearColor = true;
+		clearState.enableClearDepth = true;
+		clearState.enableClearStencil = true;
+		clearState.Apply();
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Render(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
+	}
+
+	void OnDestroy() override
+	{
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Destroy();
+	}
 private:
 	Camera camera;
 	Vector3 pos;
 	float phi;
 	float theta;
 
-#ifndef USE_GRADIENT
-	IKChain2D ikChain2D;
-#else
-	IKChain2DGradientDescent1 ikChain2D;
-#endif
-	Shape<IKDemo2D2BData> shape[3];
+	IKChain2DNB ikChain2D;
+	std::vector<Shape<IKDemo2DNBData>> shapes;
 };
 
-int main(int argc, char* argv[])
+//////////////////////////////////////////////////////////////////////
+class IKDemo2D2B : public FrameWork
+{
+public:
+	class IKDemo2D2BData
+	{
+	public:
+		Matrix4 worldTransform;
+		Matrix4 viewTransform;
+		Matrix4 projTransform;
+		ColorRGBA color;
+	};
+
+	IKDemo2D2B()
+		: FrameWork("IKDemo2D2B")
+		, pos(100, 600, 100)
+		, phi(0.7343)
+		, theta(-0.5733)
+	{
+	}
+
+	virtual ~IKDemo2D2B()
+	{
+	}
+
+	virtual bool OnCreate() override
+	{
+		ikChain2D.SetPositions(Vector2(0, 0), Vector2(3, 3), Vector2(6, -2));
+		if (!ikChain2D.Create())
+			return false;
+
+		shapes.resize(ikChain2D.GetJointCount());
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			bool success =
+				shapes[i].Begin().
+				AddXYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
+				End();
+
+			if (!success)
+				return false;
+
+			ColorRGBA color = ColorRGBA(Math::UnitRandom(), Math::UnitRandom(), Math::UnitRandom());
+			shapes[i].GetUniformBlockData().color = color;
+
+			if (i - 1 >= 0)
+				shapes[i - 1].AddChild(&shapes[i]);
+		}
+
+		return true;
+	}
+
+	virtual bool OnUpdate() override
+	{
+		UpdateCamera();
+
+		UpdateJoint();
+
+		return true;
+	}
+
+	void UpdateCamera()
+	{
+		Vector2 mousedelta = GetMouseDelta();
+		if (GetMouseRightButtonStatus())
+		{
+			phi += mousedelta.X() / (SCR_WIDTH / 2) * 180 * Math::Degree2Radian;
+			//if (phi > 180 * Math::Degree2Radian)
+				//phi = 180 * Math::Degree2Radian;
+			//if (phi < -180 * Math::Degree2Radian)
+				//phi = -180 * Math::Degree2Radian;
+
+			theta += mousedelta.Y() / (SCR_HEIGHT / 2) * 180 * Math::Degree2Radian;
+			if (theta > 89.9 * Math::Degree2Radian)
+				theta = 89.9 * Math::Degree2Radian;
+			if (theta < -89.9 * Math::Degree2Radian)
+				theta = -89.9 * Math::Degree2Radian;
+		}
+
+		Vector3 dir = Vector3(Math::Cos(theta) * Math::Cos(phi), Math::Sin(theta), Math::Cos(theta) * Math::Sin(phi)); dir.Normalize();
+		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
+		//		Platform::Debug("%f %f\n", theta, phi);
+
+		if (IsKeyPressed('W'))
+		{
+			pos += dir;
+		}
+
+		if (IsKeyPressed('S'))
+		{
+			pos -= dir;
+		}
+
+		if (IsKeyPressed('A'))
+		{
+			pos -= xAxis;
+		}
+
+		if (IsKeyPressed('D'))
+		{
+			pos += xAxis;
+		}
+		Vector3 obj = pos + dir;
+		Matrix4 cameraTransform;
+		//cameraTransform.SetLookAt(pos, obj, Vector3::UnitY);
+		//cameraTransform.SetLookAt(Vector3(10, 10, -10), Vector3::Zero, Vector3::UnitY);
+		cameraTransform.SetLookAt(Vector3(0, 0, -10), Vector3::Zero, Vector3::UnitY);
+		camera.SetLocalTransform(cameraTransform);
+		camera.SetOrthogonal(20.0f, (20.0f * SCR_HEIGHT) / SCR_WIDTH, 1.0f, 5000.0f);
+	}
+
+	void UpdateJoint()
+	{
+		Vector4 mouse = GetMouse();
+		Vector2 targetPosition = Vector2
+		(
+			-(mouse.X() - SCR_WIDTH / 2) / (SCR_WIDTH / 2) * 10.0f,
+			(mouse.Y() - SCR_HEIGHT / 2) / (SCR_HEIGHT / 2) * (10.0f * SCR_HEIGHT) / SCR_WIDTH
+		);
+
+		ikChain2D.Update(targetPosition);
+
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			if (i == 0)
+				shapes[i].SetTranslateRotZXYScale(ikChain2D.GetRoot().X(), ikChain2D.GetRoot().Y(), 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+			else
+				shapes[i].SetTranslateRotZXYScale((i - 1 >= 0 ? ikChain2D.GetLength(i - 1) : 0), 0, 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+		}
+
+		ClearState clearState;
+		clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+		clearState.clearDepth = 1.0f;
+		clearState.clearStencil = 0;
+		clearState.enableClearColor = true;
+		clearState.enableClearDepth = true;
+		clearState.enableClearStencil = true;
+		clearState.Apply();
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Render(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
+	}
+
+	void OnDestroy() override
+	{
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Destroy();
+	}
+private:
+	Camera camera;
+	Vector3 pos;
+	float phi;
+	float theta;
+
+	IKChain2D2B ikChain2D;
+	std::vector<Shape<IKDemo2D2BData>> shapes;
+};
+
+int ikDemo2D2B(int argc, char* argv[])
 {
 	IKDemo2D2B chapter;
 
@@ -514,4 +670,24 @@ int main(int argc, char* argv[])
 	chapter.Destroy();
 
 	return 0;
+}
+
+int ikDemo2DNB(int argc, char* argv[])
+{
+	IKDemo2DNB chapter;
+
+	if (!chapter.Create(SCR_WIDTH, SCR_HEIGHT))
+		return -1;
+
+	chapter.Start();
+
+	chapter.Destroy();
+
+	return 0;
+}
+
+int main(int argc, char* argv[])
+{
+	//return ikDemo2D2B(argc, argv);
+	return ikDemo2DNB(argc, argv);
 }
