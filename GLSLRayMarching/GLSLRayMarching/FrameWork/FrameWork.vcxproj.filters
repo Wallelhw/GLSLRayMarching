@@ -20,6 +20,9 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{0b892241-ed44-4780-8c0e-8285fe49ea83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Primitive">
+      <UniqueIdentifier>{6638dcd5-15c0-4c14-a32d-0e71cc467715}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -253,7 +256,19 @@
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Shape.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="IK2DBase.h">
+      <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="IK2DNJoint.h">
+      <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="IK2D2Joint.h">
+      <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="GradientDescent.h">
+      <Filter>Source Files\Graphics\Primitive</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
