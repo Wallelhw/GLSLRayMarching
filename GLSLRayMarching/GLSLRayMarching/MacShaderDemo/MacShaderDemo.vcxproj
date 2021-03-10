@@ -159,12 +159,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DefaultScene.cpp" />
+    <ClCompile Include="Mac1Scene.cpp" />
+    <ClCompile Include="Mac2Scene.cpp" />
+    <ClCompile Include="Mac3Scene.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="TestComponent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DefaultScene.h" />
+    <ClInclude Include="Mac1Scene.h" />
+    <ClInclude Include="Mac2Scene.h" />
+    <ClInclude Include="Mac3Scene.h" />
+    <ClInclude Include="TestComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -176,17 +176,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB3.cpp" />
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Capsule3.cpp" />
     <ClCompile Include="ColorRGBA.cpp" />
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Frame3.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FrameWork.cpp" />
     <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="ID.cpp" />
     <ClCompile Include="GZFileIO.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -194,16 +198,22 @@
     <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="InputStream.cpp" />
     <ClCompile Include="IO.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="OutputStream.cpp" />
+    <ClCompile Include="Physics2D.cpp" />
+    <ClCompile Include="Physics3D.cpp" />
     <ClCompile Include="Plane3.cpp" />
     <ClCompile Include="Platform.cpp" />
     <ClCompile Include="Ray3.cpp" />
     <ClCompile Include="Rect2.cpp" />
     <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="ResourceAccess.cpp" />
+    <ClCompile Include="ResourceImport.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Segment3.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -214,21 +224,26 @@
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Vector4.cpp" />
     <ClCompile Include="Primitives.cpp" />
+    <ClCompile Include="Video.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB3.h" />
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Capsule3.h" />
     <ClInclude Include="ColorRGBA.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="Frame3.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FrameWork.h" />
     <ClInclude Include="Frustum.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="GradientDescent.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="ID.h" />
     <ClInclude Include="GZFileIO.h" />
     <ClInclude Include="IK2D2Joint.h" />
     <ClInclude Include="IK2DNJoint.h" />
@@ -237,18 +252,24 @@
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="InputStream.h" />
     <ClInclude Include="IK2DBase.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Matrix4.h" />
     <ClInclude Include="OutputStream.h" />
+    <ClInclude Include="Physics2D.h" />
+    <ClInclude Include="Physics3D.h" />
     <ClInclude Include="Plane3.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Ray3.h" />
     <ClInclude Include="Rect2.h" />
     <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="ResourceAccess.h" />
+    <ClInclude Include="ResourceImport.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Segment3.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="ShaderProgram.h" />
@@ -260,6 +281,7 @@
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />
     <ClInclude Include="Primitives.h" />
+    <ClInclude Include="Video.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

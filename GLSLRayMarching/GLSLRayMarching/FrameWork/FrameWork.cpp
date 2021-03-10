@@ -6,6 +6,9 @@
 #include "imgui\imgui_impl_glfw.h"
 #include "imgui\imgui_impl_opengl3.h"
 
+#include "Service.h"
+
+/////////////////////////////////////////////////////////////////////
 class FrameWorkImpl
 {
 public:
@@ -213,9 +216,14 @@ bool FrameWork::Create(int width_, int height_)
 	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 	//IM_ASSERT(font != NULL);
 
+	if (!ServiceManager::GetInstance().Initialize())
+	{
+		return false;
+	}
+
 	if (!OnCreate())
 	{
-		Platform::Debug("Failed to init Scene\n");
+		Platform::Debug("FrameWork::Create Failed.\n");
 		return false;
 	}
 
@@ -228,6 +236,28 @@ bool FrameWork::Start()
 	{
 		impl->time = glfwGetTime();
 	}
+
+	/*
+	if (!GameObject::Manager::GetInstance().Construct())
+		return false;
+
+	if (!GameObject::Manager::GetInstance().Start())
+		return false;
+
+	if (!GameObject::Manager::GetInstance().Pause())
+		return false;
+
+	GameObject::Manager::GetInstance().Resume();
+
+	GameObject::Manager::GetInstance().Stop();
+
+	GameObject::Manager::GetInstance().Stop();
+
+	GameObject::Manager::GetInstance().Destruct();
+
+	if (!GameObject::Manager::GetInstance().Update())
+		return false;
+	*/
 
 	while (!glfwWindowShouldClose(impl->window))
 	{
@@ -242,9 +272,23 @@ bool FrameWork::Start()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		if (!ServiceManager::GetInstance().Process())
+		{
+			return false;
+		}
+
 		if (!OnUpdate())
 			return false;
 
+		static bool paused = false;
+		if (glfwGetKey(impl->window, 0x13))
+		{
+			if(!paused)
+				ServiceManager::GetInstance().Pause();
+			else
+				ServiceManager::GetInstance().Resume();
+		}
+			
 		impl->frameCounter++;
 
 		// Rendering
@@ -268,8 +312,15 @@ void FrameWork::Destroy()
 {
 	OnDestroy();
 
+	ServiceManager::GetInstance().Terminate();
+
 	glfwDestroyWindow(impl->window);
 	glfwTerminate();
+}
+
+FrameWork& FrameWork::GetInstance()
+{
+	return *instance;
 }
 
 bool FrameWork::IsKeyPressed(char key) const

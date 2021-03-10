@@ -18,7 +18,9 @@ public:
 	bool Create(int width_, int height_);
 	bool Start();
 	void Destroy();
-protected:
+
+	static FrameWork& GetInstance();
+
 	bool IsKeyPressed(char key) const;
 	bool IsKeyRelease(char key) const;
 	bool IsKeyRepeat(char key) const;
@@ -34,6 +36,7 @@ protected:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 
+protected:
 	virtual bool OnCreate() = 0;
 	virtual bool OnUpdate() = 0;
 	virtual void OnDestroy() = 0;

@@ -23,8 +23,17 @@
     <Filter Include="Source Files\Graphics\Primitive">
       <UniqueIdentifier>{6638dcd5-15c0-4c14-a32d-0e71cc467715}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\System\Service">
+    <Filter Include="Source Files\System\GameObject">
+      <UniqueIdentifier>{0131513b-f782-48f9-85fc-c6982892a1a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Services">
       <UniqueIdentifier>{556045b6-bb04-4a23-a11b-0734f5901f85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Services\Scene">
+      <UniqueIdentifier>{b0abeb3d-ea3b-4050-bb6c-c4805319d36e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Services\Scene\Service">
+      <UniqueIdentifier>{c9794010-5378-4696-9b39-2ca045180d55}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +152,40 @@
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Service.cpp">
-      <Filter>Source Files\System\Service</Filter>
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceImport.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceAccess.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics3D.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics2D.cpp">
+      <Filter>Source Files\System\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="ID.cpp">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\System\Services\Scene\Service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,7 +319,40 @@
       <Filter>Source Files\Graphics\Primitive</Filter>
     </ClInclude>
     <ClInclude Include="Service.h">
-      <Filter>Source Files\System\Service</Filter>
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Video.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceImport.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceAccess.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics3D.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics2D.h">
+      <Filter>Source Files\System\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="ID.h">
+      <Filter>Source Files\System\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Source Files\System\Services\Scene\Service</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
