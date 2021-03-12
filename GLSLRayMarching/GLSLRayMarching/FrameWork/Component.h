@@ -13,8 +13,6 @@
 #include "Frame3.h"
 #include "ID.h"
 
-#include <rttr/registration>
-
 class GameObject;
 
 class Component

@@ -5,7 +5,7 @@
 #include "ShaderProgram.h"
 #include "Primitives.h"
 #include "GUI.h"
-#include "FrameWork.h"
+#include "FrameWork2.h"
 
 #include <iostream>
 #include <fstream>
@@ -1643,10 +1643,10 @@ TestComponent::~TestComponent()
 void TestComponent::OnRender()
 {
 	macShaderDemo->Update(
-		FrameWork::GetInstance().GetWidth(), FrameWork::GetInstance().GetHeight(),
-		FrameWork::GetInstance().GetTime(), FrameWork::GetInstance().GetDeltaTime(),
-		FrameWork::GetInstance().GetMouse(), FrameWork::GetInstance().GetMouseDelta(),
-		FrameWork::GetInstance().GetFrameCounter());
+		Video::Manager::GetInstance().GetWidth(), Video::Manager::GetInstance().GetHeight(),
+		Video::Manager::GetInstance().GetTime(), Video::Manager::GetInstance().GetDeltaTime(),
+		Video::Manager::GetInstance().GetMouse(), Video::Manager::GetInstance().GetMouseDelta(),
+		Video::Manager::GetInstance().GetFrameCounter());
 }
 
 bool TestComponent::OnConstruct()
@@ -1658,7 +1658,7 @@ bool TestComponent::OnStart()
 {
 	//return macShaderDemo->Create("Demos/Noise/Perlin");//
 	//return macShaderDemo->Create("Demos/Clouds/Cheap Cloud Flythrough");//
-	return macShaderDemo->Create("Demos/Clouds/Cloud");//
+	//return macShaderDemo->Create("Demos/Clouds/Cloud");//
 	//return macShaderDemo->Create("Demos/Clouds/CloudFight");//
 	//return macShaderDemo->Create("Demos/Clouds/Cloud2");//
 	//return macShaderDemo->Create("Demos/default");
@@ -1668,7 +1668,7 @@ bool TestComponent::OnStart()
 	//return macShaderDemo->Create("Demos/PathTracings/Bidirectional path tracing");
 	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 1");
 	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 2");
-	//return macShaderDemo->Create("Demos/PathTracings/Path Tracer MIS");
+	return macShaderDemo->Create("Demos/PathTracings/Path Tracer MIS");
 	//return macShaderDemo->Create("Demos/PathTracings/PBR Material Gold");
 	//return macShaderDemo->Create("Demos/PathTracings/Room DI");
 	//return macShaderDemo->Create("Demos/Post process - SSAO");

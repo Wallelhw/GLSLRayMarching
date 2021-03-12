@@ -181,6 +181,7 @@
     <ClCompile Include="Frame3.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FrameWork.cpp" />
+    <ClCompile Include="FrameWork2.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Frame3.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FrameWork.h" />
+    <ClInclude Include="FrameWork2.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GradientDescent.h" />

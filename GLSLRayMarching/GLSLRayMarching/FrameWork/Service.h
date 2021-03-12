@@ -80,6 +80,7 @@ private:
 class ServiceManager
 {
 	friend class FrameWork;
+	friend class FrameWork2;
 	friend class IService;
 	friend class Video;
 

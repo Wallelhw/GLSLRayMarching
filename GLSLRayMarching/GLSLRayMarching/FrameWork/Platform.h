@@ -29,6 +29,8 @@
 #include <functional>
 #include <string>
 
+#include <rttr/registration>
+
 // platform define
 //#define WINDOWS_32
 #define WINDOWS_64
