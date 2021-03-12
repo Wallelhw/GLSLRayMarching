@@ -11,6 +11,7 @@
 #include "ID.h"
 
 GameObject::Manager::Manager()
+: gameObjects()
 {
 }
 
@@ -119,13 +120,19 @@ void GameObject::Manager::Remove(GameObject* gameObject)
 
 //////////////////////////////////////////////////////////////////////////////////
 GameObject::GameObject()
-: Component::Owner(ID::Get())
+: Frame3()
+, id(ID::Get())
+, name()
+, components()
 {
 	GameObject::Manager::GetInstance().Add(this);
 }
 
 GameObject::GameObject(int test)
-	: Component::Owner(ID::Get())
+: Frame3()
+, id(ID::Get())
+, name()
+, components()
 {
 	GameObject::Manager::GetInstance().Add(this);
 }
@@ -133,6 +140,158 @@ GameObject::GameObject(int test)
 GameObject::~GameObject()
 {
 	GameObject::Manager::GetInstance().Remove(this);
+}
+
+void GameObject::Add(Component* component_)
+{
+	components.push_back(component_);
+}
+
+void GameObject::Remove(Component* component_)
+{
+	auto itr = std::find(components.begin(), components.end(), component_);
+
+	components.erase(itr);
+}
+
+Component* GameObject::Get(ID id_)
+{
+	for (auto& component : components)
+	{
+		if (component->id == id_)
+		{
+			return component;
+		}
+	}
+
+	return nullptr;
+}
+
+Component* GameObject::Get(const std::string& name_)
+{
+	for (auto& component : components)
+	{
+		if (component->name == name_)
+		{
+			return component;
+		}
+	}
+
+	return nullptr;
+}
+
+int GameObject::GetComponentCount() const
+{
+	return components.size();
+}
+
+ID GameObject::GetID() const
+{
+	return id;
+}
+
+const std::string& GameObject::GetName() const
+{
+	return name;
+}
+
+void GameObject::SetName(const std::string& name_)
+{
+	name = name_;
+}
+
+bool GameObject::Construct()
+{
+	if (!OnConstruct())
+		return false;
+
+	for (auto& component : components)
+	{
+		if (!component->Construct())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool GameObject::Start()
+{
+	if (!OnStart())
+		return false;
+
+	for (auto& component : components)
+	{
+		if (!component->Start())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool GameObject::Update()
+{
+	if (!OnUpdate())
+		return false;
+
+	for (auto& component : components)
+	{
+		if (!component->Update())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool GameObject::Pause()
+{
+	if (!OnPause())
+		return false;
+
+	for (auto& component : components)
+	{
+		if (!component->Pause())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void GameObject::Resume()
+{
+	OnResume();
+
+	for (auto& component : components)
+	{
+		component->Resume();
+	}
+}
+
+void GameObject::Stop()
+{
+	OnStop();
+
+	for (auto& component : components)
+	{
+		component->Stop();
+	}
+}
+
+void GameObject::Destruct()
+{
+	OnDestruct();
+
+	for (auto& component : components)
+	{
+		component->Destruct();
+	}
 }
 
 bool GameObject::OnConstruct()
@@ -167,12 +326,14 @@ void GameObject::OnDestruct()
 {
 }
 
+
+///////////////////////////////////////////////////////////////////////
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<GameObject>("GameObject")
 		.property("visible", &GameObject::get_visible, &GameObject::set_visible)
 		.property("color", &GameObject::color1)
-		.property("name", &GameObject::name)
+		.property("name", &GameObject::GetName, &GameObject::SetName)
 		.property("position", &GameObject::position)
 		.property("dictionary", &GameObject::dictionary);
 }

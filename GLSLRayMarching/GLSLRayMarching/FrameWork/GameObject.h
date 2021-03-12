@@ -30,7 +30,7 @@ public:
 	int y = 0;
 };
 
-class GameObject : public Component::Owner
+class GameObject : public Frame3
 {
 public:
 	class Manager
@@ -70,7 +70,38 @@ public:
 	GameObject(int test);
 	
 	virtual ~GameObject();
+
+	Component* Get(ID id);
+
+	Component* Get(const std::string& name_);
+
+	int GetComponentCount() const;
+
+	ID GetID() const;
+
+	const std::string& GetName() const;
+
+	void SetName(const std::string& name_);
+
+	void Add(Component* component_);
+
+	void Remove(Component* component_);
 private:
+protected:
+	bool Construct();
+
+	bool Start();
+
+	bool Update();
+
+	bool Pause();
+
+	void Stop();
+
+	void Resume();
+
+	void Destruct();
+
 	virtual bool OnConstruct();
 
 	virtual bool OnStart();
@@ -86,17 +117,21 @@ private:
 	virtual void OnDestruct();
 protected:
 private:
+	ID id;
+	std::string name;
+	std::vector<Component*> components;
+
 ///////////////////////////////////////////////////////////////
+// test
 public:
 	void set_visible(bool v) { visible = v; }
 	bool get_visible() const { return visible; }
 
 	color color1 = color::blue;
-	std::string name = "";
 	point2d position;
 	std::map<color, point2d> dictionary;
 
-	RTTR_ENABLE(Component::Owner)
+	RTTR_ENABLE()
 private:
 	bool visible = false;
 };

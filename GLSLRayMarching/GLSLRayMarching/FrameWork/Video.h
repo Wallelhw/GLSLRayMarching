@@ -17,11 +17,16 @@ class Video
 public:
 	class Graphics3Component : public Component
 	{
+		friend class Video;
 	public:
-		Graphics3Component(Component::Owner& owner_);
+		Graphics3Component(GameObject& gameObject_);
 
 		virtual ~Graphics3Component();
-	
+	private:
+		void Render();
+
+		virtual void OnRender() = 0;
+
 		virtual bool OnConstruct() override;
 
 		virtual bool OnStart() override;
@@ -35,15 +40,20 @@ public:
 		virtual void OnStop() override;
 
 		virtual void OnDestruct() override;
-	private:
 	};
 
 	class RendererComponent : public Component
 	{
+		friend class Video;
 	public:
-		RendererComponent(Component::Owner& owner_);
+		RendererComponent(GameObject& gameObject_);
 
 		virtual ~RendererComponent();
+	
+	private:
+		void Render();
+
+		virtual void OnRender() = 0;
 
 		virtual bool OnConstruct() override;
 
@@ -63,10 +73,15 @@ public:
 
 	class CameraComponent : public Component
 	{
+		friend class Video;
 	public:
-		CameraComponent(Component::Owner& owner_);
+		CameraComponent(GameObject& gameObject_);
 
 		virtual ~CameraComponent();
+	private:
+		void Render();
+
+		virtual void OnRender() = 0;
 
 		virtual bool OnConstruct() override;
 
@@ -81,7 +96,6 @@ public:
 		virtual void OnStop() override;
 
 		virtual void OnDestruct() override;
-	private:
 	};
 
 	class Manager

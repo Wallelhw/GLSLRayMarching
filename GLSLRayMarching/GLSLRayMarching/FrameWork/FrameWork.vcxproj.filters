@@ -35,6 +35,9 @@
     <Filter Include="Source Files\System\Services\Scene\Service">
       <UniqueIdentifier>{c9794010-5378-4696-9b39-2ca045180d55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System\Services\Video">
+      <UniqueIdentifier>{ad02d272-6524-46c9-b067-f2126834a807}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -154,9 +157,6 @@
     <ClCompile Include="Service.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
-    <ClCompile Include="Video.cpp">
-      <Filter>Source Files\System\Services</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceImport.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
@@ -186,6 +186,9 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files\System\Services\Scene\Service</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files\System\Services\Video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -321,9 +324,6 @@
     <ClInclude Include="Service.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
-    <ClInclude Include="Video.h">
-      <Filter>Source Files\System\Services</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceImport.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
@@ -353,6 +353,9 @@
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Source Files\System\Services\Scene\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="Video.h">
+      <Filter>Source Files\System\Services\Video</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

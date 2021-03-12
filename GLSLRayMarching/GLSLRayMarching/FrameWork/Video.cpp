@@ -20,8 +20,8 @@
 #include "GUI.h"
 
 /////////////////////////////////////////////////////////////////////
-Video::Graphics3Component::Graphics3Component(Component::Owner& owner_)
-	: Component(owner_)
+Video::Graphics3Component::Graphics3Component(GameObject& gameObject_)
+	: Component(gameObject_)
 {
 	Video::Manager::GetInstance().Add(this);
 }
@@ -29,6 +29,11 @@ Video::Graphics3Component::Graphics3Component(Component::Owner& owner_)
 Video::Graphics3Component::~Graphics3Component()
 {
 	Video::Manager::GetInstance().Remove(this);
+}
+
+void Video::Graphics3Component::Render()
+{
+	OnRender();
 }
 
 bool Video::Graphics3Component::OnConstruct()
@@ -64,8 +69,8 @@ void Video::Graphics3Component::OnDestruct()
 }
 
 /////////////////////////////////////////////////////////////////////
-Video::RendererComponent::RendererComponent(Component::Owner& owner_)
-	: Component(owner_)
+Video::RendererComponent::RendererComponent(GameObject& gameObject_)
+	: Component(gameObject_)
 {
 	Video::Manager::GetInstance().Add(this);
 }
@@ -73,6 +78,11 @@ Video::RendererComponent::RendererComponent(Component::Owner& owner_)
 Video::RendererComponent::~RendererComponent()
 {
 	Video::Manager::GetInstance().Remove(this);
+}
+
+void Video::RendererComponent::Render()
+{
+	OnRender();
 }
 
 bool Video::RendererComponent::OnConstruct()
@@ -108,8 +118,8 @@ void Video::RendererComponent::OnDestruct()
 }
 
 /////////////////////////////////////////////////////////////////////
-Video::CameraComponent::CameraComponent(Component::Owner& owner_)
-	: Component(owner_)
+Video::CameraComponent::CameraComponent(GameObject& gameObject_)
+	: Component(gameObject_)
 {
 	Video::Manager::GetInstance().Add(this);
 }
@@ -117,6 +127,11 @@ Video::CameraComponent::CameraComponent(Component::Owner& owner_)
 Video::CameraComponent::~CameraComponent()
 {
 	Video::Manager::GetInstance().Remove(this);
+}
+
+void Video::CameraComponent::Render()
+{
+	OnRender();
 }
 
 bool Video::CameraComponent::OnConstruct()
@@ -174,10 +189,18 @@ bool Video::Manager::Initialize()
 
 bool Video::Manager::Process()
 {
-	for (auto& camera : cameras)
+	//for (auto& camera : cameras)
 	{
+		//camera->Render();
+
 		for (auto& renderer : renderers)
 		{
+			renderer->Render();
+		}
+
+		for (auto& graphics3 : graphics3s)
+		{
+			graphics3->Render();
 		}
 	}
 

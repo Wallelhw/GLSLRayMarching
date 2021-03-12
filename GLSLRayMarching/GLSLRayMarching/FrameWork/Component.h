@@ -15,74 +15,26 @@
 
 #include <rttr/registration>
 
+class GameObject;
+
 class Component
 {
-public:
-	class Owner : public Frame3
-	{
-	public:
-		Owner(ID id);
-
-		virtual ~Owner();
-
-		void Add(Component* component_);
-
-		void Remove(Component* component_);
-
-		Component* Get(ID id);
-
-		Component* Get(const std::string& name_);
-
-		const std::string& GetName() const;
-
-		ID GetID() const;
-
-		int GetComponentCount() const;
-	protected:
-		bool Construct();
-
-		bool Start();
-
-		bool Update();
-
-		bool Pause();
-
-		void Stop();
-
-		void Resume();
-
-		void Destruct();
-	protected:
-		virtual bool OnConstruct() = 0;
-
-		virtual bool OnStart() = 0;
-
-		virtual bool OnUpdate() = 0;
-
-		virtual bool OnPause() = 0;
-
-		virtual void OnResume() = 0;
-
-		virtual void OnStop() = 0;
-
-		virtual void OnDestruct() = 0;
-
-		RTTR_ENABLE()
-	private:
-		ID id;
-		std::string name;
-		std::vector<Component*> components;
-	};
-
+	friend class GameObject;
 ///////////////////////////////////////////////////////////////
 public:
-	Component();
+	Component(GameObject& gameObject_, const char* name_ = "");
 	
 	virtual ~Component();
 
-	const std::string& GetName() const;
+	GameObject& GetGameObject();
+
+	const GameObject& GetGameObject() const;
 
 	ID GetID() const;
+
+	const std::string& GetName() const;
+
+	void SetName(const std::string& name_);
 private:
 	bool Construct();
 
@@ -114,6 +66,7 @@ protected:
 private:
 	ID id;
 	std::string name;
+	GameObject* gameObject;
 ///////////////////////////////////////////////////////////////
 public:
 };
