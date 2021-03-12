@@ -190,6 +190,9 @@
     <ClCompile Include="Video.cpp">
       <Filter>Source Files\System\Services\Video</Filter>
     </ClCompile>
+    <ClCompile Include="FrameWork2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imgui.h">
@@ -356,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="Video.h">
       <Filter>Source Files\System\Services\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork2.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,9 +1,6 @@
-#include "FrameWork.h"
+#include "FrameWork2.h"
 #include "Video.h"
 
-
-#define SCR_WIDTH (800*2)
-#define SCR_HEIGHT (400*2)
 
 /////////////////////////////////////////////////////////////////////
 #include "Service.h"
@@ -39,11 +36,11 @@ Scene::Creator<Mac1Scene> MacScene1Creator("Mac1");
 Scene::Creator<Mac2Scene> MacScene2Creator("Mac2");
 Scene::Creator<Mac3Scene> MacScene3Creator("Mac3");
 
-class MacShaderDemoApp : public FrameWork
+class MacShaderDemoApp : public FrameWork2
 {
 public:
 	MacShaderDemoApp()
-		: FrameWork("MacShaderDemo")
+		: FrameWork2("MacShaderDemo")
 	{
 	}
 
@@ -71,7 +68,7 @@ int main(int argc, char** argv)
 {
 	MacShaderDemoApp macShaderDemoApp;
 
-	if (!macShaderDemoApp.Create(SCR_WIDTH, SCR_HEIGHT))
+	if (!macShaderDemoApp.Create())
 		return -1;
 
 	macShaderDemoApp.Start();
