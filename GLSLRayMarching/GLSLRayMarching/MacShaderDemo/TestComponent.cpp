@@ -1625,7 +1625,8 @@ private:
 };
 
 //////////////////////////////////////////////////////////////
-TestComponent::TestComponent()
+TestComponent::TestComponent(GameObject& gameObject_)
+: Graphics3Component(gameObject_)
 {
 	macShaderDemo = new MacShaderDemo();
 }
@@ -1639,6 +1640,15 @@ TestComponent::~TestComponent()
 	}
 }
 
+void TestComponent::OnRender()
+{
+	macShaderDemo->Update(
+		FrameWork::GetInstance().GetWidth(), FrameWork::GetInstance().GetHeight(),
+		FrameWork::GetInstance().GetTime(), FrameWork::GetInstance().GetDeltaTime(),
+		FrameWork::GetInstance().GetMouse(), FrameWork::GetInstance().GetMouseDelta(),
+		FrameWork::GetInstance().GetFrameCounter());
+}
+
 bool TestComponent::OnConstruct()
 {
 	return true;
@@ -1648,7 +1658,7 @@ bool TestComponent::OnStart()
 {
 	//return macShaderDemo->Create("Demos/Noise/Perlin");//
 	//return macShaderDemo->Create("Demos/Clouds/Cheap Cloud Flythrough");//
-	//return macShaderDemo->Create("Demos/Clouds/Cloud");//
+	return macShaderDemo->Create("Demos/Clouds/Cloud");//
 	//return macShaderDemo->Create("Demos/Clouds/CloudFight");//
 	//return macShaderDemo->Create("Demos/Clouds/Cloud2");//
 	//return macShaderDemo->Create("Demos/default");
@@ -1658,7 +1668,7 @@ bool TestComponent::OnStart()
 	//return macShaderDemo->Create("Demos/PathTracings/Bidirectional path tracing");
 	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 1");
 	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 2");
-	return macShaderDemo->Create("Demos/PathTracings/Path Tracer MIS");
+	//return macShaderDemo->Create("Demos/PathTracings/Path Tracer MIS");
 	//return macShaderDemo->Create("Demos/PathTracings/PBR Material Gold");
 	//return macShaderDemo->Create("Demos/PathTracings/Room DI");
 	//return macShaderDemo->Create("Demos/Post process - SSAO");
@@ -1691,11 +1701,7 @@ bool TestComponent::OnStart()
 
 bool TestComponent::OnUpdate()
 {
-	return macShaderDemo->Update(
-		FrameWork::GetInstance().GetWidth(), FrameWork::GetInstance().GetHeight(), 
-		FrameWork::GetInstance().GetTime(), FrameWork::GetInstance().GetDeltaTime(), 
-		FrameWork::GetInstance().GetMouse(), FrameWork::GetInstance().GetMouseDelta(), 
-		FrameWork::GetInstance().GetFrameCounter());
+	return true;
 }
 
 bool TestComponent::OnPause()

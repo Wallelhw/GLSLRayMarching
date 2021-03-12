@@ -9,6 +9,7 @@
 #include "Mac1Scene.h"
 
 Mac1Scene::Mac1Scene()
+: testComponent(gameObject)
 {
 }
 

@@ -2,15 +2,18 @@
 #define _TestComponent_h_ 
 
 #include "Component.h"
+#include "Video.h"
 
 class MacShaderDemo;
 
-class TestComponent : public Component
+class TestComponent : public Video::Graphics3Component
 {
 public:
-	TestComponent();
+	TestComponent(GameObject& gameObject_);
 
 	virtual ~TestComponent();
+
+	virtual void OnRender() override;
 
 	virtual bool OnConstruct() override;
 
