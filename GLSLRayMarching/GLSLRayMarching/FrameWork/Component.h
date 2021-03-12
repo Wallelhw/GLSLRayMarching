@@ -13,6 +13,8 @@
 #include "Frame3.h"
 #include "ID.h"
 
+#include <rttr/registration>
+
 class Component
 {
 public:
@@ -64,6 +66,8 @@ public:
 		virtual void OnStop() = 0;
 
 		virtual void OnDestruct() = 0;
+
+		RTTR_ENABLE()
 	private:
 		ID id;
 		std::string name;

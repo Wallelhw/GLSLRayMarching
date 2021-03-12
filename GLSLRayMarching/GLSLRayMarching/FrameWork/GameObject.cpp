@@ -124,6 +124,12 @@ GameObject::GameObject()
 	GameObject::Manager::GetInstance().Add(this);
 }
 
+GameObject::GameObject(int test)
+	: Component::Owner(ID::Get())
+{
+	GameObject::Manager::GetInstance().Add(this);
+}
+
 GameObject::~GameObject()
 {
 	GameObject::Manager::GetInstance().Remove(this);
@@ -160,3 +166,14 @@ void GameObject::OnStop()
 void GameObject::OnDestruct()
 {
 }
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GameObject>("GameObject")
+		.property("visible", &GameObject::get_visible, &GameObject::set_visible)
+		.property("color", &GameObject::color1)
+		.property("name", &GameObject::name)
+		.property("position", &GameObject::position)
+		.property("dictionary", &GameObject::dictionary);
+}
+
