@@ -12,6 +12,24 @@
 #include "Platform.h"
 #include "Component.h"
 
+#include <rttr/type>
+
+enum class color
+{
+	red,
+	green,
+	blue
+};
+
+class point2d
+{
+public:
+	point2d() {}
+	point2d(int x_, int y_) : x(x_), y(y_) {}
+	int x = 0;
+	int y = 0;
+};
+
 class GameObject : public Component::Owner
 {
 public:
@@ -48,6 +66,8 @@ public:
 ///////////////////////////////////////////////////////////////
 public:
 	GameObject();
+
+	GameObject(int test);
 	
 	virtual ~GameObject();
 private:
@@ -68,6 +88,17 @@ protected:
 private:
 ///////////////////////////////////////////////////////////////
 public:
+	void set_visible(bool v) { visible = v; }
+	bool get_visible() const { return visible; }
+
+	color color1 = color::blue;
+	std::string name = "";
+	point2d position;
+	std::map<color, point2d> dictionary;
+
+	RTTR_ENABLE(Component::Owner)
+private:
+	bool visible = false;
 };
 
 #endif
