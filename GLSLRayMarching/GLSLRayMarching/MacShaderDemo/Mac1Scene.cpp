@@ -9,7 +9,9 @@
 #include "Mac1Scene.h"
 
 Mac1Scene::Mac1Scene()
-: testComponent(gameObject)
+: testCamera(gameObject)
+//, shaderToyComponent(gameObject)
+, pathTraceComponent(gameObject)
 {
 }
 
@@ -19,7 +21,9 @@ Mac1Scene::~Mac1Scene()
 
 bool Mac1Scene::OnConstruct()
 {
-	gameObject.Add(&testComponent);
+	gameObject.Add(&testCamera);
+	//gameObject.Add(&shaderToyComponent);
+	gameObject.Add(&pathTraceComponent);
 
 	return true;
 }
@@ -31,22 +35,6 @@ bool Mac1Scene::OnStart()
 
 bool Mac1Scene::OnUpdate()
 {
-	/*
-	static int aa = 0;
-
-	if (aa == 0)
-	{
-		Push("Mac3");
-		aa = 1;
-	}
-	else if (aa == 1)
-	{
-		Pop();
-
-		aa = 0;
-	}
-	*/
-
 	return true;
 }
 

@@ -88,14 +88,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib; </AdditionalDependencies>
+      <AdditionalDependencies>./PathTrace/oidn/lib/OpenImageDenoise.lib; ..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib; </AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>
@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>./PathTrace/oidn/lib/OpenImageDenoise.lib; ..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib; </AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>
@@ -132,14 +132,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; _DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib; </AdditionalDependencies>
+      <AdditionalDependencies>./PathTrace/oidn/lib/OpenImageDenoise.lib; ../../../3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib; </AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>
@@ -154,7 +154,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,7 +163,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>..\..\..\3rdparty/rttr/build/lib/$(Configuration)/rttr_core_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>./PathTrace/oidn/lib/OpenImageDenoise.lib; ../../../3rdparty/rttr/build/lib/$(Configuration)/rttr_core.lib; </AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>
@@ -201,6 +201,22 @@
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="OutputStream.cpp" />
+    <ClCompile Include="PathTrace.cpp" />
+    <ClCompile Include="PathTrace\core\Camera.cpp" />
+    <ClCompile Include="PathTrace\core\Mesh.cpp" />
+    <ClCompile Include="PathTrace\core\Program.cpp" />
+    <ClCompile Include="PathTrace\core\PTScene.cpp" />
+    <ClCompile Include="PathTrace\core\PTTexture.cpp" />
+    <ClCompile Include="PathTrace\core\Quad.cpp" />
+    <ClCompile Include="PathTrace\core\Renderer.cpp" />
+    <ClCompile Include="PathTrace\core\Shader.cpp" />
+    <ClCompile Include="PathTrace\core\TiledRenderer.cpp" />
+    <ClCompile Include="PathTrace\loaders\hdrloader.cpp" />
+    <ClCompile Include="PathTrace\loaders\Loader.cpp" />
+    <ClCompile Include="PathTrace\RadeonRays\bbox.cpp" />
+    <ClCompile Include="PathTrace\RadeonRays\bvh.cpp" />
+    <ClCompile Include="PathTrace\RadeonRays\bvh_translator.cpp" />
+    <ClCompile Include="PathTrace\RadeonRays\split_bvh.cpp" />
     <ClCompile Include="Physics2D.cpp" />
     <ClCompile Include="Physics3D.cpp" />
     <ClCompile Include="Plane3.cpp" />
@@ -241,6 +257,7 @@
     <ClInclude Include="GradientDescent.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="PathTrace.h" />
     <ClInclude Include="ID.h" />
     <ClInclude Include="GZFileIO.h" />
     <ClInclude Include="IK2D2Joint.h" />
@@ -257,6 +274,33 @@
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Matrix4.h" />
     <ClInclude Include="OutputStream.h" />
+    <ClInclude Include="PathTrace\core\Camera.h" />
+    <ClInclude Include="PathTrace\core\Config.h" />
+    <ClInclude Include="PathTrace\core\Material.h" />
+    <ClInclude Include="PathTrace\core\Mesh.h" />
+    <ClInclude Include="PathTrace\core\Program.h" />
+    <ClInclude Include="PathTrace\core\PTScene.h" />
+    <ClInclude Include="PathTrace\core\PTTexture.h" />
+    <ClInclude Include="PathTrace\core\Quad.h" />
+    <ClInclude Include="PathTrace\core\Renderer.h" />
+    <ClInclude Include="PathTrace\core\Shader.h" />
+    <ClInclude Include="PathTrace\core\ShaderIncludes.h" />
+    <ClInclude Include="PathTrace\core\TiledRenderer.h" />
+    <ClInclude Include="PathTrace\loaders\hdrloader.h" />
+    <ClInclude Include="PathTrace\loaders\Loader.h" />
+    <ClInclude Include="PathTrace\loaders\tiny_obj_loader.h" />
+    <ClInclude Include="PathTrace\math\Mat4.h" />
+    <ClInclude Include="PathTrace\math\MathUtils.h" />
+    <ClInclude Include="PathTrace\math\Vec2.h" />
+    <ClInclude Include="PathTrace\math\Vec3.h" />
+    <ClInclude Include="PathTrace\math\Vec4.h" />
+    <ClInclude Include="PathTrace\RadeonRays\bbox.h" />
+    <ClInclude Include="PathTrace\RadeonRays\bvh.h" />
+    <ClInclude Include="PathTrace\RadeonRays\bvh_translator.h" />
+    <ClInclude Include="PathTrace\RadeonRays\split_bvh.h" />
+    <ClInclude Include="PathTrace\tests\ajaxTestScene.h" />
+    <ClInclude Include="PathTrace\tests\boyTestScene.h" />
+    <ClInclude Include="PathTrace\tests\cornellTestScene.h" />
     <ClInclude Include="Physics2D.h" />
     <ClInclude Include="Physics3D.h" />
     <ClInclude Include="Plane3.h" />

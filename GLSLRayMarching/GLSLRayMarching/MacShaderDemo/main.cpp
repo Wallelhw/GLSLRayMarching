@@ -12,13 +12,13 @@
 #include "Physics2D.h"
 #include "Video.h"
 #include "Audio.h"
+Service<Video> VideoService("Video");
 Service<ResourceAccess> ResourceAccessService("ResourceAccess");
 Service<ResourceImport> ResourceImportService("ResourceImport");
 Service<Scene> SceneService("Scene");
 Service<Input> InputService("Input");
 Service<Physics3D> Physics3DService("Physics3D");
 Service<Physics2D> Physics2DService("Physics2D");
-Service<Video> VideoService("Video");
 Service<Audio> AudioService("Audio");
 
 /////////////////////////////////////////////////////////////////////
@@ -66,6 +66,8 @@ private:
 
 int main(int argc, char** argv)
 {
+	srand((unsigned int)time(0));
+
 	MacShaderDemoApp macShaderDemoApp;
 
 	if (!macShaderDemoApp.Create())
