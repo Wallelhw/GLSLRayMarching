@@ -169,14 +169,21 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="TestComponent.cpp" />
+    <ClCompile Include="PathTraceComponent.cpp" />
+    <ClCompile Include="TestCamera.cpp" />
+    <ClCompile Include="ShaderToyComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultScene.h" />
     <ClInclude Include="Mac1Scene.h" />
     <ClInclude Include="Mac2Scene.h" />
     <ClInclude Include="Mac3Scene.h" />
-    <ClInclude Include="TestComponent.h" />
+    <ClInclude Include="PathTraceComponent.h" />
+    <ClInclude Include="TestCamera.h" />
+    <ClInclude Include="ShaderToyComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\3rdparty\RadeonRays\RadeonRays.vcxproj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

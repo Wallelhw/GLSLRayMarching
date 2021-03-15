@@ -12,7 +12,7 @@
 #include "Platform.h"
 #include "Component.h"
 
-#include <rttr/type>
+#include <rttr/registration>
 
 enum class color
 {

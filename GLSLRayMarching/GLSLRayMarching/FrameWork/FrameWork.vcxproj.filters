@@ -38,6 +38,24 @@
     <Filter Include="Source Files\System\Services\Video">
       <UniqueIdentifier>{ad02d272-6524-46c9-b067-f2126834a807}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\PathTrace">
+      <UniqueIdentifier>{fb189e0d-e97d-492b-9341-13c83fffacd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PathTrace\core">
+      <UniqueIdentifier>{4bef95c8-4f72-4c6c-bc09-fb58efd18fd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PathTrace\loaders">
+      <UniqueIdentifier>{6495680a-eaef-4155-9ddd-03fc92f5aef4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PathTrace\math">
+      <UniqueIdentifier>{9f9bb36f-3f1b-4584-9485-6441327aadfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PathTrace\tests">
+      <UniqueIdentifier>{49564eec-d291-4daa-ac52-81a3e4ca6d0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PathTrace\RadeonRays">
+      <UniqueIdentifier>{d6e554d2-ee68-4d0e-8645-824c129fdb19}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -192,6 +210,54 @@
     </ClCompile>
     <ClCompile Include="FrameWork2.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Camera.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Mesh.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Program.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\PTScene.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\PTTexture.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Quad.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Renderer.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\Shader.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\core\TiledRenderer.cpp">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\loaders\hdrloader.cpp">
+      <Filter>Source Files\PathTrace\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\loaders\Loader.cpp">
+      <Filter>Source Files\PathTrace\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace.cpp">
+      <Filter>Source Files\PathTrace</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\RadeonRays\bbox.cpp">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\RadeonRays\bvh.cpp">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\RadeonRays\bvh_translator.cpp">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTrace\RadeonRays\split_bvh.cpp">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +428,90 @@
     </ClInclude>
     <ClInclude Include="FrameWork2.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Camera.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Config.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Material.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Mesh.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Program.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\PTScene.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\PTTexture.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Quad.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Renderer.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\Shader.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\ShaderIncludes.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\core\TiledRenderer.h">
+      <Filter>Source Files\PathTrace\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\loaders\hdrloader.h">
+      <Filter>Source Files\PathTrace\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\loaders\Loader.h">
+      <Filter>Source Files\PathTrace\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\loaders\tiny_obj_loader.h">
+      <Filter>Source Files\PathTrace\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\math\Mat4.h">
+      <Filter>Source Files\PathTrace\math</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\math\MathUtils.h">
+      <Filter>Source Files\PathTrace\math</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\math\Vec2.h">
+      <Filter>Source Files\PathTrace\math</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\math\Vec3.h">
+      <Filter>Source Files\PathTrace\math</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\math\Vec4.h">
+      <Filter>Source Files\PathTrace\math</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\tests\ajaxTestScene.h">
+      <Filter>Source Files\PathTrace\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\tests\boyTestScene.h">
+      <Filter>Source Files\PathTrace\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\tests\cornellTestScene.h">
+      <Filter>Source Files\PathTrace\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace.h">
+      <Filter>Source Files\PathTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\RadeonRays\bbox.h">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\RadeonRays\bvh.h">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\RadeonRays\bvh_translator.h">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace\RadeonRays\split_bvh.h">
+      <Filter>Source Files\PathTrace\RadeonRays</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

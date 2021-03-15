@@ -26,8 +26,8 @@
 #include "imgui\imgui_impl_glfw.h"
 #include "imgui\imgui_impl_opengl3.h"
 
-#define SCR_WIDTH (800*2)
-#define SCR_HEIGHT (400*2)
+#define SCR_WIDTH (800)
+#define SCR_HEIGHT (800)
 
 /////////////////////////////////////////////////////////////////////
 Video::Graphics3Component::Graphics3Component(GameObject& gameObject_)
@@ -497,6 +497,25 @@ bool Video::Manager::Process()
 		}
 	}
 
+	glClearColor(0., 0., 0., 0.);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+
+	for (auto& camera : cameras)
+	{
+		camera->Render();
+
+		for (auto& renderer : renderers)
+		{
+			renderer->Render();
+		}
+
+		for (auto& graphics3 : graphics3s)
+		{
+			graphics3->Render();
+		}
+	}
+
 	// Rendering
 	ImGui::Render();
 
@@ -509,21 +528,6 @@ bool Video::Manager::Process()
 
 	glfwMakeContextCurrent(glData.window);
 	glfwSwapBuffers(glData.window);
-
-	//for (auto& camera : cameras)
-	{
-		//camera->Render();
-
-		for (auto& renderer : renderers)
-		{
-			renderer->Render();
-		}
-
-		for (auto& graphics3 : graphics3s)
-		{
-			graphics3->Render();
-		}
-	}
 
 	glData.frameCounter++;
 

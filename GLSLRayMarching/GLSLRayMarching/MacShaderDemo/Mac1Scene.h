@@ -12,7 +12,9 @@
 #include "Platform.h"
 #include "Scene.h"
 #include "GameObject.h"
-#include "TestComponent.h"
+#include "TestCamera.h"
+#include "ShaderToyComponent.h"
+#include "PathTraceComponent.h"
 
 class Mac1Scene : public Scene
 {
@@ -37,7 +39,9 @@ protected:
 
 private:
 	GameObject gameObject;
-	TestComponent testComponent;
+	TestCamera testCamera;
+	//ShaderToyComponent shaderToyComponent;
+	PathTraceComponent pathTraceComponent;
 };
 
 #endif

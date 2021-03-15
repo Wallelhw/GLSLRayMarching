@@ -173,7 +173,7 @@ bool Scene::Manager::Process()
 
 		if (!currentScene->Start())
 		{
-			Platform::Error("failed to Construct %s\n", GetCurrentSceneName());
+			Platform::Error("failed to Start %s\n", GetCurrentSceneName());
 			return false;
 		}
 	}
