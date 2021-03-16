@@ -221,6 +221,7 @@
     <ClCompile Include="Physics3D.cpp" />
     <ClCompile Include="Plane3.cpp" />
     <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="Ray3.cpp" />
     <ClCompile Include="Rect2.cpp" />
     <ClCompile Include="RenderStates.cpp" />
@@ -306,6 +307,7 @@
     <ClInclude Include="Plane3.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="Quad.h" />
+    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Ray3.h" />
     <ClInclude Include="Rect2.h" />
     <ClInclude Include="RenderStates.h" />
