@@ -56,6 +56,9 @@
     <Filter Include="Source Files\PathTrace\RadeonRays">
       <UniqueIdentifier>{d6e554d2-ee68-4d0e-8645-824c129fdb19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System\Services\Input">
+      <UniqueIdentifier>{d283cb99-0bf3-4bec-9838-32db854e5207}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -184,9 +187,6 @@
     <ClCompile Include="Audio.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Source Files\System\Services</Filter>
-    </ClCompile>
     <ClCompile Include="Physics3D.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
@@ -258,6 +258,12 @@
     </ClCompile>
     <ClCompile Include="PathTrace\RadeonRays\split_bvh.cpp">
       <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files\System\Services\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Source Files\Maths</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -402,9 +408,6 @@
     <ClInclude Include="Audio.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Source Files\System\Services</Filter>
-    </ClInclude>
     <ClInclude Include="Physics3D.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
@@ -512,6 +515,12 @@
     </ClInclude>
     <ClInclude Include="PathTrace\RadeonRays\split_bvh.h">
       <Filter>Source Files\PathTrace\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Source Files\System\Services\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Source Files\Maths</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

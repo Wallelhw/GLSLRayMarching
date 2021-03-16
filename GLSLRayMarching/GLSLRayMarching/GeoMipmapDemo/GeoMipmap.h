@@ -13,12 +13,20 @@
 #include "AABB3.h"
 #include "Camera.h"
 
+//#define CAPTURE_GRAPHICS
+
 template<class T>
 class GeoMipmap
 {
 public:
+
+#ifdef CAPTURE_GRAPHICS
+#define MAX_LOD 5
+#define PATCH_SIZE (32)
+#else
 #define MAX_LOD 6
 #define PATCH_SIZE (64)
+#endif
 
 	class Patch
 	{
@@ -471,7 +479,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap.hdr", false))
+		if (!heightMap.Create("heightMap1.hdr", false))
 		{
 			return false;
 		}
@@ -637,7 +645,7 @@ public:
 		}
 	}
 
-	void DrawMipmap(Camera& camera, const Vector2& screenSize)
+	void DrawMipmap(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
 	{
 		//////////////////////////////////////////////////////
 		// RS
@@ -712,42 +720,167 @@ public:
 		shaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
 #endif
 
-		renderStates.blendState.enabled = false;
-		renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
-		renderStates.polygonOffsetState.factor = 1.0;
-		renderStates.polygonOffsetState.offset = 0.0;
-		renderStates.Apply();
-		for (int i = 0; i < terrainRenderInfos.size(); i++)
+		if (solid)
 		{
-			RenderInfo& info = terrainRenderInfos[i];
-			if (info.visible)
+			renderStates.blendState.enabled = false;
+			renderStates.polygonModeState.mode = PolygonModeState::Mode::FILL;
+			renderStates.polygonOffsetState.factor = 1.0;
+			renderStates.polygonOffsetState.offset = 0.0;
+			renderStates.Apply();
+			for (int i = 0; i < terrainRenderInfos.size(); i++)
 			{
-				const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
-				float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
-				shaderProgram.SetUniform1i("useTexture", true);
-				shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
+				RenderInfo& info = terrainRenderInfos[i];
+				if (info.visible)
+				{
+					const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+					float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
+					shaderProgram.SetUniform1i("useTexture", true);
+					shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
 
-				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+					primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+				}
 			}
 		}
+
+		if (wire)
+		{
+			renderStates.blendState.enabled = true;
+			renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
+			renderStates.polygonOffsetState.factor = 2.0;
+			renderStates.polygonOffsetState.offset = 10.0;
+			renderStates.Apply();
+			for (int i = 0; i < terrainRenderInfos.size(); i++)
+			{
+				RenderInfo& info = terrainRenderInfos[i];
+				if (info.visible)
+				{
+					const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+					float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
+					shaderProgram.SetUniform1i("useTexture", false);
+					shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
+
+					primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
+				}
+			}
+		}
+	}
+
+	void DrawMipmap2(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
+	{
+		//////////////////////////////////////////////////////
+		// RS
+		renderStates.scissorTestState.enabled = true;
+		renderStates.scissorTestState.pos = Vector2(0, 0);
+		renderStates.scissorTestState.size = screenSize;
+		renderStates.viewportState.pos = Vector2(0, 0);
+		renderStates.viewportState.size = screenSize;
+
+		renderStates.blendState.colorSrcFactor = BlendState::Func::SRC_ALPHA;
+		renderStates.blendState.colorDstFactor = BlendState::Func::ONE_MINUS_SRC_ALPHA;
+		renderStates.blendState.alphaSrcFactor = BlendState::Func::ONE;
+		renderStates.blendState.alphaDstFactor = BlendState::Func::ZERO;
+
+		renderStates.polygonModeState.face = PolygonModeState::Face::FRONT_AND_BACK;
+		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
+
+		renderStates.cullFaceState.enabled = true;
+		renderStates.cullFaceState.mode = CullFaceState::Mode::BACK;
+
+		renderStates.depthTestState.depthTestEnabled = true;
+		renderStates.depthTestState.depthWriteEnabled = true;
+		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
+		renderStates.Apply();
+
+		///////////////////////////////////////////////////////
+		// TexMap
+		heightMap.Bind(0);
+		texture0.Bind(1);
+		texture1.Bind(2);
+		texture2.Bind(3);
+		texture3.Bind(4);
+		splatMap.Bind(5);
+
+		///////////////////////////////////////////////////////
+		primitives.Bind();
+
+		// frustum culling
+		// area = b * sqrt(b*b + h*h)
+		std::vector<RenderInfo> terrainRenderInfos;
+		CalculatePatches(terrainRenderInfos, camera);
+
+		shaderProgram.Bind();
+		shaderProgram.SetUniform1i("heightMap", 0);
+		shaderProgram.SetUniform1i("texture0", 1);
+		shaderProgram.SetUniform1i("texture1", 2);
+		shaderProgram.SetUniform1i("texture2", 3);
+		shaderProgram.SetUniform1i("texture3", 4);
+		shaderProgram.SetUniform1i("splatMap", 5);
+		shaderProgram.SetUniform1f("patchSize", PATCH_SIZE);
+
+		shaderProgram.SetUniform2i("heightMapSize", heightMap.GetWidth(), heightMap.GetHeight());
+		shaderProgram.SetUniform2i("splatMapSize", splatMap.GetWidth(), splatMap.GetHeight());
+
+		shaderProgram.BindUniformBlock(uniformBlockBuffer, "TransformData", 0);
+#define USE_UNIFORM_BLOCK
+#ifdef USE_UNIFORM_BLOCK
+		Matrix4 worldTransform;
+		worldTransform.SetTranslateRotXYZScale(0, -30, 0, 0, 0, 0, 1.0);
+		shaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+
+		TransformData transformData;
+		transformData.viewTransform = camera.GetInverseGlobalTransform().Transpose();
+		transformData.projTransform = camera.GetProjectionTransform().Transpose();
+		uniformBlockBuffer.Update(0, &transformData, sizeof(TransformData));
+#else
+		Matrix4 worldTransform;
+		worldTransform.SetTranslateRotXYZScale(0, -30, 0, 0, 0, 0, 1.0);
+		shaderProgram.SetUniformMatrix4x4fv("worldTransform", 1, worldTransform);
+
+		shaderProgram.SetUniformMatrix4x4fv("viewTransform", 1, camera.GetViewTransform());
+		shaderProgram.SetUniformMatrix4x4fv("projTransform", 1, camera.GetProjectionTransform());
+#endif
 
 		renderStates.blendState.enabled = true;
 		renderStates.polygonModeState.mode = PolygonModeState::Mode::LINE;
 		renderStates.polygonOffsetState.factor = 2.0;
 		renderStates.polygonOffsetState.offset = 10.0;
 		renderStates.Apply();
-		for (int i = 0; i < terrainRenderInfos.size(); i++)
+
+		#define PATCH_SIZE1 (PATCH_SIZE * 1.2)
+		Vector3 offsets[16] =
+		{
+			Vector3(PATCH_SIZE1 * 0, 0, PATCH_SIZE1 * 0), // 0
+			Vector3(PATCH_SIZE1 * 0, 0, PATCH_SIZE1 * 1), // 1
+			Vector3(PATCH_SIZE1 * 1, 0, PATCH_SIZE1 * 1), // 2
+			Vector3(PATCH_SIZE1 * 0, 0, PATCH_SIZE1 * 2), // 3
+			Vector3(PATCH_SIZE1 * 2, 0, PATCH_SIZE1 * 1), // 4
+			Vector3(PATCH_SIZE1 * 1, 0, PATCH_SIZE1 * 2), // 5
+			Vector3(PATCH_SIZE1 * 2, 0, PATCH_SIZE1 * 2), // 6
+			Vector3(PATCH_SIZE1 * 1, 0, PATCH_SIZE1 * 3), // 7
+			Vector3(PATCH_SIZE1 * 3, 0, PATCH_SIZE1 * 1), // 8			
+			Vector3(PATCH_SIZE1 * 3, 0, PATCH_SIZE1 * 2), // 9
+			Vector3(PATCH_SIZE1 * 4, 0, PATCH_SIZE1 * 2), // 10
+			Vector3(PATCH_SIZE1 * 2, 0, PATCH_SIZE1 * 3), // 11
+			Vector3(PATCH_SIZE1 * 5, 0, PATCH_SIZE1 * 2), // 12
+			Vector3(PATCH_SIZE1 * 3, 0, PATCH_SIZE1 * 3), // 13
+			Vector3(PATCH_SIZE1 * 0, 0, PATCH_SIZE1 * 3), // 14
+			Vector3(PATCH_SIZE1 * 0, 0, PATCH_SIZE1 * 4)  // 15
+		};
+		for (int i = 0; i < 16; i++)
 		{
 			RenderInfo& info = terrainRenderInfos[i];
-			if (info.visible)
-			{
-				const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
-				float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
-				shaderProgram.SetUniform1i("useTexture", false);
-				shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
 
-				primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
-			}
+			info.visible = true;
+			info.offset = offsets[i];
+			info.lodLevel = 0;
+			info.patchID = i;
+
+			const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+			float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
+			shaderProgram.SetUniform1i("useTexture", false);
+			shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
+
+			primitives.DrawArray(Primitives::Mode::TRIANGLES, patch.GetBaseVertexIndex(), patch.GetVertexCount());
 		}
 	}
 
@@ -756,9 +889,13 @@ public:
 		Primitives primitives;
 	}
 
-	void Update(Camera& camera, const Vector2& screenSize)
+	void Update(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
 	{
-		DrawMipmap(camera, screenSize);
+#ifdef CAPTURE_GRAPHICS
+		DrawMipmap2(camera, screenSize, solid, wire);
+#else
+		DrawMipmap(camera, screenSize, solid, wire);
+#endif
 
 		DrawCamera(camera);
 	}

@@ -11,197 +11,11 @@
 #include "GUI.h"
 #include "AABB3.h"
 #include "GeoMipmap.h"
+#include "GeoMorph.h"
 #include "Camera.h"
 
 #define SCR_WIDTH (800*2)
 #define SCR_HEIGHT (400*2)
-
-template<class T>
-class Array2D
-{
-public:
-	Array2D()
-	: size(0, 0)
-	{
-	}
-
-	Array2D(const IVector2& size_)
-	: size(size_)
-	{
-		Reserve(size_);
-	}
-
-	~Array2D()
-	{
-	}
-
-	void Reserve(const IVector2& size_)
-	{
-		size = size_;
-
-		m.resize(GetCount());
-	}
-
-	const T& operator [] (const IVector2& coord_) const
-	{
-		return m[I(coord_)];
-	}
-
-	const T& operator [] (unsigned int i_) const
-	{
-		Assert(i_ < GetCount());
-
-		return m[i_];
-	}
-
-	T& operator [] (const IVector2& coord_)
-	{
-		return m[I(coord_)];
-	}
-
-	T& operator [] (unsigned int i_)
-	{
-		Assert(i_ < GetCount());
-
-		return m[i_];
-	}
-
-	const IVector2& GetSize() const
-	{
-		return size;
-	}
-
-	unsigned int GetCount() const
-	{
-		return size.X() * size.Y();
-	}
-private:
-	unsigned int I(const IVector2& coord_) const
-	{
-		Assert(coord_.X() < size.X() && coord_.Y() < size.Y());
-
-		return coord_.Y() * size.X() + coord_.X();
-	}
-
-	IVector2 size;
-	std::vector<T> m;
-};
-
-class BlendGeoMipmap
-{
-public:
-	class Section
-	{
-	public:
-		Section()
-		: numQuadPerSections(IVector2::Zero)
-		{
-		}
-
-		~Section()
-		{
-		}
-
-		bool Create(const IVector2& numQuadPerSections_)
-		{
-			numQuadPerSections = numQuadPerSections_;
-		}
-
-		IVector2 GetNumSectionPerComponents() const
-		{
-			return numQuadPerSections;
-		}
-
-		IVector2 numQuadPerSections;
-	};
-
-	class Component
-	{
-	public:
-		Component()
-		{
-		}
-
-		~Component()
-		{
-		}
-
-		bool Create(const IVector2& numSectionPerComponents, const IVector2& numQuadPerSections)
-		{
-			sections.Reserve(numSectionPerComponents);
-			for (int i = 0; i < sections.GetCount(); i++)
-			{
-				sections[i];
-			}
-		}
-
-		IVector2 GetNumSectionPerComponents() const
-		{
-			return sections.GetSize();
-		}
-
-		const Section& GetSection(IVector2 i) const
-		{
-			return sections[i];
-		}
-
-		Section& GetSection(IVector2 i)
-		{
-			return sections[i];
-		}
-	private:
-		Array2D<Section> sections;
-	};
-
-	BlendGeoMipmap()
-		: numComponents(IVector2::Zero)
-		, numSectionPerComponents(IVector2::Zero)
-		, numQuadPerSections(IVector2::Zero)
-	{
-	}
-
-	~BlendGeoMipmap()
-	{
-	}
-
-	bool Create(const IVector2& numComponents, const IVector2& numSectionPerComponents, const IVector2& numQuadPerSections)
-	{
-		this->numComponents = numComponents;
-		this->numSectionPerComponents = numSectionPerComponents;
-		this->numQuadPerSections = numQuadPerSections;
-		this->resolution = numComponents * numSectionPerComponents * numQuadPerSections + IVector2(1, 1);
-	}
-
-	IVector2 GetNumComponents() const
-	{
-		return numComponents;
-	}
-
-	IVector2 GetNumSectionPerComponents() const
-	{
-		return numSectionPerComponents;
-	}
-
-	IVector2 GetQuadPerSections() const
-	{
-		return numQuadPerSections;
-	}
-
-	IVector2 GetResolution() const
-	{
-		return resolution;
-	}
-
-	void GetQuads(std::vector<IVector2>& quads, const Camera& c) const
-	{
-
-	}
-
-	IVector2 numComponents;
-	IVector2 numSectionPerComponents;
-	IVector2 numQuadPerSections;
-	IVector2 resolution;
-};
 
 //////////////////////////////////////////////////////////////////////
 class GeoMipmapDemo : public FrameWork
@@ -209,7 +23,11 @@ class GeoMipmapDemo : public FrameWork
 public:
 	GeoMipmapDemo()
 		: FrameWork("GeoMipmapDemo")
+#ifdef CAPTURE_GRAPHICS
+		, pos(0, 1, 0)
+#else
 		, pos(100, 600, 100)
+#endif
 		, phi(0.7343)
 		, theta(-0.5733)
 	{
@@ -223,6 +41,9 @@ public:
 	{
 		if (!geoMipmap.Create(PATCH_SIZE))
 			return false;
+
+		if (!geoMorph.Create())
+			return false;		
 
 		return true;
 	}
@@ -240,8 +61,38 @@ public:
 
 		UpdateCamera();
 
-		geoMipmap.Update(camera, Vector2(SCR_WIDTH, SCR_HEIGHT));
+		static int delay = 0;
+		static bool wire = true;
+		static bool solid = false;
+		static float alpha = 0.0f;
+		delay++;
+		if (delay > 2)
+		{
+			if (IsKeyPressed('1'))
+			{
+				wire = !wire;
+			}
+			if (IsKeyPressed('2'))
+			{
+				solid = !solid;
+			}
+			delay = 0;
+		}
+		if (IsKeyPressed('3'))
+		{
+			alpha += 0.01f;
+			alpha = (alpha > 1) ? 1 : alpha;
+		}
+		if (IsKeyPressed('4'))
+		{
+			alpha -= 0.01f;
+			alpha = (alpha < 0) ? 0 : alpha;
+		}
 
+		// geoMipmap.Update(camera, Vector2(SCR_WIDTH, SCR_HEIGHT), solid, wire);
+
+		geoMorph.Update(camera, Vector2(SCR_WIDTH, SCR_HEIGHT), solid, wire, alpha);
+		
 		return true;
 	}
 
@@ -274,6 +125,33 @@ public:
 		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
 //		Platform::Debug("%f %f\n", theta, phi);
 
+#ifdef CAPTURE_GRAPHICS
+		if (IsKeyPressed('W'))
+		{
+			pos += Vector3(1.2, 0, 0);
+		}
+
+		if (IsKeyPressed('S'))
+		{
+			pos -= Vector3(1.2, 0, 0);
+		}
+
+		if (IsKeyPressed('A'))
+		{
+			pos += Vector3(0, 0, 1.2);
+		}
+
+		if (IsKeyPressed('D'))
+		{
+			pos -= Vector3(0, 0, 1.2);
+		}
+		Vector3 obj = pos + Vector3(0, -1, 0);
+
+		Matrix4 cameraTransform;
+		cameraTransform.SetLookAt(pos, obj, Vector3::UnitX);
+		camera.SetLocalTransform(cameraTransform);
+		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 5000.0f);
+#else
 		if (IsKeyPressed('W'))
 		{
 			pos += dir;
@@ -281,7 +159,7 @@ public:
 
 		if (IsKeyPressed('S'))
 		{
-			pos -= dir ;
+			pos -= dir;
 		}
 
 		if (IsKeyPressed('A'))
@@ -293,12 +171,14 @@ public:
 		{
 			pos += xAxis;
 		}
+
 		Vector3 obj = pos + dir;
 
 		Matrix4 cameraTransform;
 		cameraTransform.SetLookAt(pos, obj, Vector3::UnitY);
 		camera.SetLocalTransform(cameraTransform);
 		camera.SetPerspectiveFov(90.0f, float(SCR_WIDTH) / SCR_HEIGHT, 1.0f, 5000.0f);
+#endif
 	}
 private:
 	Camera camera;
@@ -307,6 +187,7 @@ private:
 	float theta;
 
 	GeoMipmap<Vector2> geoMipmap;
+	GeoMorph geoMorph;
 };
 
 int main(int argc, char* argv[])
