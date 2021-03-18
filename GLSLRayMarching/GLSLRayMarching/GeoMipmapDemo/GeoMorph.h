@@ -504,7 +504,7 @@ public:
 	{
 	}
 
-	void Update(Camera& camera, const Vector2& screenSize, bool solid, bool wire, float alpha)
+	void Render(Camera& camera, const Vector2& screenSize, bool solid, bool wire, float alpha)
 	{
 		DrawMipmap(camera, screenSize, solid, wire, alpha);
 

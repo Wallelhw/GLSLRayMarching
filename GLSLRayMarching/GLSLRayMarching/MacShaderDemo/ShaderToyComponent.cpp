@@ -20,9 +20,6 @@ using namespace rapidjson;
 #include <WinUser.h>
 #include <time.h>
 
-#define SCR_WIDTH   (800*2)
-#define SCR_HEIGHT  (400*2)
-
 class KeyboardTexture : public Texture2D
 {
 public:
@@ -664,7 +661,7 @@ public:
 	bool Update(unsigned int width, unsigned height, double time, double deltaTime, Vector4 mouse, Vector2 mouseDelta, int frameCounter)
 	{
 		//int facecount = 1;
-		Vector3 resolution = Vector3(SCR_WIDTH, SCR_HEIGHT, 1.0);
+		Vector3 resolution = Vector3(Platform::GetWidth(), Platform::GetHeight(), 1.0);
 		if (frameBuffer)
 		{
 			//if (frameBuffer->GetColorAttachment(GL_COLOR_ATTACHMENT0)->GetType() == GL_TEXTURE_CUBE_MAP)
@@ -1260,13 +1257,13 @@ public:
 			return false;
 		if (!soundFrameBuffer.Create(512, 2, 1, Texture::DynamicRange::LOW))
 			return false;
-		if (!bufferAFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
+		if (!bufferAFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferBFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
+		if (!bufferBFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferCFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
+		if (!bufferCFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferDFrameBuffer.Create(SCR_WIDTH, SCR_HEIGHT, 4, Texture::DynamicRange::HIGH))
+		if (!bufferDFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
 		if (!cubeMapAFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
@@ -1640,13 +1637,99 @@ ShaderToyComponent::~ShaderToyComponent()
 	}
 }
 
+Vector4 ShaderToyComponent::GetMouse()
+{
+	static Vector4 r;
+	static bool lastState = false;
+	static bool thisState = false;
+	
+	lastState = thisState;
+	thisState = Platform::GetMouseButton(0);
+
+	if (thisState )
+	{
+		if (lastState != thisState)
+		{
+			r.Z() = 1;
+			r.W() = 1;
+		}
+		else
+		{
+			r.Z() = 1;
+			r.W() = 0;
+		}
+
+		r.X() = Platform::GetMouseX();
+		r.Y() = Platform::GetMouseY();
+	}
+	else if (!thisState)
+	{
+		if (lastState != thisState)
+		{
+			//Debug("mouse unclick\n");
+		}
+		else
+		{
+			//Debug("mouse release\n");
+		}
+
+		r.Z() = -1;
+		r.W() = 0;
+	}
+
+	//Debug("%f %f %f %f\n", r.X(), r.Y(), r.Z(), r.W());
+
+	return r;
+
+/*
+	int oldMouseButtonStatus = instance->impl->mouseLButtonStatus;
+	instance->impl->mouseLButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+	if (instance->impl->mouseLButtonStatus == GLFW_PRESS)
+	{
+		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
+		{
+			instance->impl->mouse.Z() = 1;
+			instance->impl->mouse.W() = 1;
+		}
+		else
+		{
+			instance->impl->mouse.Z() = 1;
+			instance->impl->mouse.W() = 0;
+		}
+
+		instance->impl->mouse.X() = xpos;
+		instance->impl->mouse.Y() = ypos;
+	}
+	else if (instance->impl->mouseLButtonStatus == GLFW_RELEASE)
+	{
+		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
+		{
+			//Debug("mouse unclick\n");
+		}
+		else
+		{
+			//Debug("mouse release\n");
+		}
+
+		instance->impl->mouse.Z() = -1;
+		instance->impl->mouse.W() = 0;
+	}
+
+*/
+}
+
 void ShaderToyComponent::OnRender()
 {
-	macShaderDemo->Update(
-		Video::Manager::GetInstance().GetWidth(), Video::Manager::GetInstance().GetHeight(),
-		Video::Manager::GetInstance().GetTime(), Video::Manager::GetInstance().GetDeltaTime(),
-		Video::Manager::GetInstance().GetMouse(), Video::Manager::GetInstance().GetMouseDelta(),
-		Video::Manager::GetInstance().GetFrameCounter());
+	macShaderDemo->Update
+	(
+		Platform::GetWidth(),
+		Platform::GetHeight(),
+		Platform::GetTime(),
+		Platform::GetDeltaTime(),
+		GetMouse(), 
+		Vector2(Platform::GetMouseDX(), Platform::GetMouseDY()), 
+		Platform::GetSceneFrameCounter()-1
+	);
 }
 
 bool ShaderToyComponent::OnConstruct()

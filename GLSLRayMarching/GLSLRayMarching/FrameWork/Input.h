@@ -595,8 +595,8 @@ public:
 		std::map<const char*, Input> inputs;
 		std::vector<AccelerationEvent> accelerationEvents;
 
-		std::vector<int> lastValues;
-		std::vector<int> currentValues;
+		std::vector<bool> lastValues;
+		std::vector<bool> currentValues;
 		Vector2 mouseMovement;
 	};
 

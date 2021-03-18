@@ -12,10 +12,10 @@ class FrameWork2Impl;
 class FrameWork2
 {
 public:
-	FrameWork2(const std::string& name_);
+	FrameWork2();
 	virtual ~FrameWork2();
 
-	bool Create();
+	bool Create(int width_, int height_, const std::string& appName_, const std::string& initialScene_);
 	bool Start();
 	void Destroy();
 

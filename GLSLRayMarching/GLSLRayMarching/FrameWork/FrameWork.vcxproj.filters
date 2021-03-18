@@ -522,5 +522,8 @@
     <ClInclude Include="Quaternion.h">
       <Filter>Source Files\Maths</Filter>
     </ClInclude>
+    <ClInclude Include="IK2DCCDJoint.h">
+      <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -258,6 +258,7 @@
     <ClInclude Include="GradientDescent.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="IK2DCCDJoint.h" />
     <ClInclude Include="PathTrace.h" />
     <ClInclude Include="ID.h" />
     <ClInclude Include="GZFileIO.h" />

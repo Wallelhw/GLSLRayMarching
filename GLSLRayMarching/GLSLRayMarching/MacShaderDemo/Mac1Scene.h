@@ -40,8 +40,8 @@ protected:
 private:
 	GameObject gameObject;
 	TestCamera testCamera;
-	//ShaderToyComponent shaderToyComponent;
-	PathTraceComponent pathTraceComponent;
+	ShaderToyComponent shaderToyComponent;
+	//PathTraceComponent pathTraceComponent;
 };
 
 #endif

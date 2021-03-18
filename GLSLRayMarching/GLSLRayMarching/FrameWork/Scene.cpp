@@ -140,7 +140,7 @@ Scene::Manager& Scene::Manager::GetInstance()
 
 bool Scene::Manager::Initialize()
 {
-	nextCreator = Find("Default");
+	nextCreator = Find(Platform::GetInitialScene().c_str());
 
 	return true;
 }
@@ -156,6 +156,7 @@ bool Scene::Manager::Process()
 
 			delete currentScene;
 			currentScene = nullptr;
+			Platform::ResetSceneFrameCounter();
 		}
 
 		Debug("Start Next Scene %s------------------------\n", nextCreator->GetName().c_str());

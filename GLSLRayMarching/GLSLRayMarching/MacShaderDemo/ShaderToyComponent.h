@@ -13,6 +13,8 @@ public:
 
 	virtual ~ShaderToyComponent();
 
+	Vector4 GetMouse();
+
 	virtual void OnRender() override;
 
 	virtual bool OnConstruct() override;
