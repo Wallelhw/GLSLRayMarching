@@ -233,7 +233,7 @@ void framebuffer_size_callback(void* win, int width, int height)
 
 static void glfw_error_callback(int error_code, const char* description)
 {
-	Platform::Debug("GLFW Error: [%d] %s\n", error_code, description);
+	Debug("GLFW Error: [%d] %s\n", error_code, description);
 }
 
 void processInput(void* win)
@@ -281,11 +281,11 @@ void processInput(void* win)
 	{
 		if (oldMouseButtonStatus != glData.mouseLButtonStatus)
 		{
-			//Platform::Debug("mouse unclick\n");
+			//Debug("mouse unclick\n");
 		}
 		else
 		{
-			//Platform::Debug("mouse release\n");
+			//Debug("mouse release\n");
 		}
 
 		glData.mouse.Z() = -1;
@@ -413,7 +413,7 @@ bool Video::Manager::Initialize()
 	glData.window = glfwCreateWindow(glData.width, glData.height, "MacShaderDemo", NULL, NULL);
 	if (glData.window == NULL)
 	{
-		Platform::Debug("Failed to create GLFW window\n");
+		Debug("Failed to create GLFW window\n");
 		glfwTerminate();
 		return false;
 	}
@@ -425,7 +425,7 @@ bool Video::Manager::Initialize()
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		Platform::Debug("Failed to initialize GLAD\n");
+		Debug("Failed to initialize GLAD\n");
 		return false;
 	}
 
@@ -558,7 +558,7 @@ void Video::Manager::Add(CameraComponent* camera)
 	auto itr = std::find(cameras.begin(), cameras.end(), camera);
 	if (itr != cameras.end())
 	{
-		Platform::Error("duplicated CameraComponent is declared\n");
+		Error("duplicated CameraComponent is declared\n");
 		return;
 	}
 
@@ -570,7 +570,7 @@ void Video::Manager::Add(RendererComponent* renderer)
 	auto itr = std::find(renderers.begin(), renderers.end(), renderer);
 	if (itr != renderers.end())
 	{
-		Platform::Error("duplicated RendererComponent is declared\n");
+		Error("duplicated RendererComponent is declared\n");
 		return;
 	}
 
@@ -582,7 +582,7 @@ void Video::Manager::Add(Graphics3Component* graphics3)
 	auto itr = std::find(graphics3s.begin(), graphics3s.end(), graphics3);
 	if (itr != graphics3s.end())
 	{
-		Platform::Error("duplicated Graphics3Component is declared\n");
+		Error("duplicated Graphics3Component is declared\n");
 		return;
 	}
 

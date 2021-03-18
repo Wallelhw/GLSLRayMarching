@@ -12,7 +12,7 @@ PathTraceComponent::~PathTraceComponent()
 
 void PathTraceComponent::OnRender()
 {
-	pathTrace.Render();
+	//pathTrace.Render();
 }
 
 bool PathTraceComponent::OnConstruct()
@@ -23,9 +23,9 @@ bool PathTraceComponent::OnConstruct()
 bool PathTraceComponent::OnStart()
 {
 	//if (!pathTrace.Construct("../assets/cornell_box.scene"))
-	//if (!pathTrace.Construct("../assets/coffee_cart.scene"))
-	if (!pathTrace.Construct("../assets/diningroom.scene"))
-		return false;
+	//if (!pathTrace.Construct("../assets/bedroom.scene"))
+	//if (!pathTrace.Construct("../assets/diningroom.scene"))
+		//return false;
 	
 	return true;
 }

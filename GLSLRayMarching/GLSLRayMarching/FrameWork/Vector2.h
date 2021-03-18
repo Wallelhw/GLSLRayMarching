@@ -101,7 +101,7 @@ public:
 
 	int CompareArrays(const TVector2& v) const
 	{
-		return Platform::MemCmp(m, v.m, 2 * sizeof(T));
+		return MemCmp(m, v.m, 2 * sizeof(T));
 	}
 
 	bool operator!= (const TVector2& v) const

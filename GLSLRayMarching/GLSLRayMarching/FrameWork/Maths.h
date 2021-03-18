@@ -16,6 +16,8 @@
 class Math
 {
 public:
+	static float Sgn(float value);
+
 	static float Sin(float radian);
 	static float Cos(float value);
 	static float Tan(float radian);

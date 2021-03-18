@@ -23,6 +23,11 @@ const float Math::InverseTwoPi = 1.0f / Math::TwoPi;
 const float Math::Degree2Radian = Math::OnePi / 180.0f;
 const float Math::Radian2Degree = 180.0f / Math::OnePi;
 
+float Math::Sgn(float value)
+{
+	return value >= 0 ? 1.0 : -1.0;
+}
+
 float Math::Sin(float value)
 {
 	return sinf(value);

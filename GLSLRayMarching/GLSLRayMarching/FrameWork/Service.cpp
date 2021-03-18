@@ -49,7 +49,7 @@ bool ServiceManager::Initialize()
 			return false;
 		}
 
-		Platform::Debug("Service %s: Initialized\n", service->GetName());
+		Debug("Service %s: Initialized\n", service->GetName());
 	}
 
 	return true;
@@ -73,7 +73,7 @@ bool ServiceManager::Pause()
 		if (!service->Pause())
 			return false;
 
-		Platform::Debug("Service %s: Paused\n", service->GetName());
+		Debug("Service %s: Paused\n", service->GetName());
 	}
 
 	return true;
@@ -85,7 +85,7 @@ void ServiceManager::Resume()
 	{
 		service->Resume();
 
-		Platform::Debug("Service %s: Resumed\n", service->GetName());
+		Debug("Service %s: Resumed\n", service->GetName());
 	}
 }
 
@@ -95,7 +95,7 @@ void ServiceManager::Terminate()
 	{
 		service->Terminate();
 
-		Platform::Debug("Service %s: Terminated\n", service->GetName());
+		Debug("Service %s: Terminated\n", service->GetName());
 	}
 }
 

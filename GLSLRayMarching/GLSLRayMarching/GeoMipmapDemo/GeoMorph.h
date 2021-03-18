@@ -368,7 +368,8 @@ public:
 		Vector3 halfSize = Vector3(sizeX * 0.5f, 0, sizeZ * 0.5f);
 
 		Vector3 p(x + halfSize.X(), 0, z + halfSize.Z());
-		if ((camera.GetGlobalPosition() - p).Length() > 10.0)
+		float d = (camera.GetGlobalPosition() - p).Length();
+		if (d > 100.0)
 		{
 			RenderInfo info;
 			info.offsetX = x;

@@ -153,10 +153,8 @@ public:
 		RightCommand,	// Right Command key.
 		RightApple,	// Right Command key.
 		RightWindows,	// Right Windows key.
-		AltGr,	// Alt Gr key.
 		Help,	// Help key.
 		Print,	// Print key.
-		SysReq,	// Sys Req key.
 		Break,	// Break key.
 		Menu,	// Menu key.
 		Mouse0,	// The Left(or primary) mouse button.
@@ -351,7 +349,7 @@ public:
 	enum class Type
 	{
 		KeyOrMouseButton = 0,
-		Mouse,
+		MouseMovement,
 		JoystickAxis
 	};
 
@@ -506,23 +504,30 @@ public:
 	};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Input(const std::string& name,
-		const std::string& descriptivePositiveName,
-		const std::string& descriptiveNegativeName,
-		KeyCode positiveButton,
-		KeyCode negativeButton,
-		KeyCode positiveAltButton,
-		KeyCode negativeAltButton,
-		int gravity,
-		int deadzone,
-		bool snap,
-		bool invert);
 	Input();
+	Input(const std::string& name_,
+		const std::string& descriptivePositiveName_,
+		const std::string& descriptiveNegativeName_,
+		KeyCode positiveButton_,
+		KeyCode negativeButton_,
+		KeyCode positiveAltButton_,
+		KeyCode negativeAltButton_,
+		float gravity_,
+		float deadzone_,
+		float sensitivity_,
+		bool snap_,
+		bool invert_,
+		Type type_,
+		Axis axis_,
+		JoyStick joystick_);
 	virtual ~Input();
 	float GetAxis();
 	float GetAxisRaw();
 private:
 	void Update();
+	void UpdateKeyOrMouseButton();
+	void UpdateMouseMovement();
+	void UpdateJoystickAxis();	
 
 	std::string name;
 	std::string descriptivePositiveName;
@@ -531,10 +536,18 @@ private:
 	KeyCode negativeButton;
 	KeyCode positiveAltButton;
 	KeyCode negativeAltButton;
-	int gravity;
-	int deadzone;
+	float gravity;
+	float deadzone;
+	float sensitivity;
 	bool snap;
 	bool invert;
+	Type type;
+	Axis axis;
+	JoyStick joystick;
+
+	float lastValue;
+	float currentValue;
+	float rawValue;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
@@ -551,22 +564,28 @@ public:
 
 		Input& GetInput(const char* axisName);
 
-		float GetAxis(const char* axisName);								// Returns the value of the virtual axis identified by axisName.
-		float GetAxisRaw(const char* axisName);								// Returns the value of the virtual axis identified by axisName with no smoothing filtering applied.
-		bool GetButton(const char* axisName);								// Returns true while the virtual button identified by buttonaxisName is held down.
-		bool GetButtonDown(const char* axisName);							// Returns true during the frame the user pressed down the virtual button identified by buttonaxisName.
-		bool GetButtonUp(const char* axisName);								// Returns true the first frame the user releases the virtual button identified by buttonaxisName.
-		//const std::vector<std::string>& GetJoystickaxisNames();				// Retrieves a list of input device axisNames corresponding to the index of an Axis configured within Input Manager.
-		bool GetKey(const char* buttonName);									// Returns true while the user holds down the key identified by axisName.
-		bool GetKeyDown(const char* buttonName);								// Returns true during the frame the user starts pressing down the key identified by axisName.
-		bool GetKeyUp(const char* buttonName);								// Returns true during the frame the user releases the key identified by axisName.
+		float GetAxis(const char* axisName);							// Returns the value of the virtual axis identified by axisName.
+		float GetAxisRaw(const char* axisName);							// Returns the value of the virtual axis identified by axisName with no smoothing filtering applied.
+		bool GetButton(const char* axisName);							// Returns true while the virtual button identified by axisName is held down.
+		bool GetButtonDown(const char* axisName);						// Returns true during the frame the user pressed down the virtual button identified by axisName.
+		bool GetButtonUp(const char* axisName);							// Returns true the first frame the user releases the virtual button identified by axisName.
+		
+		bool GetKey(Input::KeyCode keyCode);							// Returns true while the user holds down the key identified by buttonName.
+		bool GetKeyDown(Input::KeyCode keyCode);						// Returns true during the frame the user starts pressing down the key identified by buttonName.
+		bool GetKeyUp(Input::KeyCode keyCode);							// Returns true during the frame the user releases the key identified by buttonName.
+		
 		bool GetMouseButton(int button);								// Returns whether the given mouse button is held down.
 		bool GetMouseButtonDown(int button);							// Returns true during the frame the user pressed the given mouse button.
 		bool GetMouseButtonUp(int button); 								// Returns true during the frame the user releases the given mouse button.
-		
+		Vector2 GetMouseMovement();
+
+		//const std::vector<std::string>& GetJoystickaxisNames();		// Retrieves a list of input device axisNames corresponding to the index of an Axis configured within Input Manager.
+
 		// Touch GetTouch(int index);									// Call Input.GetTouch to obtain a Touch struct.
 		const AccelerationEvent& GetAccelerationEvent(int i) const;		// Returns specific acceleration measurement which occurred during last frame. (Does not allocate temporary variables).
 	private:
+		int GetKeyValue(Input::KeyCode keyCode);
+
 		bool Initialize();
 		bool Process();
 		bool Pause();
@@ -575,6 +594,10 @@ public:
 	private:
 		std::map<const char*, Input> inputs;
 		std::vector<AccelerationEvent> accelerationEvents;
+
+		std::vector<int> lastValues;
+		std::vector<int> currentValues;
+		Vector2 mouseMovement;
 	};
 
 	///////////////////////////////////////////////////////////////////////

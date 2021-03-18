@@ -21,7 +21,7 @@ Scene::~Scene()
 
 bool Scene::Construct()
 {
-	Platform::Debug("%sScene::Construct()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Construct()\n", GetCurrentSceneName().c_str());
 	if (!GameObject::Manager::GetInstance().Construct())
 		return false;
 
@@ -30,7 +30,7 @@ bool Scene::Construct()
 
 bool Scene::Start()
 {
-	Platform::Debug("%sScene::Start()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Start()\n", GetCurrentSceneName().c_str());
 	if (!GameObject::Manager::GetInstance().Start())
 		return false;
 
@@ -39,7 +39,7 @@ bool Scene::Start()
 
 bool Scene::Update()
 {
-	Platform::Debug("%sScene::Update()\n", GetCurrentSceneName().c_str());
+	//Debug("%sScene::Update()\n", GetCurrentSceneName().c_str());
 	if (!GameObject::Manager::GetInstance().Update())
 		return false;
 
@@ -48,7 +48,7 @@ bool Scene::Update()
 
 bool Scene::Pause()
 {
-	Platform::Debug("%sScene::Pause()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Pause()\n", GetCurrentSceneName().c_str());
 	if (!GameObject::Manager::GetInstance().Pause())
 		return false;
 
@@ -57,7 +57,7 @@ bool Scene::Pause()
 
 void Scene::Stop()
 {
-	Platform::Debug("%sScene::Stop()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Stop()\n", GetCurrentSceneName().c_str());
 	GameObject::Manager::GetInstance().Resume();
 	
 	OnStop();
@@ -65,7 +65,7 @@ void Scene::Stop()
 
 void Scene::Resume()
 {
-	Platform::Debug("%sScene::Resume()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Resume()\n", GetCurrentSceneName().c_str());
 	GameObject::Manager::GetInstance().Stop();
 
 	OnResume();
@@ -73,7 +73,7 @@ void Scene::Resume()
 
 void Scene::Destruct()
 {
-	Platform::Debug("%sScene::Destruct()\n", GetCurrentSceneName().c_str());
+	Debug("%sScene::Destruct()\n", GetCurrentSceneName().c_str());
 	GameObject::Manager::GetInstance().Destruct();
 
 	OnDestruct();
@@ -151,14 +151,14 @@ bool Scene::Manager::Process()
 	{
 		if (currentScene)
 		{
-			Platform::Debug("End Current Scene %s------------------------\n", currentScene->GetCurrentSceneName().c_str());
+			Debug("End Current Scene %s------------------------\n", currentScene->GetCurrentSceneName().c_str());
 			currentScene->Destruct();
 
 			delete currentScene;
 			currentScene = nullptr;
 		}
 
-		Platform::Debug("Start Next Scene %s------------------------\n", nextCreator->GetName().c_str());
+		Debug("Start Next Scene %s------------------------\n", nextCreator->GetName().c_str());
 		currentScene = nextCreator->Create();
 		currentCreator = nextCreator;
 		nextCreator = nullptr;
@@ -167,13 +167,13 @@ bool Scene::Manager::Process()
 
 		if (!currentScene->Construct())
 		{
-			Platform::Error("failed to Construct %s\n", GetCurrentSceneName());
+			Error("failed to Construct %s\n", GetCurrentSceneName());
 			return false;
 		}
 
 		if (!currentScene->Start())
 		{
-			Platform::Error("failed to Start %s\n", GetCurrentSceneName());
+			Error("failed to Start %s\n", GetCurrentSceneName());
 			return false;
 		}
 	}
@@ -213,7 +213,7 @@ void Scene::Manager::Add(ICreator* iCreator)
 	auto itr = std::find(sceneCreators.begin(), sceneCreators.end(), iCreator);
 	if (itr != sceneCreators.end())
 	{
-		Platform::Error("duplicated Scene Creator is declared\n");
+		Error("duplicated Scene Creator is declared\n");
 		return;
 	}
 
@@ -246,7 +246,7 @@ bool Scene::Manager::Push(const char* name_)
 	nextCreator = Find(name_);
 	if (!nextCreator)
 	{
-		Platform::Info("Cannot Find Scene. Push Scene failed\n");
+		Info("Cannot Find Scene. Push Scene failed\n");
 		return false;
 	}
 
@@ -267,7 +267,7 @@ bool Scene::Manager::Pop()
 {
 	if (sceneStack.size()==0)
 	{
-		Platform::Info("Scene Stack contain only 1 scene. At least one Scene is required\n");
+		Info("Scene Stack contain only 1 scene. At least one Scene is required\n");
 		return false;
 	}
 

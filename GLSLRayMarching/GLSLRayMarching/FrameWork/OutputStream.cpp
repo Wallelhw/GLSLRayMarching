@@ -112,7 +112,7 @@ void MemOutputStream::WriteBuffer(const void* src_, int size, bool reverseOrder)
 	}
 	else
 	{
-		Platform::MemCpy(&buffer[position], src_, size);
+		MemCpy(&buffer[position], src_, size);
 		position += size;
 	}
 }
@@ -133,7 +133,7 @@ void MemOutputStream::Skip(int size)
 		buffer.resize(buffer.size() + expandSize);
 	}
 
-	Platform::MemSet(&buffer[position], 0, size);
+	MemSet(&buffer[position], 0, size);
 	position += size;
 }
 
@@ -299,7 +299,7 @@ void GZMemOutputStream::skip(int size)
 		buffer.resize(buffer.length() + expandSize);
 	}
 
-	System::memset(&buffer[position], 0, size);
+	Memset(&buffer[position], 0, size);
 	position += size;
 }
 

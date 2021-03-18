@@ -72,7 +72,7 @@ public:
 
 	void Clear()
 	{
-		Platform::MemSet(this, 0, sizeof(*this));
+		MemSet(this, 0, sizeof(*this));
 	}
 
 	Buffer::Type type;
@@ -149,7 +149,7 @@ Buffer& Buffer::Fill(const void* src_, int size_)
 	glBufferData(buffer_type_GL[(int)impl->type], size_, src_, buffer_usage_GL[(int)impl->usage]);
 
 	void* dst = glMapBufferRange(buffer_type_GL[(int)impl->type], 0, size_, GL_MAP_WRITE_BIT);
-	Platform::MemCpy(dst, src_, size_);
+	MemCpy(dst, src_, size_);
 	glUnmapBuffer(buffer_type_GL[(int)impl->type]);
 	impl->size = size_;
 	// void* a = glMapBufferRange(buffer_type_GL[(int)impl->type], 0, 10, GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_WRITE_BIT);
@@ -177,7 +177,7 @@ Buffer& Buffer::Update(int offset_, const void* src_, int size_)
 #ifdef USE_MAPPING
 	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);
 	void* dst = glMapBufferRange(buffer_type_GL[(int)impl->type], offset_, size_, GL_MAP_WRITE_BIT);
-	Platform::MemCpy(dst, src_, size_);
+	MemCpy(dst, src_, size_);
 	glUnmapBuffer(buffer_type_GL[(int)impl->type]);
 #else
 	glBindBuffer(buffer_type_GL[(int)impl->type], impl->handle);

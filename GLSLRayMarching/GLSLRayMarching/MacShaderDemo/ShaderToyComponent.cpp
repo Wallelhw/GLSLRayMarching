@@ -67,7 +67,7 @@ public:
 		bool release = (keydown[key] != oldKeydown) && !keydown[key];
 		if (key == 38)
 		{
-			//Platform::Debug("%d %d %d\n", keydown[key], keyclick[key], keytoggle[key]);
+			//Debug("%d %d %d\n", keydown[key], keyclick[key], keytoggle[key]);
 			if (keyclick[key])
 			{
 				int a = 1;
@@ -704,7 +704,7 @@ public:
 		shaderProgram.SetUniform1i("iFrame", frameCounter);
 		shaderProgram.SetUniform4f("iMouse", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 
-		//Platform::Debug("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
+		//Debug("%f %f %f %f\n", mouse.X(), mouse.Y(), mouse.Z(), mouse.W());
 		SYSTEMTIME lt = { 0 };
 		GetLocalTime(&lt);
 		shaderProgram.SetUniform4f("iDate", (float)lt.wYear - 1, (float)lt.wMonth - 1, (float)lt.wDay, lt.wHour * 60.0f * 60.0f + lt.wMinute * 60.0f + lt.wSecond);
@@ -973,7 +973,7 @@ public:
 			url += fShaderURL_;
 			if (!LoadShader(url.c_str(), fShaderCode))
 			{
-				Platform::Debug("failed to load shader\n", url.c_str());
+				Debug("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
@@ -987,7 +987,7 @@ public:
 			url += commonShaderURL_;
 			if (!LoadShader(url.c_str(), commonShaderCode))
 			{
-				Platform::Debug("failed to load shader\n", url.c_str());
+				Debug("failed to load shader\n", url.c_str());
 				return false;
 			}
 		}
@@ -1240,7 +1240,7 @@ public:
 	}
 	void DebugLog(const char* msg)
 	{
-		Platform::Debug("Error: %s\n", msg);
+		Debug("Error: %s\n", msg);
 	}
 
 	bool Create(const char* folder_)
@@ -1306,7 +1306,7 @@ public:
 		}
 		catch (std::ifstream::failure&)
 		{
-			Platform::Debug("Failed to Open %s\n", url.c_str());
+			Debug("Failed to Open %s\n", url.c_str());
 			return false;
 		}
 
@@ -1378,7 +1378,7 @@ public:
 	{
 		if (!passes[i].Create(passesJson[i]))
 		{
-			Platform::Debug("Failed to Create Pass %d\n", i);
+			Debug("Failed to Create Pass %d\n", i);
 			return false;
 		}
 
@@ -1394,7 +1394,7 @@ public:
 					FlipFrameBuffer* rendertarget = this->GetFrameBuffer(rendertargetname.c_str());
 					if (!rendertarget)
 					{
-						Platform::Debug("rendertarget=%s not supported\n", rendertargetname.c_str());
+						Debug("rendertarget=%s not supported\n", rendertargetname.c_str());
 						return false;
 					}
 
@@ -1407,7 +1407,7 @@ public:
 			}
 			else
 			{
-				Platform::Debug("Pass must have Render Target\n");
+				Debug("Pass must have Render Target\n");
 				return false;
 			}
 
@@ -1470,7 +1470,7 @@ public:
 							Texture* texture = AddSoundCloudTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
 							if (!texture)
 							{
-								Platform::Debug("channel %d: failed to load soundcloud %s\n", j, url.c_str());
+								Debug("channel %d: failed to load soundcloud %s\n", j, url.c_str());
 								return false;
 							}
 
@@ -1490,7 +1490,7 @@ public:
 							Texture* texture = AddTextureCubemap(url.c_str(), passes[i].GetChannel(j).vFlip);
 							if (!texture)
 							{
-								Platform::Debug("channel %d: failed to load texturecubemap %s\n", j, url.c_str());
+								Debug("channel %d: failed to load texturecubemap %s\n", j, url.c_str());
 								return false;
 							}
 
@@ -1505,7 +1505,7 @@ public:
 							Texture* texture = AddVideoTexture(url.c_str(), passes[i].GetChannel(j).vFlip);
 							if (!texture)
 							{
-								Platform::Debug("channel %d: failed to load texture video %s\n", j, url.c_str());
+								Debug("channel %d: failed to load texture video %s\n", j, url.c_str());
 								return false;
 							}
 
@@ -1518,7 +1518,7 @@ public:
 							FlipFrameBuffer* fb = GetFrameBuffer(buffername.c_str());
 							if (!fb)
 							{
-								Platform::Debug("channel %d: buffer=%s is not supported\n", j, buffername.c_str());
+								Debug("channel %d: buffer=%s is not supported\n", j, buffername.c_str());
 								return false;
 							}
 
@@ -1526,7 +1526,7 @@ public:
 						}
 						else
 						{
-							Platform::Debug("channel%d: must have texture or frame buffer specified or texture type is not supported\n", j);
+							Debug("channel%d: must have texture or frame buffer specified or texture type is not supported\n", j);
 							return false;
 						}
 					}
@@ -1542,7 +1542,7 @@ public:
 			}
 			else
 			{
-				Platform::Debug("channel%d: must have shader specified\n", i);
+				Debug("channel%d: must have shader specified\n", i);
 			}
 		}
 
@@ -1558,7 +1558,7 @@ public:
 		Texture* texture = AddTexture2D(url.c_str(), passes[i].GetChannel(j).vFlip);
 		if (!texture)
 		{
-			Platform::Debug("channel %d: failed to load texture2d %s\n", j, url.c_str());
+			Debug("channel %d: failed to load texture2d %s\n", j, url.c_str());
 			return false;
 		}
 

@@ -2,6 +2,7 @@
 #include "PTScene.h"
 #include "Loader.h"
 #include "TiledRenderer.h"
+//#include "Input.h"
 
 class PathTraceImp
 {

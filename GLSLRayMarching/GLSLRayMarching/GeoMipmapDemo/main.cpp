@@ -104,7 +104,7 @@ public:
 	void UpdateCamera()
 	{
 		Vector2 mousedelta = GetMouseDelta();
-		Platform::Debug("%f %f\n", mousedelta.X(), mousedelta.Y());
+		//Debug("%f %f\n", mousedelta.X(), mousedelta.Y());
 
 		if (GetMouseRightButtonStatus())
 		{
@@ -123,7 +123,7 @@ public:
 
 		Vector3 dir = Vector3(Math::Cos(theta) * Math::Cos(phi), Math::Sin(theta), Math::Cos(theta) * Math::Sin(phi)); dir.Normalize();
 		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
-//		Platform::Debug("%f %f\n", theta, phi);
+//		Debug("%f %f\n", theta, phi);
 
 #ifdef CAPTURE_GRAPHICS
 		if (IsKeyPressed('W'))

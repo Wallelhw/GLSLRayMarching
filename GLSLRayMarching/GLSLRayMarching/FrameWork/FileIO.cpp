@@ -277,7 +277,7 @@ bool FileIO::IsAsyncFinished()
 		DWORD numberOfBytesTransferred = 0;
 		if (GetOverlappedResult(fd->handle, &fd->overlapped, &numberOfBytesTransferred, FALSE))
 		{
-			Platform::Info("Async Operation Ended Sucessfully %d\n", numberOfBytesTransferred);
+			Info("Async Operation Ended Sucessfully %d\n", numberOfBytesTransferred);
 			return true;
 		}
 		else
@@ -285,17 +285,17 @@ bool FileIO::IsAsyncFinished()
 			int lastError = GetLastError();
 			if (lastError == ERROR_IO_INCOMPLETE)
 			{
-				Platform::Info("IO_INCOMPLETE File Reading...%d\n", numberOfBytesTransferred);
+				Info("IO_INCOMPLETE File Reading...%d\n", numberOfBytesTransferred);
 				return false;
 			}
 			else if (lastError == ERROR_IO_PENDING)
 			{
-				Platform::Info("IO_PENDING File Reading...%d\n", numberOfBytesTransferred);
+				Info("IO_PENDING File Reading...%d\n", numberOfBytesTransferred);
 				return false;
 			}
 			else
 			{
-				Platform::Error("Unhandled Error..%d\n", lastError);
+				Error("Unhandled Error..%d\n", lastError);
 				return false;
 			}
 		}
@@ -331,7 +331,7 @@ void FileIO::WaitAsyncFinished()
 		DWORD numberOfBytesTransferred = 0;
 		if (GetOverlappedResult(fd->handle, &fd->overlapped, &numberOfBytesTransferred, TRUE))
 		{
-			Platform::Info("Async Operation Ended Sucessfully %d\n", numberOfBytesTransferred);
+			::Info("Async Operation Ended Sucessfully %d\n", numberOfBytesTransferred);
 		}
 	}
 	else
@@ -562,7 +562,7 @@ int FileIO::Read(void* buf, int size)
 		memset(&fd->overlapped, 0, sizeof(fd->overlapped));
 		if (ReadFile(fd->handle, buf, size, 0, &fd->overlapped))
 		{
-			Platform::Info("File Read Sucessfully\n");
+			::Info("File Read Sucessfully\n");
 			return size;
 		}
 		else
@@ -570,12 +570,12 @@ int FileIO::Read(void* buf, int size)
 			int lastError = GetLastError();
 			if (lastError == ERROR_IO_PENDING)
 			{
-				Platform::Info("IO Pending..%d\n", lastError);
+				::Info("IO Pending..%d\n", lastError);
 				return 0;
 			}
 			else
 			{
-				Platform::Error("Unhandled Error..%d\n", lastError);
+				::Error("Unhandled Error..%d\n", lastError);
 				return -1;
 			}
 		}
@@ -723,7 +723,7 @@ int FileIO::Write(const void* buf, int size)
 		memset(&fd->overlapped, 0, sizeof(fd->overlapped));
 		if (WriteFile(fd->handle, buf, size, 0, &fd->overlapped))
 		{
-			Platform::Info("File Write Sucessfully\n");
+			::Info("File Write Sucessfully\n");
 			return size;
 		}
 		else
@@ -731,12 +731,12 @@ int FileIO::Write(const void* buf, int size)
 			int lastError = GetLastError();
 			if (lastError == ERROR_IO_PENDING)
 			{
-				Platform::Info("IO Pending..%d\n", lastError);
+				::Info("IO Pending..%d\n", lastError);
 				return 0;
 			}
 			else
 			{
-				Platform::Error("Unhandled Error..%d\n", lastError);
+				::Error("Unhandled Error..%d\n", lastError);
 				return -1;
 			}
 		}

@@ -60,7 +60,7 @@ void FrameWork::framebuffer_size_callback(void* win, int width, int height)
 
 static void glfw_error_callback(int error_code, const char* description)
 {
-	Platform::Debug("GLFW Error: [%d] %s\n", error_code, description);
+	Debug("GLFW Error: [%d] %s\n", error_code, description);
 }
 
 void FrameWork::processInput(void* win)
@@ -107,11 +107,11 @@ void FrameWork::processInput(void* win)
 	{
 		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
 		{
-			//Platform::Debug("mouse unclick\n");
+			//Debug("mouse unclick\n");
 		}
 		else
 		{
-			//Platform::Debug("mouse release\n");
+			//Debug("mouse release\n");
 		}
 
 		instance->impl->mouse.Z() = -1;
@@ -168,7 +168,7 @@ bool FrameWork::Create(int width_, int height_)
 	impl->window = glfwCreateWindow(impl->width, impl->height, impl->name.c_str(), NULL, NULL);
 	if (impl->window == NULL)
 	{
-		Platform::Debug("Failed to create GLFW window\n");
+		Debug("Failed to create GLFW window\n");
 		glfwTerminate();
 		return false;
 	}
@@ -180,7 +180,7 @@ bool FrameWork::Create(int width_, int height_)
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		Platform::Debug("Failed to initialize GLAD\n");
+		Debug("Failed to initialize GLAD\n");
 		return false;
 	}
 
@@ -216,7 +216,7 @@ bool FrameWork::Create(int width_, int height_)
 
 	if (!OnCreate())
 	{
-		Platform::Debug("FrameWork::Create Failed.\n");
+		Debug("FrameWork::Create Failed.\n");
 		return false;
 	}
 

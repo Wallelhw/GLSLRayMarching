@@ -54,18 +54,20 @@ public:
 
 	float CostFunction(const Vector2& targetValue, const std::vector<float>& values)
 	{
-		Vector2 hand;
+		Vector2 currentEffectorPos;
 		for (int i = jointPositions.size() - 1; i >= 0; i--)
 		{
 			if (i == jointPositions.size() - 1)
-				hand = Vector2(GetLength(i), 0);
+				currentEffectorPos = Vector2(GetLength(i), 0);
 			else
-				hand += Vector2(GetLength(i), 0);
+				currentEffectorPos += Vector2(GetLength(i), 0);
 			
-			hand = Rotate(values[i], hand);
+			currentEffectorPos = Rotate(values[i], currentEffectorPos);
 		}
 
-		return (Vector2(hand.X(), hand.Y()) + GetRoot() - targetValue).Length();
+		currentEffectorPos += GetRoot();
+
+		return (currentEffectorPos - targetValue).Length();
 	}
 
 	Vector2 Rotate(float angle, const Vector2& hand)

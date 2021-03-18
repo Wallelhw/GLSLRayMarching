@@ -57,7 +57,7 @@ public:
 			jointAngle[1] = 180 - beta; // Angle B
 		}
 
-		// Platform::Debug("%f %f %f %f %f %f\n", targetPosition.X(), targetPosition.Y(), jointAngle[0], jointAngle[1]);
+		// Debug("%f %f %f %f %f %f\n", targetPosition.X(), targetPosition.Y(), jointAngle[0], jointAngle[1]);
 	}
 
 	virtual void OnDestroy() override
