@@ -28,7 +28,7 @@ GameObject::Manager& GameObject::Manager::GetInstance()
 
 bool GameObject::Manager::Construct()
 {
-	Platform::Debug("GameObject::Manager::Construct()\n");
+	Debug("GameObject::Manager::Construct()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
@@ -41,7 +41,7 @@ bool GameObject::Manager::Construct()
 
 bool GameObject::Manager::Start()
 {
-	Platform::Debug("GameObject::Manager::Start()\n");
+	Debug("GameObject::Manager::Start()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
@@ -54,7 +54,7 @@ bool GameObject::Manager::Start()
 
 bool GameObject::Manager::Update()
 {
-	Platform::Debug("GameObject::Manager::Update()\n");
+	//Debug("GameObject::Manager::Update()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
@@ -67,7 +67,7 @@ bool GameObject::Manager::Update()
 
 bool GameObject::Manager::Pause()
 {
-	Platform::Debug("GameObject::Manager::Pause()\n");
+	Debug("GameObject::Manager::Pause()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
@@ -80,7 +80,7 @@ bool GameObject::Manager::Pause()
 
 void GameObject::Manager::Resume()
 {
-	Platform::Debug("GameObject::Manager::Resume()\n");
+	Debug("GameObject::Manager::Resume()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
@@ -98,7 +98,7 @@ void GameObject::Manager::Stop()
 
 void GameObject::Manager::Destruct()
 {
-	Platform::Debug("GameObject::Manager::Destruct()\n");
+	Debug("GameObject::Manager::Destruct()\n");
 
 	for (auto& gameObject : gameObjects)
 	{

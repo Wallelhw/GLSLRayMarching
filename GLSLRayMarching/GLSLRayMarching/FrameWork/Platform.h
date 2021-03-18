@@ -54,30 +54,31 @@ enum class Modifier
 class Platform
 {
 public:
-	static void* window;
+	static bool Instantiate();
+	static bool Update();
+	static bool Pause();
+	static void Resume();
+	static void Terminate();
 
-	static std::string appName;
-	static int displayWidth;
-	static int displayHeight;
-
-	static int modifier;
-	static int button;
-	static int action;
-	static float x;
-	static float y;
-
-	static int polygonLimit;
-
-	static const char* Format(const char* format, ...);
-	static void Verbose(const char* s, ...);
-	static void Debug(const char* s, ...);
-	static void Info(const char* s, ...);
-	static void Warning(const char* s, ...);
-	static void Error(const char* s, ...);
-
-	static void MemSet(void* dst, int val, int size);
-	static void MemCpy(void* dst, const void* src, int size);
-	static int MemCmp(const void* s1, const void* s2, int size);
+	static double GetTime();
+	static double GetElapsed();
+private:
+	static double time;
+	static double elapsedTime;
 };
 
+void MemSet(void* dst, int val, int size);
+void MemCpy(void* dst, const void* src, int size);
+int MemCmp(const void* s1, const void* s2, int size);
+
+const char* Format(const char* format, ...);
+void Verbose(const char* s, ...);
+void Debug(const char* s, ...);
+void Info(const char* s, ...);
+void Warning(const char* s, ...);
+void Error(const char* s, ...);
+
+//static 
+//time_t time(time_t* timer);
+//
 #endif

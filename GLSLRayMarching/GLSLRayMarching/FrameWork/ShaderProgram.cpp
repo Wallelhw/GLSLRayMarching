@@ -105,7 +105,7 @@ void ShaderProgram::Destroy()
 		glDeleteProgram(impl->handle);
 		impl->handle = 0;
 
-		Platform::MemSet(impl, 0, sizeof(*impl));
+		MemSet(impl, 0, sizeof(*impl));
 	}
 }
 
@@ -1479,7 +1479,7 @@ bool ShaderProgram::CheckCompileErrors(unsigned int shader, std::string type) co
 		if (!success)
 		{
 			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			Platform::Debug("ERROR::SHADER_COMPILATION_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
+			Debug("ERROR::SHADER_COMPILATION_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
 
 			return false;
 		}
@@ -1490,7 +1490,7 @@ bool ShaderProgram::CheckCompileErrors(unsigned int shader, std::string type) co
 		if (!success)
 		{
 			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			Platform::Debug("ERROR::PROGRAM_LINKING_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
+			Debug("ERROR::PROGRAM_LINKING_ERROR of type: %s%s%s%s\n", type.c_str(), "\n", infoLog, "\n");
 
 			return false;
 		}

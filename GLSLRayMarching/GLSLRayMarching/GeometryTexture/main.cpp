@@ -228,7 +228,7 @@ public:
 
 		float scale = powf(2.0f, floor(lod));
 		int triangleCount = (int)(GEOMETRY_TEXTURE_SIZE * GEOMETRY_TEXTURE_SIZE / (scale) / (scale));
-		Platform::Debug("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
+		Debug("%f: %f %f %d\n", lod, floor(lod), scale, triangleCount);
 
 		primitives.Bind();
 		primitives.DrawArrayInstanced(Primitives::Mode::TRIANGLES, 0, primitives.GetCount(), triangleCount);

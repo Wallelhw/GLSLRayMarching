@@ -7,118 +7,152 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 #include "Platform.h"
+#include <time.h>       /* time_t, struct tm, time, localtime */
 
-#define Assert(cond)  assert((cond))
+time_t startTimer;
+time_t lastTimer;
 
-	void* Platform::window = nullptr;
+double Platform::time = 0;
+double Platform::elapsedTime = 0;
 
-	std::string Platform::appName = "Default";
-	int Platform::displayWidth = 1920;
-	int Platform::displayHeight = 1080;
+bool Platform::Instantiate()
+{
+	::time(&startTimer);
 
-	int Platform::modifier = 0;
-	int Platform::button = 0;
-	int Platform::action = 0;
-	float Platform::x = 0;
-	float Platform::y = 0;
+	return true;
+}
 
-	int Platform::polygonLimit = 300;
+bool Platform::Update()
+{
+	time_t timer;
+	::time(&timer);
 
-	const char* Platform::Format(const char* format, ...)
-	{
-		static char buffer[4096];
+	time = difftime(timer, startTimer);
+	elapsedTime = difftime(timer, lastTimer);
 
-		va_list aptr;
-		int ret;
+	lastTimer = timer;
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+	return true;
+}
 
-		return (const char*)buffer;
-	}
+bool Platform::Pause()
+{
+	return true;
+}
 
-	void Platform::Verbose(const char* format, ...)
-	{
-		char buffer[4096];
+void Platform::Resume()
+{
+}
 
-		va_list aptr;
-		int ret;
+void Platform::Terminate()
+{
+}
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+double Platform::GetTime()
+{
+	return time;
+}
 
-		printf("Verbose: %s", buffer);
-	}
+double Platform::GetElapsed()
+{
+	return elapsedTime;
+}
 
-	void Platform::Debug(const char* format, ...)
-	{
-		char buffer[4096];
+const char* Format(const char* format, ...)
+{
+	static char buffer[4096];
 
-		va_list aptr;
-		int ret;
+	va_list aptr;
+	int ret;
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
 
-		printf("Debug: %s", buffer);
-	}
+	return (const char*)buffer;
+}
 
-	void Platform::Info(const char* format, ...)
-	{
-		char buffer[4096];
+void Verbose(const char* format, ...)
+{
+	char buffer[4096];
 
-		va_list aptr;
-		int ret;
+	va_list aptr;
+	int ret;
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
 
-		printf("Info: %s", buffer);
-	}
+	printf("Verbose: %s", buffer);
+}
 
-	void Platform::Warning(const char* format, ...)
-	{
-		char buffer[4096];
+void Debug(const char* format, ...)
+{
+	char buffer[4096];
 
-		va_list aptr;
-		int ret;
+	va_list aptr;
+	int ret;
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
 
-		printf("Warning: %s", buffer);
-	}
+	printf("Debug: %s", buffer);
+}
 
-	void Platform::Error(const char* format, ...)
-	{
-		char buffer[4096];
+void Info(const char* format, ...)
+{
+	char buffer[4096];
 
-		va_list aptr;
-		int ret;
+	va_list aptr;
+	int ret;
 
-		va_start(aptr, format);
-		ret = vsprintf(buffer, format, aptr);
-		va_end(aptr);
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
 
-		printf("Error: %s", buffer);
-	}
+	printf("Info: %s", buffer);
+}
 
-	void Platform::MemSet(void* dst, int val, int size)
-	{
-		::memset(dst, val, size);
-	}
+void Warning(const char* format, ...)
+{
+	char buffer[4096];
 
-	void Platform::MemCpy(void* dst, const void* src, int size)
-	{
-		::memcpy(dst, src, size);
-	}
+	va_list aptr;
+	int ret;
 
-	int Platform::MemCmp(const void* s1, const void* s2, int size)
-	{
-		return ::memcmp(s1, s2, size);
-	}
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
+
+	printf("Warning: %s", buffer);
+}
+
+void Error(const char* format, ...)
+{
+	char buffer[4096];
+
+	va_list aptr;
+	int ret;
+
+	va_start(aptr, format);
+	ret = vsprintf(buffer, format, aptr);
+	va_end(aptr);
+
+	printf("Error: %s", buffer);
+}
+
+void MemSet(void* dst, int val, int size)
+{
+	::memset(dst, val, size);
+}
+
+void MemCpy(void* dst, const void* src, int size)
+{
+	::memcpy(dst, src, size);
+}
+
+int MemCmp(const void* s1, const void* s2, int size)
+{
+	return ::memcmp(s1, s2, size);
+}

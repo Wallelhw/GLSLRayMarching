@@ -113,7 +113,7 @@ public:
 
 	int CompareArrays(const TVector3& v) const
 	{
-		return Platform::MemCmp(m, v.m, 3 * sizeof(T));
+		return MemCmp(m, v.m, 3 * sizeof(T));
 	}
 
 	bool operator!= (const TVector3& v) const

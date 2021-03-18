@@ -28,22 +28,6 @@ bool DefaultScene::OnStart()
 
 bool DefaultScene::OnUpdate()
 {
-	
-	/*
-	static int a = 0;
-
-	if (a == 0)
-	{
-		Push("Mac1");
-		a = 1;
-	}
-	else if (a == 1)
-	{
-		Push("Mac2");
-		a = 0;
-	}
-	*/
-
 	return Push("Mac1");
 }
 

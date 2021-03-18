@@ -38,6 +38,9 @@ FrameWork2::~FrameWork2()
 
 bool FrameWork2::Create()
 {
+	if (!Platform::Instantiate())
+		return false;
+
 	if (!ServiceManager::GetInstance().Initialize())
 	{
 		return false;
@@ -45,7 +48,7 @@ bool FrameWork2::Create()
 
 	if (!OnCreate())
 	{
-		Platform::Debug("FrameWork2::Create Failed.\n");
+		Debug("FrameWork2::Create Failed.\n");
 		return false;
 	}
 
@@ -56,6 +59,11 @@ bool FrameWork2::Start()
 {
 	while (!Video::Manager::GetInstance().ShouldClose())
 	{
+		//Platform::Pause();
+		//Platform::Resume();
+		if (!Platform::Update())
+			return false;
+
 		if (!ServiceManager::GetInstance().Process())
 		{
 			return false;
@@ -79,6 +87,8 @@ void FrameWork2::Destroy()
 	OnDestroy();
 
 	ServiceManager::GetInstance().Terminate();
+
+	Platform::Terminate();
 }
 
 FrameWork2& FrameWork2::GetInstance()

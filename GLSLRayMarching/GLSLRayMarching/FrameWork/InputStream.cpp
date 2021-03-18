@@ -99,7 +99,7 @@ MemInputStream::~MemInputStream()
 
 void MemInputStream::ReadBuffer(void* buffer, int size, bool reverseOrder)
 {
-	Platform::MemCpy(buffer, data_ptr, size);
+	MemCpy(buffer, data_ptr, size);
 	
 	data_ptr += size;
 	current += size;

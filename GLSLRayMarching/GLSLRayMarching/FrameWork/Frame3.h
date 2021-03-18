@@ -1,7 +1,7 @@
 #ifndef _Frame3_h_
 #define _Frame3_h_
 
-#include "PLatform.h"
+#include "Platform.h"
 #include "Vector3.h"
 #include "Matrix4.h"
 #include <vector>

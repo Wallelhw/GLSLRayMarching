@@ -221,7 +221,7 @@ void Texture::Destroy()
 		glDeleteTextures(1, &impl->handle);
 		impl->handle = 0;
 
-		Platform::MemSet(impl, 0, sizeof(*impl));
+		MemSet(impl, 0, sizeof(*impl));
 	}
 }
 
