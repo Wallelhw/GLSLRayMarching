@@ -182,9 +182,6 @@
     <ClInclude Include="TestCamera.h" />
     <ClInclude Include="ShaderToyComponent.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\3rdparty\RadeonRays\RadeonRays.vcxproj" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

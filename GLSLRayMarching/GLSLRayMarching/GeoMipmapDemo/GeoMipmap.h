@@ -13,7 +13,7 @@
 #include "AABB3.h"
 #include "Camera.h"
 
-//#define CAPTURE_GRAPHICS
+// #define CAPTURE_GRAPHICS
 
 template<class T>
 class GeoMipmap
@@ -763,6 +763,8 @@ public:
 				}
 			}
 		}
+
+		int a = 1;
 	}
 
 	void DrawMipmap2(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
@@ -884,20 +886,13 @@ public:
 		}
 	}
 
-	void DrawCamera(Camera& camera)
-	{
-		Primitives primitives;
-	}
-
-	void Update(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
+	void Render(Camera& camera, const Vector2& screenSize, bool solid, bool wire)
 	{
 #ifdef CAPTURE_GRAPHICS
 		DrawMipmap2(camera, screenSize, solid, wire);
 #else
 		DrawMipmap(camera, screenSize, solid, wire);
 #endif
-
-		DrawCamera(camera);
 	}
 
 	void Destroy()

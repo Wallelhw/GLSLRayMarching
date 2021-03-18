@@ -411,7 +411,7 @@ void Input::UpdateKeyOrMouseButton()
 		else
 			rawValue = -1.0;
 
-		currentValue += rawValue * sensitivity * Platform::GetElapsed();
+		currentValue += rawValue * sensitivity * Platform::GetDeltaTime();
 	}
 	else if (Input::Manager::GetInstance().currentValues[negVK1] > deadzone || Input::Manager::GetInstance().currentValues[negVK2] > deadzone)
 	{
@@ -420,12 +420,12 @@ void Input::UpdateKeyOrMouseButton()
 		else
 			rawValue = 1.0;
 
-		currentValue += rawValue * sensitivity * Platform::GetElapsed();
+		currentValue += rawValue * sensitivity * Platform::GetDeltaTime();
 	}
 
 	if (gravity != 0)
 	{
-		currentValue -= Math::Sgn(currentValue) * gravity * Platform::GetElapsed();
+		currentValue -= Math::Sgn(currentValue) * gravity * Platform::GetDeltaTime();
 	}
 
 	if (currentValue > 1.0)
@@ -461,8 +461,8 @@ void Input::Update()
 
 /////////////////////////////////////////////////////////////////////
 Input::Manager::Manager()
-: lastValues(256)
-, currentValues(256)
+: lastValues(Platform::GetKeyCount())
+, currentValues(Platform::GetKeyCount())
 , mouseMovement(0, 0)
 {
 }
@@ -595,11 +595,13 @@ bool Input::Manager::Initialize()
 
 bool Input::Manager::Process()
 {
-	for (int i = VK_LBUTTON; i < VK_OEM_CLEAR; i++)
+	for (int i = 0; i < Platform::GetKeyCount(); i++)
 	{
 		lastValues[i] = currentValues[i];
-		currentValues[i] = ((GetAsyncKeyState(i) & 0x8000)!=0) ? 1 : -1;
+		currentValues[i] = Platform::GetKey(i);
 	}
+
+	mouseMovement = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
 
 	for (auto& input : inputs)
 	{

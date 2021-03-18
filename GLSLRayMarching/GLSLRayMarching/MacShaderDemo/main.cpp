@@ -1,7 +1,6 @@
 #include "FrameWork2.h"
 #include "Video.h"
 
-
 /////////////////////////////////////////////////////////////////////
 #include "Service.h"
 #include "ResourceAccess.h"
@@ -40,7 +39,7 @@ class MacShaderDemoApp : public FrameWork2
 {
 public:
 	MacShaderDemoApp()
-		: FrameWork2("MacShaderDemo")
+		: FrameWork2()
 	{
 	}
 
@@ -66,11 +65,9 @@ private:
 
 int main(int argc, char** argv)
 {
-	srand((unsigned int)time(0));
-
 	MacShaderDemoApp macShaderDemoApp;
 
-	if (!macShaderDemoApp.Create())
+	if (!macShaderDemoApp.Create(800*2, 400 * 2, "MacShaderDemo", "Mac1"))
 		return -1;
 
 	macShaderDemoApp.Start();

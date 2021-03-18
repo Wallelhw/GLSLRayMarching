@@ -6,23 +6,20 @@
 class FrameWork2Impl
 {
 public:
-	FrameWork2Impl(const std::string& name_)
-		: name(name_)
+	FrameWork2Impl()
 	{
 	}
-
-	std::string name;
 };
 
 FrameWork2* FrameWork2::instance = nullptr;
 
-FrameWork2::FrameWork2(const std::string& name_)
+FrameWork2::FrameWork2()
 : impl(nullptr)
 {
 	assert(!instance);
 	instance = this;
 
-	impl = new FrameWork2Impl(name_);
+	impl = new FrameWork2Impl();
 }
 
 FrameWork2::~FrameWork2()
@@ -36,9 +33,9 @@ FrameWork2::~FrameWork2()
 	instance = nullptr;
 }
 
-bool FrameWork2::Create()
+bool FrameWork2::Create(int width_, int height_, const std::string& appName_, const std::string& initialScene_)
 {
-	if (!Platform::Instantiate())
+	if (!Platform::Instantiate(width_, height_, appName_.c_str(), initialScene_.c_str()))
 		return false;
 
 	if (!ServiceManager::GetInstance().Initialize())
@@ -57,11 +54,11 @@ bool FrameWork2::Create()
 
 bool FrameWork2::Start()
 {
-	while (!Video::Manager::GetInstance().ShouldClose())
+	while (!Platform::QuitApp())
 	{
 		//Platform::Pause();
 		//Platform::Resume();
-		if (!Platform::Update())
+		if (!Platform::PreUpdate())
 			return false;
 
 		if (!ServiceManager::GetInstance().Process())
@@ -77,6 +74,9 @@ bool FrameWork2::Start()
 			//ServiceManager::GetInstance().Pause();
 			//ServiceManager::GetInstance().Resume();
 		//}
+
+		if (!Platform::PostUpdate())
+			return false;
 	}
 
 	return true;

@@ -118,23 +118,6 @@ public:
 		void Remove(CameraComponent* camera);
 		void Remove(RendererComponent* renderer);
 		void Remove(Graphics3Component* graphics3);
-
-		bool IsKeyPressed(char key) const;
-		bool IsKeyRelease(char key) const;
-		bool IsKeyRepeat(char key) const;
-		void GetTheta(float& theta_, float& phi_) const;
-		double GetTime() const;
-		double GetDeltaTime() const;
-		Vector4 GetMouse() const;
-		Vector2 GetMouseDelta() const;
-		int GetMouseLeftButtonStatus() const;
-		int GetMouseMidButtonStatus() const;
-		int GetMouseRightButtonStatus() const;
-		int GetFrameCounter() const;
-		unsigned int GetWidth() const;
-		unsigned int GetHeight() const;
-
-		bool ShouldClose() const;
 	private:
 		std::vector<CameraComponent*> cameras;
 		std::vector<RendererComponent*> renderers;
