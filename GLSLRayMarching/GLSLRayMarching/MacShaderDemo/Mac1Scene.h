@@ -16,6 +16,8 @@
 #include "ShaderToyComponent.h"
 #include "PathTraceComponent.h"
 
+#define PATH_TRACING
+
 class Mac1Scene : public Scene
 {
 public:
@@ -40,8 +42,12 @@ protected:
 private:
 	GameObject gameObject;
 	TestCamera testCamera;
+	
+#ifdef PATH_TRACING
+	PathTraceComponent pathTraceComponent;
+#else
 	ShaderToyComponent shaderToyComponent;
-	//PathTraceComponent pathTraceComponent;
+#endif
 };
 
 #endif

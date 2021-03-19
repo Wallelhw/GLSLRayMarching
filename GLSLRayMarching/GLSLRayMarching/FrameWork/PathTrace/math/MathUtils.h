@@ -32,6 +32,7 @@
 
 namespace GLSLPT
 {
+    /*
     struct Math
     {
     public:
@@ -40,4 +41,5 @@ namespace GLSLPT
         static inline float Radians(float degrees) { return degrees * (PI / 180.f); };
         static inline float Clamp(float x, float lower, float upper) { return std::min(upper, std::max(x, lower)); };
     };
+    */
 }

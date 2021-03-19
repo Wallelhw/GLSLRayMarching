@@ -68,6 +68,16 @@ public:
 	static float FastInvTan1(float value);
 	static float FastInvSqrt(float value);
 
+	static float Radians(float deg)
+	{
+		return deg * Degree2Radian;
+	}
+
+	static float Degrees(float radian)
+	{
+		return radian * Radian2Degree;
+	}
+
 	static const float Epsilon;
 	static const float ZeroTolerance;
 	static const float MaxValue;

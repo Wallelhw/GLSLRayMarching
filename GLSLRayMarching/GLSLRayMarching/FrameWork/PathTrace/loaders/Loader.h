@@ -26,7 +26,7 @@
 
 #include <cstring>
 #include "PTScene.h"
-
+#include "../../Maths.h"
 namespace GLSLPT
 {
     class Scene;

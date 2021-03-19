@@ -26,8 +26,6 @@ public:
 	private:
 		void Render();
 
-		virtual void OnRender() = 0;
-
 		virtual bool OnConstruct() override;
 
 		virtual bool OnStart() override;
@@ -41,6 +39,8 @@ public:
 		virtual void OnStop() override;
 
 		virtual void OnDestruct() override;
+
+		virtual void OnRender() = 0;
 	};
 
 	class RendererComponent : public Component
@@ -54,8 +54,6 @@ public:
 	private:
 		void Render();
 
-		virtual void OnRender() = 0;
-
 		virtual bool OnConstruct() override;
 
 		virtual bool OnStart() override;
@@ -69,6 +67,8 @@ public:
 		virtual void OnStop() override;
 
 		virtual void OnDestruct() override;
+
+		virtual void OnRender() = 0;
 	private:
 	};
 
@@ -82,8 +82,6 @@ public:
 	private:
 		void Render();
 
-		virtual void OnRender() = 0;
-
 		virtual bool OnConstruct() override;
 
 		virtual bool OnStart() override;
@@ -97,6 +95,8 @@ public:
 		virtual void OnStop() override;
 
 		virtual void OnDestruct() override;
+
+		virtual void OnRender() = 0;
 	};
 
 	class Manager
