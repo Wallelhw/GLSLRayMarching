@@ -7,11 +7,15 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 #include "Mac1Scene.h"
+#include "Input.h"
 
 Mac1Scene::Mac1Scene()
 : testCamera(gameObject)
+#ifdef PATH_TRACING
+, pathTraceComponent(gameObject)
+#else
 , shaderToyComponent(gameObject)
-//, pathTraceComponent(gameObject)
+#endif
 {
 }
 
@@ -22,8 +26,12 @@ Mac1Scene::~Mac1Scene()
 bool Mac1Scene::OnConstruct()
 {
 	gameObject.Add(&testCamera);
+	
+#ifdef PATH_TRACING
+	gameObject.Add(&pathTraceComponent);
+#else
 	gameObject.Add(&shaderToyComponent);
-	//gameObject.Add(&pathTraceComponent);
+#endif
 
 	return true;
 }
@@ -33,26 +41,21 @@ bool Mac1Scene::OnStart()
 	return true;
 }
 
-#include "Input.h"
-
 bool Mac1Scene::OnUpdate()
 {
-	if (Input::Manager::GetInstance().GetKey(Input::KeyCode::L))
-		Debug("Key is Held");
-	if (Input::Manager::GetInstance().GetKeyDown(Input::KeyCode::L))
-		Debug("Key is Down");
-	if (Input::Manager::GetInstance().GetKeyUp(Input::KeyCode::L))
-		Debug("Key is Up");
+	if (Input::Manager::GetInstance().GetKeyHold(Platform::KeyCode::KeypadEnter))
+		Debug("Key is Held\n");
+	if (Input::Manager::GetInstance().GetKeyDown(Platform::KeyCode::KeypadEnter))
+		Debug("Key is Down\n");
+	if (Input::Manager::GetInstance().GetKeyUp(Platform::KeyCode::KeypadEnter))
+		Debug("Key is Up\n");
 
-	if (Input::Manager::GetInstance().GetMouseButtonDown(0))
-		Debug("Mouse is Down");
-	if (Input::Manager::GetInstance().GetMouseButtonUp(0))
-		Debug("Mouse is Up");
-	if (Input::Manager::GetInstance().GetMouseButton(0))
-	{
-		Vector2 v = Input::Manager::GetInstance().GetMouseMovement();
-		Debug("Mouse is Held %f %f\n", v.X(), v.Y());
-	}
+	if (Input::Manager::GetInstance().GetMouseButtonHold(1))
+		Debug("Mouse is Held\n");
+	if (Input::Manager::GetInstance().GetMouseButtonDown(1))
+		Debug("Mouse is Down\n");
+	if (Input::Manager::GetInstance().GetMouseButtonUp(1))
+		Debug("Mouse is Up\n");
 
 	return true;
 }

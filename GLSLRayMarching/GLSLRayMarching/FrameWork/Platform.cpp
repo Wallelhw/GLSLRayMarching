@@ -13,20 +13,24 @@ std::string initialScene = "";
 void* handle = nullptr;
 int width = 0;
 int height = 0;
-
-bool keystates[KEY_COUNT] = {};
-Platform::Mouse mouse = { 0, 0, 0, 0, 0 };
-
 double currentTime = 0;
 double deltaTime = 0;
 int totalFrameCounter = 0;
 int sceneFrameCounter = 0;
 bool quitApp = false;
 
-Platform::JoyStick joySticks[JOYSTICK_COUNT];
-int joyStickCount = 0;
+bool keystates[(int)Platform::KeyCode::Count] = { 0 };
+bool oldkeystates[(int)Platform::KeyCode::Count] = { 0 };
 
-#if (PLATFORM == WINDOWS_64)
+Platform::Mouse mouse = { 0 };
+
+Platform::JoyStick joySticks[JOYSTICK_COUNT] = { 0 };
+bool joyStickConnected[JOYSTICK_COUNT] = { 0 };
+std::vector<std::string> joyStickNames;
+
+std::vector<std::string> dropPaths;
+
+#if (PLATFORM == GLFW)
 #include <time.h>
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
@@ -45,14 +49,357 @@ static void glfw_error_callback(int error_code, const char* description)
 {
 	Debug("GLFW Error: [%d] %s\n", error_code, description);
 }
+
+std::vector<int> glfwKeyCodes =
+{
+	GLFW_KEY_SPACE              ,
+	GLFW_KEY_APOSTROPHE         ,
+	GLFW_KEY_COMMA              ,
+	GLFW_KEY_MINUS              ,
+	GLFW_KEY_PERIOD             ,
+	GLFW_KEY_SLASH              ,
+	GLFW_KEY_0                  ,
+	GLFW_KEY_1                  ,
+	GLFW_KEY_2                  ,
+	GLFW_KEY_3                  ,
+	GLFW_KEY_4                  ,
+	GLFW_KEY_5                  ,
+	GLFW_KEY_6                  ,
+	GLFW_KEY_7                  ,
+	GLFW_KEY_8                  ,
+	GLFW_KEY_9                  ,
+	GLFW_KEY_SEMICOLON          ,
+	GLFW_KEY_EQUAL              ,
+	GLFW_KEY_A                  ,
+	GLFW_KEY_B                  ,
+	GLFW_KEY_C                  ,
+	GLFW_KEY_D                  ,
+	GLFW_KEY_E                  ,
+	GLFW_KEY_F                  ,
+	GLFW_KEY_G                  ,
+	GLFW_KEY_H                  ,
+	GLFW_KEY_I                  ,
+	GLFW_KEY_J                  ,
+	GLFW_KEY_K                  ,
+	GLFW_KEY_L                  ,
+	GLFW_KEY_M                  ,
+	GLFW_KEY_N                  ,
+	GLFW_KEY_O                  ,
+	GLFW_KEY_P                  ,
+	GLFW_KEY_Q                  ,
+	GLFW_KEY_R                  ,
+	GLFW_KEY_S                  ,
+	GLFW_KEY_T                  ,
+	GLFW_KEY_U                  ,
+	GLFW_KEY_V                  ,
+	GLFW_KEY_W                  ,
+	GLFW_KEY_X                  ,
+	GLFW_KEY_Y                  ,
+	GLFW_KEY_Z                  ,
+	GLFW_KEY_LEFT_BRACKET       ,
+	GLFW_KEY_BACKSLASH          ,
+	GLFW_KEY_RIGHT_BRACKET      ,
+	GLFW_KEY_GRAVE_ACCENT       ,
+	GLFW_KEY_WORLD_1            ,
+	GLFW_KEY_WORLD_2            ,
+	GLFW_KEY_ESCAPE             ,
+	GLFW_KEY_ENTER              ,
+	GLFW_KEY_TAB                ,
+	GLFW_KEY_BACKSPACE          ,
+	GLFW_KEY_INSERT             ,
+	GLFW_KEY_DELETE             ,
+	GLFW_KEY_RIGHT              ,
+	GLFW_KEY_LEFT               ,
+	GLFW_KEY_DOWN               ,
+	GLFW_KEY_UP                 ,
+	GLFW_KEY_PAGE_UP            ,
+	GLFW_KEY_PAGE_DOWN          ,
+	GLFW_KEY_HOME               ,
+	GLFW_KEY_END                ,
+	GLFW_KEY_CAPS_LOCK          ,
+	GLFW_KEY_SCROLL_LOCK        ,
+	GLFW_KEY_NUM_LOCK           ,
+	GLFW_KEY_PRINT_SCREEN       ,
+	GLFW_KEY_PAUSE              ,
+	GLFW_KEY_F1                 ,
+	GLFW_KEY_F2                 ,
+	GLFW_KEY_F3                 ,
+	GLFW_KEY_F4                 ,
+	GLFW_KEY_F5                 ,
+	GLFW_KEY_F6                 ,
+	GLFW_KEY_F7                 ,
+	GLFW_KEY_F8                 ,
+	GLFW_KEY_F9                 ,
+	GLFW_KEY_F10                ,
+	GLFW_KEY_F11                ,
+	GLFW_KEY_F12                ,
+	GLFW_KEY_F13                ,
+	GLFW_KEY_F14                ,
+	GLFW_KEY_F15                ,
+	GLFW_KEY_F16                ,
+	GLFW_KEY_F17                ,
+	GLFW_KEY_F18                ,
+	GLFW_KEY_F19                ,
+	GLFW_KEY_F20                ,
+	GLFW_KEY_F21                ,
+	GLFW_KEY_F22                ,
+	GLFW_KEY_F23                ,
+	GLFW_KEY_F24                ,
+	GLFW_KEY_F25                ,
+	GLFW_KEY_KP_0               ,
+	GLFW_KEY_KP_1               ,
+	GLFW_KEY_KP_2               ,
+	GLFW_KEY_KP_3               ,
+	GLFW_KEY_KP_4               ,
+	GLFW_KEY_KP_5               ,
+	GLFW_KEY_KP_6               ,
+	GLFW_KEY_KP_7               ,
+	GLFW_KEY_KP_8               ,
+	GLFW_KEY_KP_9               ,
+	GLFW_KEY_KP_DECIMAL         ,
+	GLFW_KEY_KP_DIVIDE          ,
+	GLFW_KEY_KP_MULTIPLY        ,
+	GLFW_KEY_KP_SUBTRACT        ,
+	GLFW_KEY_KP_ADD             ,
+	GLFW_KEY_KP_ENTER           ,
+	GLFW_KEY_KP_EQUAL           ,
+	GLFW_KEY_LEFT_SHIFT         ,
+	GLFW_KEY_LEFT_CONTROL       ,
+	GLFW_KEY_LEFT_ALT           ,
+	GLFW_KEY_LEFT_SUPER         ,
+	GLFW_KEY_RIGHT_SHIFT        ,
+	GLFW_KEY_RIGHT_CONTROL      ,
+	GLFW_KEY_RIGHT_ALT          ,
+	GLFW_KEY_RIGHT_SUPER        ,
+	GLFW_KEY_MENU
+};
+
+std::map<int, Platform::KeyCode> glfwKeyCode2keyCodes =
+{
+	{	GLFW_KEY_SPACE              , Platform::KeyCode::Space			},
+	{	GLFW_KEY_APOSTROPHE         , Platform::KeyCode::Quote			},
+	{	GLFW_KEY_COMMA              , Platform::KeyCode::Comma			},
+	{	GLFW_KEY_MINUS              , Platform::KeyCode::Minus			},
+	{	GLFW_KEY_PERIOD             , Platform::KeyCode::Period			},
+	{	GLFW_KEY_SLASH              , Platform::KeyCode::Slash			},
+	{	GLFW_KEY_0                  , Platform::KeyCode::Alpha0			},
+	{	GLFW_KEY_1                  , Platform::KeyCode::Alpha1			},
+	{	GLFW_KEY_2                  , Platform::KeyCode::Alpha2			},
+	{	GLFW_KEY_3                  , Platform::KeyCode::Alpha3			},
+	{	GLFW_KEY_4                  , Platform::KeyCode::Alpha4			},
+	{	GLFW_KEY_5                  , Platform::KeyCode::Alpha5			},
+	{	GLFW_KEY_6                  , Platform::KeyCode::Alpha6			},
+	{	GLFW_KEY_7                  , Platform::KeyCode::Alpha7			},
+	{	GLFW_KEY_8                  , Platform::KeyCode::Alpha8			},
+	{	GLFW_KEY_9                  , Platform::KeyCode::Alpha9			},
+	{	GLFW_KEY_SEMICOLON          , Platform::KeyCode::Semicolon		},
+	{	GLFW_KEY_EQUAL              , Platform::KeyCode::Equals			},
+	{	GLFW_KEY_A                  , Platform::KeyCode::A				},
+	{	GLFW_KEY_B                  , Platform::KeyCode::B				},
+	{	GLFW_KEY_C                  , Platform::KeyCode::C				},
+	{	GLFW_KEY_D                  , Platform::KeyCode::D				},
+	{	GLFW_KEY_E                  , Platform::KeyCode::E				},
+	{	GLFW_KEY_F                  , Platform::KeyCode::F				},
+	{	GLFW_KEY_G                  , Platform::KeyCode::G				},
+	{	GLFW_KEY_H                  , Platform::KeyCode::H				},
+	{	GLFW_KEY_I                  , Platform::KeyCode::I				},
+	{	GLFW_KEY_J                  , Platform::KeyCode::J				},
+	{	GLFW_KEY_K                  , Platform::KeyCode::K				},
+	{	GLFW_KEY_L                  , Platform::KeyCode::L				},
+	{	GLFW_KEY_M                  , Platform::KeyCode::M				},
+	{	GLFW_KEY_N                  , Platform::KeyCode::N				},
+	{	GLFW_KEY_O                  , Platform::KeyCode::O				},
+	{	GLFW_KEY_P                  , Platform::KeyCode::P				},
+	{	GLFW_KEY_Q                  , Platform::KeyCode::Q				},
+	{	GLFW_KEY_R                  , Platform::KeyCode::R				},
+	{	GLFW_KEY_S                  , Platform::KeyCode::S				},
+	{	GLFW_KEY_T                  , Platform::KeyCode::T				},
+	{	GLFW_KEY_U                  , Platform::KeyCode::U				},
+	{	GLFW_KEY_V                  , Platform::KeyCode::V				},
+	{	GLFW_KEY_W                  , Platform::KeyCode::W				},
+	{	GLFW_KEY_X                  , Platform::KeyCode::X				},
+	{	GLFW_KEY_Y                  , Platform::KeyCode::Y				},
+	{	GLFW_KEY_Z                  , Platform::KeyCode::Z				},
+	{	GLFW_KEY_LEFT_BRACKET       , Platform::KeyCode::LeftBracket	},
+	{	GLFW_KEY_BACKSLASH          , Platform::KeyCode::Backslash		},
+	{	GLFW_KEY_RIGHT_BRACKET      , Platform::KeyCode::RightBracket	},
+	{	GLFW_KEY_GRAVE_ACCENT       , Platform::KeyCode::BackQuote		},
+	{	GLFW_KEY_WORLD_1            , Platform::KeyCode::None			},
+	{	GLFW_KEY_WORLD_2            , Platform::KeyCode::None			},
+	{	GLFW_KEY_ESCAPE             , Platform::KeyCode::Escape			},
+	{	GLFW_KEY_ENTER              , Platform::KeyCode::KeypadEnter	},
+	{	GLFW_KEY_TAB                , Platform::KeyCode::Tab			},
+	{	GLFW_KEY_BACKSPACE          , Platform::KeyCode::Backspace		},
+	{	GLFW_KEY_INSERT             , Platform::KeyCode::Insert			},
+	{	GLFW_KEY_DELETE             , Platform::KeyCode::Delete			},
+	{	GLFW_KEY_RIGHT              , Platform::KeyCode::RightArrow		},
+	{	GLFW_KEY_LEFT               , Platform::KeyCode::LeftArrow		},
+	{	GLFW_KEY_DOWN               , Platform::KeyCode::DownArrow		},
+	{	GLFW_KEY_UP                 , Platform::KeyCode::UpArrow		},
+	{	GLFW_KEY_PAGE_UP            , Platform::KeyCode::PageUp			},
+	{	GLFW_KEY_PAGE_DOWN          , Platform::KeyCode::PageDown		},
+	{	GLFW_KEY_HOME               , Platform::KeyCode::Home			},
+	{	GLFW_KEY_END                , Platform::KeyCode::End			},
+	{	GLFW_KEY_CAPS_LOCK          , Platform::KeyCode::CapsLock		},
+	{	GLFW_KEY_SCROLL_LOCK        , Platform::KeyCode::ScrollLock		},
+	{	GLFW_KEY_NUM_LOCK           , Platform::KeyCode::Numlock		},
+	{	GLFW_KEY_PRINT_SCREEN       , Platform::KeyCode::Print			},
+	{	GLFW_KEY_PAUSE              , Platform::KeyCode::Pause			},
+	{	GLFW_KEY_F1                 , Platform::KeyCode::F1				},
+	{	GLFW_KEY_F2                 , Platform::KeyCode::F2				},
+	{	GLFW_KEY_F3                 , Platform::KeyCode::F3				},
+	{	GLFW_KEY_F4                 , Platform::KeyCode::F4				},
+	{	GLFW_KEY_F5                 , Platform::KeyCode::F5				},
+	{	GLFW_KEY_F6                 , Platform::KeyCode::F6				},
+	{	GLFW_KEY_F7                 , Platform::KeyCode::F7				},
+	{	GLFW_KEY_F8                 , Platform::KeyCode::F8				},
+	{	GLFW_KEY_F9                 , Platform::KeyCode::F9				},
+	{	GLFW_KEY_F10                , Platform::KeyCode::F10			},
+	{	GLFW_KEY_F11                , Platform::KeyCode::F11			},
+	{	GLFW_KEY_F12                , Platform::KeyCode::F12			},
+	{	GLFW_KEY_F13                , Platform::KeyCode::F13			},
+	{	GLFW_KEY_F14                , Platform::KeyCode::F14			},
+	{	GLFW_KEY_F15                , Platform::KeyCode::F15			},
+	{	GLFW_KEY_F16                , Platform::KeyCode::F16			},
+	{	GLFW_KEY_F17                , Platform::KeyCode::F17			},
+	{	GLFW_KEY_F18                , Platform::KeyCode::F18			},
+	{	GLFW_KEY_F19                , Platform::KeyCode::F19			},
+	{	GLFW_KEY_F20                , Platform::KeyCode::F20			},
+	{	GLFW_KEY_F21                , Platform::KeyCode::F21			},
+	{	GLFW_KEY_F22                , Platform::KeyCode::F22			},
+	{	GLFW_KEY_F23                , Platform::KeyCode::F23			},
+	{	GLFW_KEY_F24                , Platform::KeyCode::F24			},
+	{	GLFW_KEY_F25                , Platform::KeyCode::F25			},
+	{	GLFW_KEY_KP_0               , Platform::KeyCode::Keypad0		},
+	{	GLFW_KEY_KP_1               , Platform::KeyCode::Keypad1		},
+	{	GLFW_KEY_KP_2               , Platform::KeyCode::Keypad2		},
+	{	GLFW_KEY_KP_3               , Platform::KeyCode::Keypad3		},
+	{	GLFW_KEY_KP_4               , Platform::KeyCode::Keypad4		},
+	{	GLFW_KEY_KP_5               , Platform::KeyCode::Keypad5		},
+	{	GLFW_KEY_KP_6               , Platform::KeyCode::Keypad6		},
+	{	GLFW_KEY_KP_7               , Platform::KeyCode::Keypad7		},
+	{	GLFW_KEY_KP_8               , Platform::KeyCode::Keypad8		},
+	{	GLFW_KEY_KP_9               , Platform::KeyCode::Keypad9		},
+	{	GLFW_KEY_KP_DECIMAL         , Platform::KeyCode::KeypadPeriod	},
+	{	GLFW_KEY_KP_DIVIDE          , Platform::KeyCode::KeypadDivide	},
+	{	GLFW_KEY_KP_MULTIPLY        , Platform::KeyCode::KeypadMultiply	},
+	{	GLFW_KEY_KP_SUBTRACT        , Platform::KeyCode::KeypadMinus	},
+	{	GLFW_KEY_KP_ADD             , Platform::KeyCode::KeypadPlus		},
+	{	GLFW_KEY_KP_ENTER           , Platform::KeyCode::KeypadEnter	},
+	{	GLFW_KEY_KP_EQUAL           , Platform::KeyCode::KeypadEquals	},
+	{	GLFW_KEY_LEFT_SHIFT         , Platform::KeyCode::LeftShift		},
+	{	GLFW_KEY_LEFT_CONTROL       , Platform::KeyCode::LeftControl	},
+	{	GLFW_KEY_LEFT_ALT           , Platform::KeyCode::LeftAlt		},
+	{	GLFW_KEY_LEFT_SUPER         , Platform::KeyCode::LeftWindows	},
+	{	GLFW_KEY_RIGHT_SHIFT        , Platform::KeyCode::RightShift		},
+	{	GLFW_KEY_RIGHT_CONTROL      , Platform::KeyCode::RightControl	},
+	{	GLFW_KEY_RIGHT_ALT          , Platform::KeyCode::RightAlt		},
+	{	GLFW_KEY_RIGHT_SUPER        , Platform::KeyCode::RightWindows	},
+	{	GLFW_KEY_MENU               , Platform::KeyCode::Menu			}
+};
+
+
+std::vector<int> glfwMouseKeyCodes =
+{
+	GLFW_MOUSE_BUTTON_1,
+	GLFW_MOUSE_BUTTON_2,
+	GLFW_MOUSE_BUTTON_3,
+	GLFW_MOUSE_BUTTON_4,
+	GLFW_MOUSE_BUTTON_5,
+	GLFW_MOUSE_BUTTON_6,
+	GLFW_MOUSE_BUTTON_7,
+	GLFW_MOUSE_BUTTON_8,
+};
+
+std::map<int, Platform::KeyCode> glfwMouseKeyCode2keyCodes =
+{
+	{	GLFW_MOUSE_BUTTON_1				, Platform::KeyCode::Mouse0		},
+	{	GLFW_MOUSE_BUTTON_2				, Platform::KeyCode::Mouse1		},
+	{	GLFW_MOUSE_BUTTON_3             , Platform::KeyCode::Mouse2		},
+	{	GLFW_MOUSE_BUTTON_4             , Platform::KeyCode::Mouse3		},
+	{	GLFW_MOUSE_BUTTON_5             , Platform::KeyCode::Mouse4		},
+	{	GLFW_MOUSE_BUTTON_6             , Platform::KeyCode::Mouse5		},
+	{	GLFW_MOUSE_BUTTON_7             , Platform::KeyCode::Mouse6		},
+	{	GLFW_MOUSE_BUTTON_8             , Platform::KeyCode::Mouse7		},
+};
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	/*
+	auto itr = glfwKeyCode2keyCodes.find(key);
+	if (itr != glfwKeyCode2keyCodes.end())
+	{
+		int idx = (int)itr->second;
+
+		oldkeystates[idx] = keystates[idx];
+
+		if (action == GLFW_PRESS)
+			keystates[idx] = 0x01;
+		else if (action == GLFW_RELEASE)
+			keystates[idx] = 0x02;
+		else //if(action == GLFW_REPEAT)
+			keystates[idx] = 0x04;
+	}
+	*/
+}
+
+std::vector<Platform::KeyCode> mouseButtonCodeMaps =
+{
+	Platform::KeyCode::Mouse0,
+	Platform::KeyCode::Mouse1,
+	Platform::KeyCode::Mouse2,
+	Platform::KeyCode::Mouse3,
+	Platform::KeyCode::Mouse4,
+	Platform::KeyCode::Mouse5,
+	Platform::KeyCode::Mouse6,
+};
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	/*
+	if (button < mouseButtonCodeMaps.size())
+	{
+		int idx = (int)mouseButtonCodeMaps[button];
+
+		oldkeystates[idx] = keystates[idx];
+
+		if (action == GLFW_PRESS)
+			keystates[idx] = 0x01;
+		else// if (action == GLFW_RELEASE)
+			keystates[idx] = 0x02;
+	}
+	*/
+}
+
+void joystick_callback(int jid, int event)
+{
+	if (event == GLFW_CONNECTED)
+	{
+		joyStickConnected[jid] = true;
+	}
+	else if (event == GLFW_DISCONNECTED)
+	{
+		joyStickConnected[jid] = false;
+	}
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+	dropPaths.resize(count);
+	for (int i = 0; i < count; i++)
+	{
+		dropPaths[i] = paths[i];
+	}
+}
+
 #endif
 
 bool Platform::Instantiate(int width_, int height_, const char* appName_, const char* initialScene_)
 {
-#if (PLATFORM == WINDOWS_64)
+#if (PLATFORM == GLFW)
 	currentTime = glfwGetTime();
 	deltaTime = 0;
-	
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -74,8 +421,12 @@ bool Platform::Instantiate(int width_, int height_, const char* appName_, const 
 	}
 
 	glfwMakeContextCurrent((GLFWwindow*)handle);
-	glfwSetFramebufferSizeCallback((GLFWwindow*)handle, (void (*)(GLFWwindow*, int, int))(framebuffer_size_callback));
 	glfwSetErrorCallback(glfw_error_callback);
+	glfwSetFramebufferSizeCallback((GLFWwindow*)handle, (void (*)(GLFWwindow*, int, int))(framebuffer_size_callback));
+	//glfwSetKeyCallback((GLFWwindow*)handle, key_callback);
+	//glfwSetMouseButtonCallback((GLFWwindow*)handle, mouse_button_callback);
+	glfwSetJoystickCallback(joystick_callback);
+	glfwSetDropCallback((GLFWwindow*)handle, drop_callback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -133,7 +484,7 @@ bool Platform::Instantiate(int width_, int height_, const char* appName_, const 
 
 bool Platform::PreUpdate()
 {
-#if (PLATFORM == WINDOWS_64)
+#if (PLATFORM == GLFW)
 	///////////////////////////////////////////////////
 	// time
 	double now = glfwGetTime();
@@ -150,28 +501,36 @@ bool Platform::PreUpdate()
 		glfwSetWindowShouldClose((GLFWwindow*)handle, true);
 	}
 
-	if(glfwWindowShouldClose((GLFWwindow*)handle))
+	if (glfwWindowShouldClose((GLFWwindow*)handle))
 		quitApp = true;
 
 	///////////////////////////////////////////////////
-	// Mouse Button
-	for (int i = GLFW_MOUSE_BUTTON_1; i < GLFW_MOUSE_BUTTON_8; i++)
+	// Button
+	for(int i=0; i<(int)Platform::KeyCode::Count; i++)
+		oldkeystates[i] = keystates[i];
+
+	for (int i = 0; i < glfwKeyCodes.size(); i++)
 	{
-		if (glfwGetMouseButton((GLFWwindow*)handle, i))
-			mouse.button |= ((0x01 << i));
-		else
-			mouse.button &= (~(0x01 << i));
+		int glfwKey = glfwKeyCodes[i];
+		Platform::KeyCode code = glfwKeyCode2keyCodes[glfwKey];
+		
+		int keyState = glfwGetKey((GLFWwindow*)handle, glfwKey);
+		if (keyState == GLFW_PRESS)
+			keystates[int(code)] = true;
+		else if (keyState == GLFW_RELEASE)
+			keystates[int(code)] = false;
 	}
 
-	//if (glfwGetMouseButton((GLFWwindow*)handle, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
-		//Debug("GLFW_PRESS %d\n", mouseButton);
-	//else if (glfwGetMouseButton((GLFWwindow*)handle, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
-		//Debug("GLFW_RELEASE %d\n", mouseButton);
-	//else if (glfwGetMouseButton((GLFWwindow*)handle, GLFW_MOUSE_BUTTON_1) == GLFW_REPEAT)
-		//Debug("GLFW_REPEAT %d\n", mouseButton);
-	for (int i = GLFW_KEY_A; i < GLFW_KEY_Z; i++)
+	for (int i = 0; i < glfwMouseKeyCodes.size(); i++)
 	{
-		keystates[i] = (glfwGetKey((GLFWwindow*)handle, i) == GLFW_PRESS);
+		int glfwKey = glfwMouseKeyCodes[i];
+		Platform::KeyCode code = glfwMouseKeyCode2keyCodes[glfwKey];
+
+		int keyState = glfwGetMouseButton((GLFWwindow*)handle, glfwKey);
+		if (keyState == GLFW_PRESS)
+			keystates[int(code)] = true;
+		else if (keyState == GLFW_RELEASE)
+			keystates[int(code)] = false;
 	}
 
 	///////////////////////////////////////////////////
@@ -180,30 +539,30 @@ bool Platform::PreUpdate()
 	double newMouseY = 0;
 	glfwGetCursorPos((GLFWwindow*)handle, &newMouseX, &newMouseY);
 	newMouseY = GetHeight() - 1 - newMouseY;
-	mouse.dx = newMouseX - mouse.x;
-	mouse.dy = newMouseY - mouse.y;
-	mouse.x = newMouseX;
-	mouse.y = newMouseY;
+	mouse.dx = (float)newMouseX - mouse.x;
+	mouse.dy = (float)newMouseY - mouse.y;
+	mouse.x = (float)newMouseX;
+	mouse.y = (float)newMouseY;
 	//Debug("%f %f %f %f\n", mousex, mousey, mousedx, mousedy);
 
 	///////////////////////////////////////////////////
 	// JoyStick
-	for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_16 && i<JOYSTICK_COUNT; i++)
+	for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_16 && i < JOYSTICK_COUNT; i++)
 	{
-		if (glfwJoystickPresent(i))
+		if (joyStickConnected[i])
 		{
 			const char* name = glfwGetJoystickName(i);
-			
+
 			//std::cout << name << ":";
 
 			int count;
 			const float* axes = glfwGetJoystickAxes(i, &count);
-			for (int j = 0; j < count && j< JOYSTICK_AXE_COUNT; j++)
+			for (int j = 0; j < count && j < JOYSTICK_AXE_COUNT; j++)
 			{
 				joySticks[i].axis[j] = axes[j];
 				//std::cout << ((fabs(axes[j]) < 0.0001) ? 0 :axes[j]) << " ,";
 			}
-						
+
 			const unsigned char* buttons = glfwGetJoystickButtons(i, &count);
 			for (int j = 0; j < count && j < JOYSTICK_BUTTON_COUNT; j++)
 			{
@@ -212,8 +571,6 @@ bool Platform::PreUpdate()
 			}
 
 			//std::cout << "\n";
-
-			joyStickCount++;
 		}
 	}
 
@@ -231,7 +588,7 @@ bool Platform::PreUpdate()
 #elif (PLATFORM == PS5)
 #elif (PLATFORM == XSX)
 #else
-	#pragma error("unsupported PLATFORM type. Please make sure PLATFORM is defined")
+#pragma error("unsupported PLATFORM type. Please make sure PLATFORM is defined")
 #endif
 
 	return true;
@@ -239,7 +596,7 @@ bool Platform::PreUpdate()
 
 bool Platform::PostUpdate()
 {
-#if (PLATFORM == WINDOWS_64)
+#if (PLATFORM == GLFW)
 	// Rendering
 	ImGui::Render();
 
@@ -282,7 +639,7 @@ void Platform::Resume()
 
 void Platform::Terminate()
 {
-#if (PLATFORM == WINDOWS_64)
+#if (PLATFORM == GLFW)
 	glfwDestroyWindow((GLFWwindow*)handle);
 	glfwTerminate();
 #elif (PLATFORM == MACOSX)
@@ -324,56 +681,6 @@ int Platform::GetHeight()
 	return height;
 }
 
-int Platform::GetKeyCount()
-{
-	return KEY_COUNT;
-}
-
-bool Platform::GetKey(int i)
-{
-	return keystates[i];
-}
-
-int Platform::GetJoyStickCount()
-{
-	return joyStickCount;
-}
-
-Platform::JoyStick Platform::GetJoyStick(int i)
-{
-	return joySticks[i];
-}
-
-Platform::Mouse Platform::GetMouse()
-{
-	return mouse;
-}
-
-bool Platform::GetMouseButton(int which)
-{
-	return mouse.button & (1<<which);
-}
-
-float Platform::GetMouseX()
-{
-	return mouse.x;
-}
-
-float Platform::GetMouseY()
-{
-	return mouse.y;
-}
-
-float Platform::GetMouseDX()
-{
-	return mouse.dx;
-}
-
-float Platform::GetMouseDY()
-{
-	return mouse.dy;
-}
-
 double Platform::GetTime()
 {
 	return currentTime;
@@ -399,11 +706,151 @@ void Platform::ResetSceneFrameCounter()
 	sceneFrameCounter = -1;
 }
 
+int Platform::GetKeyCount()
+{
+	return (int)Platform::KeyCode::Count;
+}
+
+bool Platform::GetKeyDown(Platform::KeyCode code)
+{
+	return !oldkeystates[(int)code] && keystates[(int)code];
+}
+
+bool Platform::GetKeyUp(Platform::KeyCode code)
+{
+	return oldkeystates[(int)code] && !keystates[(int)code];
+}
+
+bool Platform::GetKeyHold(Platform::KeyCode code)
+{
+	return oldkeystates[(int)code] && keystates[(int)code];
+}
+
+bool Platform::GetKey(Platform::KeyCode code)
+{
+	return keystates[(int)code];
+}
+
+Platform::Mouse Platform::GetMouse()
+{
+	return mouse;
+}
+
+float Platform::GetMouseX()
+{
+	return mouse.x;
+}
+
+float Platform::GetMouseY()
+{
+	return mouse.y;
+}
+
+float Platform::GetMouseDX()
+{
+	return mouse.dx;
+}
+
+float Platform::GetMouseDY()
+{
+	return mouse.dy;
+}
+
+void Platform::EnableCursor()
+{
+#if (PLATFORM == GLFW)
+	glfwSetInputMode((GLFWwindow*)handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+#elif (PLATFORM == MACOSX)
+#elif (PLATFORM == LINUX)
+#elif (PLATFORM == ANDROID)
+#elif (PLATFORM == IOS)
+#elif (PLATFORM == PS4)
+#elif (PLATFORM == XBOXONE)
+#elif (PLATFORM == NSWITCH)
+#elif (PLATFORM == PS5)
+#elif (PLATFORM == XSX)
+#else
+#pragma error("unsupported PLATFORM type. Please make sure PLATFORM is defined")
+#endif
+}
+
+void Platform::DisableCursor()
+{
+#if (PLATFORM == GLFW)
+	glfwSetInputMode((GLFWwindow*)handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+#elif (PLATFORM == MACOSX)
+#elif (PLATFORM == LINUX)
+#elif (PLATFORM == ANDROID)
+#elif (PLATFORM == IOS)
+#elif (PLATFORM == PS4)
+#elif (PLATFORM == XBOXONE)
+#elif (PLATFORM == NSWITCH)
+#elif (PLATFORM == PS5)
+#elif (PLATFORM == XSX)
+#else
+#pragma error("unsupported PLATFORM type. Please make sure PLATFORM is defined")
+#endif
+}
+
+bool Platform::IsCursorEnabled()
+{
+#if (PLATFORM == GLFW)
+	return glfwGetInputMode((GLFWwindow*)handle, GLFW_CURSOR);
+#elif (PLATFORM == MACOSX)
+#elif (PLATFORM == LINUX)
+#elif (PLATFORM == ANDROID)
+#elif (PLATFORM == IOS)
+#elif (PLATFORM == PS4)
+#elif (PLATFORM == XBOXONE)
+#elif (PLATFORM == NSWITCH)
+#elif (PLATFORM == PS5)
+#elif (PLATFORM == XSX)
+#else
+#pragma error("unsupported PLATFORM type. Please make sure PLATFORM is defined")
+#endif
+}
+
+bool Platform::IsJoyStickConnected(int i)
+{
+	return joyStickConnected[i];
+}
+
+Platform::JoyStick Platform::GetJoyStick(int i)
+{
+	return joySticks[i];
+}
+
+const std::vector<std::string>& Platform::GetJoystickNames()
+{
+	return joyStickNames;
+}
+
+void Platform::GetDropPaths(std::vector<std::string>& dropPaths_)
+{
+	dropPaths_ = dropPaths;
+}
+
+bool Platform::hasDropPath()
+{
+	return dropPaths.size()!=0;
+}
+
+const char* Platform::GetClipBoardString()
+{
+	return glfwGetClipboardString(nullptr);
+}
+
+void Platform::SetClipBoard(const char* s)
+{
+	glfwSetClipboardString(nullptr, s);
+}
+
 bool Platform::QuitApp()
 {
 	return quitApp;
 }
 
+///////////////////////////////////////////
 const char* Format(const char* format, ...)
 {
 	static char buffer[4096];

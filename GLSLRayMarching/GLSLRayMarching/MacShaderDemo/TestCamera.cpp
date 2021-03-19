@@ -1,4 +1,6 @@
 #include "TestCamera.h"
+#include "Video.h"
+#include "RenderStates.h"
 
 //////////////////////////////////////////////////////////////
 TestCamera::TestCamera(GameObject& gameObject_)
@@ -7,10 +9,6 @@ TestCamera::TestCamera(GameObject& gameObject_)
 }
 
 TestCamera::~TestCamera()
-{
-}
-
-void TestCamera::OnRender()
 {
 }
 
@@ -44,4 +42,16 @@ void TestCamera::OnStop()
 
 void TestCamera::OnDestruct()
 {
+}
+
+void TestCamera::OnRender()
+{
+	ClearState clearState;
+	clearState.clearColor = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
+	clearState.clearDepth = 1.0f;
+	clearState.clearStencil = 0;
+	clearState.enableClearColor = true;
+	clearState.enableClearDepth = true;
+	clearState.enableClearStencil = true;
+	clearState.Apply();
 }

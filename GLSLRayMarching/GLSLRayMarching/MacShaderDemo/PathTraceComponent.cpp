@@ -22,9 +22,9 @@ bool PathTraceComponent::OnConstruct()
 
 bool PathTraceComponent::OnStart()
 {
-	if (!pathTrace.Construct("../assets/cornell_box.scene"))
+	//if (!pathTrace.Construct("../assets/cornell_box.scene"))
 	//if (!pathTrace.Construct("../assets/bedroom.scene"))
-	//if (!pathTrace.Construct("../assets/diningroom.scene"))
+	if (!pathTrace.Construct("../assets/diningroom.scene"))
 		return false;
 	
 	return true;

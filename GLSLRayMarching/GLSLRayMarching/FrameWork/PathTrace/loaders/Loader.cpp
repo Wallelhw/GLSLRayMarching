@@ -171,7 +171,7 @@ namespace GLSLPT
                 else if (strcmp(light_type, "Sphere") == 0)
                 {
                     light.type = LightType::SphereLight;
-                    light.area = 4.0f * PI * light.radius * light.radius;
+                    light.area = 4.0f * Math::OnePi * light.radius * light.radius;
                 }
 
                 scene->AddLight(light);

@@ -203,8 +203,8 @@ public:
 		}
 		else
 		{
-			quotient.m[0] = Math::Max;
-			quotient.m[1] = Math::Max;
+			quotient.m[0] = Math::MaxValue;
+			quotient.m[1] = Math::MaxValue;
 		}
 
 		return quotient;

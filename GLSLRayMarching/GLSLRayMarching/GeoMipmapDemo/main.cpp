@@ -72,7 +72,7 @@ public:
 		Vector2 mousedelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
 		//Debug("%f %f\n", mousedelta.X(), mousedelta.Y());
 
-		if (Platform::GetMouseButton(2))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::Mouse1))
 		{
 			phi += mousedelta.X() / (Platform::GetWidth() / 2) * 180 * Math::Degree2Radian;
 			//if (phi > 180 * Math::Degree2Radian)
@@ -91,24 +91,24 @@ public:
 		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
 		//		Debug("%f %f\n", theta, phi);
 
+		
 #ifdef CAPTURE_GRAPHICS
-		/*
-		if (IsKeyPressed('W'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::W))
 		{
 			pos += Vector3(1.2, 0, 0);
 		}
 
-		if (IsKeyPressed('S'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::S))
 		{
 			pos -= Vector3(1.2, 0, 0);
 		}
 
-		if (IsKeyPressed('A'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::A))
 		{
 			pos += Vector3(0, 0, 1.2);
 		}
 
-		if (IsKeyPressed('D'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::D))
 		{
 			pos -= Vector3(0, 0, 1.2);
 		}
@@ -120,27 +120,25 @@ public:
 		camera.SetLocalTransform(cameraTransform);
 		camera.SetPerspectiveFov(90.0f, float(Platform::GetWidth()) / Platform::GetHeight(), 1.0f, 5000.0f);
 #else
-		/*
-		if (IsKeyPressed('W'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::W))
 		{
 			pos += dir;
 		}
 
-		if (IsKeyPressed('S'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::S))
 		{
 			pos -= dir;
 		}
 
-		if (IsKeyPressed('A'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::A))
 		{
 			pos -= xAxis;
 		}
 
-		if (IsKeyPressed('D'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::D))
 		{
 			pos += xAxis;
 		}
-		*/
 
 		Vector3 obj = pos + dir;
 
@@ -253,30 +251,25 @@ public:
 		static bool solid = false;
 		static float alpha = 0.0f;
 		delay++;
-		/*
-		if (delay > 2)
+		
+		if (Input::Manager::GetInstance().GetKeyDown(Platform::KeyCode::Alpha1))
 		{
-			if (IsKeyPressed('1'))
-			{
-				wire = !wire;
-			}
-			if (IsKeyPressed('2'))
-			{
-				solid = !solid;
-			}
-			delay = 0;
+			wire = !wire;
 		}
-		if (IsKeyPressed('3'))
+		if (Input::Manager::GetInstance().GetKeyDown(Platform::KeyCode::Alpha2))
+		{
+			solid = !solid;
+		}
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::Alpha3))
 		{
 			alpha += 0.01f;
 			alpha = (alpha > 1) ? 1 : alpha;
 		}
-		if (IsKeyPressed('4'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::Alpha4))
 		{
 			alpha -= 0.01f;
 			alpha = (alpha < 0) ? 0 : alpha;
 		}
-		*/
 
 		//geoMipmap.Render(terrainCameraComponent.camera, Vector2(Platform::GetWidth(), Platform::GetHeight()), solid, wire);
 		geoMorph.Render(terrainCameraComponent.camera, Vector2(Platform::GetWidth(), Platform::GetHeight()), solid, wire, alpha);

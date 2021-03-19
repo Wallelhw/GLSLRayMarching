@@ -2,7 +2,8 @@
 #include "PTScene.h"
 #include "Loader.h"
 #include "TiledRenderer.h"
-//#include "Input.h"
+#include "Platform.h"
+#include "Vector2.h"
 
 class PathTraceImp
 {
@@ -10,6 +11,8 @@ public:
     PathTraceImp()
         : scene(nullptr)
         , selectedInstance(0)
+        , renderer(nullptr)
+        , keyPressed(false)
     {
     }
 
@@ -20,6 +23,7 @@ public:
     PTScene* scene;
     int selectedInstance;
     TiledRenderer* renderer;
+    bool keyPressed;
 };
 
 ///////////////////////////////////////////////////////
@@ -65,9 +69,31 @@ bool PathTrace::Construct(const char* sceneName)
 
 void PathTrace::Render()
 {
-    /*
-    keyPressed = false;
+    impl->keyPressed = false;
+    
+    if(Platform::GetKey(Platform::KeyCode::Mouse0) || Platform::GetKey(Platform::KeyCode::Mouse1) || Platform::GetKey(Platform::KeyCode::Mouse2))
+    {
+        float mouseSensitivity = 0.1f;
 
+        if (Platform::GetKey(Platform::KeyCode::Mouse0))
+        {
+            Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
+            impl->scene->camera->OffsetOrientation(mouseDelta.X(), mouseDelta.Y());
+        }
+        else if (Platform::GetKey(Platform::KeyCode::Mouse1))
+        {
+            Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
+            impl->scene->camera->SetRadius(mouseSensitivity * mouseDelta.Y());
+        }
+        else if (Platform::GetKey(Platform::KeyCode::Mouse2))
+        {
+            Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
+            impl->scene->camera->Strafe(mouseSensitivity * mouseDelta.X(), mouseSensitivity * mouseDelta.Y());
+        }
+        impl->scene->camera->isMoving = true;
+    }
+
+    /*
     if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) && ImGui::IsAnyMouseDown() && !ImGuizmo::IsOver())
     {
         if (ImGui::IsMouseDown(0))

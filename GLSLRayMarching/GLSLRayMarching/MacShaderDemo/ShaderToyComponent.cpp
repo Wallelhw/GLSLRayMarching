@@ -1640,41 +1640,27 @@ ShaderToyComponent::~ShaderToyComponent()
 Vector4 ShaderToyComponent::GetMouse()
 {
 	static Vector4 r;
-	static bool lastState = false;
-	static bool thisState = false;
-	
-	lastState = thisState;
-	thisState = Platform::GetMouseButton(0);
 
-	if (thisState )
+	if (Platform::GetKeyDown(Platform::KeyCode::Mouse0))
 	{
-		if (lastState != thisState)
-		{
-			r.Z() = 1;
-			r.W() = 1;
-		}
-		else
-		{
-			r.Z() = 1;
-			r.W() = 0;
-		}
-
+		r.Z() = 1;
+		r.W() = 1;
+		
 		r.X() = Platform::GetMouseX();
 		r.Y() = Platform::GetMouseY();
 	}
-	else if (!thisState)
+	else if (Platform::GetKeyUp(Platform::KeyCode::Mouse0))
 	{
-		if (lastState != thisState)
-		{
-			//Debug("mouse unclick\n");
-		}
-		else
-		{
-			//Debug("mouse release\n");
-		}
-
 		r.Z() = -1;
 		r.W() = 0;
+	}
+	else if (Platform::GetKeyHold(Platform::KeyCode::Mouse0))
+	{
+		r.Z() = 1;
+		r.W() = 0;
+
+		r.X() = Platform::GetMouseX();
+		r.Y() = Platform::GetMouseY();
 	}
 
 	//Debug("%f %f %f %f\n", r.X(), r.Y(), r.Z(), r.W());

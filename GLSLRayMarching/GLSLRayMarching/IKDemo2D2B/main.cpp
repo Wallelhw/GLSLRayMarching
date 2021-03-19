@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "FrameWork2.h"
 #include "Scene.h"
+#include "Input.h"
 
 class IKCameraComponent : public Video::CameraComponent
 {
@@ -44,7 +45,7 @@ public:
 	virtual bool OnUpdate() override
 	{
 		Vector2 mousedelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-		if (Platform::GetMouseButton(0x02))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::Mouse2))
 		{
 			phi += mousedelta.X() / (Platform::GetWidth() / 2) * 180 * Math::Degree2Radian;
 			//if (phi > 180 * Math::Degree2Radian)
@@ -63,27 +64,25 @@ public:
 		Vector3 xAxis = dir.Cross(Vector3::UnitY); xAxis.Normalize();
 		//		Debug("%f %f\n", theta, phi);
 
-		/*
-		if (IsKeyPressed('W'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::W))
 		{
 			pos += dir;
 		}
 
-		if (IsKeyPressed('S'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::S))
 		{
 			pos -= dir;
 		}
 
-		if (IsKeyPressed('A'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::A))
 		{
 			pos -= xAxis;
 		}
 
-		if (IsKeyPressed('D'))
+		if (Input::Manager::GetInstance().GetKey(Platform::KeyCode::D))
 		{
 			pos += xAxis;
 		}
-		*/
 
 		Vector3 obj = pos + dir;
 		Matrix4 cameraTransform;
@@ -491,8 +490,8 @@ public:
 		: Scene()
 		, ikCameraComponent(gameObject)
 		//, ik2D2JointShape(gameObject, ikCameraComponent)
-		// , ik2DNJointShape(gameObject, ikCameraComponent)
-		, ik2DCCDJointShape(gameObject, ikCameraComponent)
+		 , ik2DNJointShape(gameObject, ikCameraComponent)
+		//, ik2DCCDJointShape(gameObject, ikCameraComponent)
 	{
 	}
 
@@ -504,8 +503,8 @@ protected:
 	{
 		gameObject.Add(&ikCameraComponent);
 		// gameObject.Add(&ik2D2JointShape);
-		// gameObject.Add(&ik2DNJointShape);
-		gameObject.Add(&ik2DCCDJointShape);
+		gameObject.Add(&ik2DNJointShape);
+		//gameObject.Add(&ik2DCCDJointShape);
 
 		return true;
 	}
@@ -540,8 +539,8 @@ private:
 	GameObject gameObject;
 	IKCameraComponent ikCameraComponent;
 	// IK2D2JointShape ik2D2JointShape;
-	// IK2DNJointShape ik2DNJointShape;
-	IK2DCCDJointShape ik2DCCDJointShape;
+	 IK2DNJointShape ik2DNJointShape;
+	//IK2DCCDJointShape ik2DCCDJointShape;
 };
 
 Scene::Creator<IKDemoScene> IKDemoSceneCreator("IKDemo");
