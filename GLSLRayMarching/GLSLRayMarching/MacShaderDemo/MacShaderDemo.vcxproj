@@ -160,26 +160,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DefaultScene.cpp" />
-    <ClCompile Include="Mac1Scene.cpp" />
-    <ClCompile Include="Mac2Scene.cpp" />
-    <ClCompile Include="Mac3Scene.cpp" />
+    <ClCompile Include="IKShapes.cpp" />
+    <ClCompile Include="ShaderToyScene.cpp" />
+    <ClCompile Include="PathTraceScene.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="PathTraceCamera.cpp" />
     <ClCompile Include="PathTraceComponent.cpp" />
-    <ClCompile Include="TestCamera.cpp" />
+    <ClCompile Include="ShaderToyCamera.cpp" />
     <ClCompile Include="ShaderToyComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultScene.h" />
-    <ClInclude Include="Mac1Scene.h" />
-    <ClInclude Include="Mac2Scene.h" />
-    <ClInclude Include="Mac3Scene.h" />
+    <ClInclude Include="GeometryTextureScene.h" />
+    <ClInclude Include="GeoMipmapScene.h" />
+    <ClInclude Include="IKDemoScene.h" />
+    <ClInclude Include="IKShapes.h" />
+    <ClInclude Include="ShaderToyScene.h" />
+    <ClInclude Include="PathTraceScene.h" />
+    <ClInclude Include="PathTraceCamera.h" />
     <ClInclude Include="PathTraceComponent.h" />
-    <ClInclude Include="TestCamera.h" />
+    <ClInclude Include="ShaderToyCamera.h" />
     <ClInclude Include="ShaderToyComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

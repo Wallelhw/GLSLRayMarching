@@ -78,7 +78,7 @@ void PathTrace::Render()
         if (Platform::GetKey(Platform::KeyCode::Mouse0))
         {
             Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-            impl->scene->camera->OffsetOrientation(mouseDelta.X(), mouseDelta.Y());
+            impl->scene->camera->OffsetOrientation(mouseSensitivity * mouseDelta.X(), mouseSensitivity * mouseDelta.Y());
         }
         else if (Platform::GetKey(Platform::KeyCode::Mouse1))
         {
@@ -118,7 +118,6 @@ void PathTrace::Render()
     }
     */
 
-    impl->scene->camera->isMoving = false;
     impl->renderer->Update(128);
     //lastTime = presentTime;
 
@@ -128,9 +127,9 @@ void PathTrace::Render()
 
     //auto io = ImGui::GetIO();
     impl->renderer->Render();
-    //const glm::ivec2 screenSize = renderer->GetScreenSize();
+    const iVec2 screenSize = impl->renderer->GetScreenSize();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, 800, 800);
+    glViewport(0, 0, screenSize.x, screenSize.y);
     impl->renderer->Present();
 
     // Rendering

@@ -22,6 +22,7 @@ Component::Component(GameObject& gameObject_, const char* name_)
 
 Component::~Component()
 {
+	GetGameObject().Remove(this);
 }
 
 GameObject& Component::GetGameObject()

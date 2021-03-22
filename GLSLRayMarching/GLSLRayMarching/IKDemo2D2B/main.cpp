@@ -1,4 +1,3 @@
-#include "FrameWork.h"
 #include "Texture.h"
 #include "RenderStates.h"
 #include "ShaderProgram.h"
@@ -501,11 +500,6 @@ public:
 protected:
 	virtual bool OnConstruct() override
 	{
-		gameObject.Add(&ikCameraComponent);
-		// gameObject.Add(&ik2D2JointShape);
-		gameObject.Add(&ik2DNJointShape);
-		//gameObject.Add(&ik2DCCDJointShape);
-
 		return true;
 	}
 

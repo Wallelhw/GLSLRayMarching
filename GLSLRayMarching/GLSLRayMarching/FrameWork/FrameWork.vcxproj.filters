@@ -133,9 +133,6 @@
     <ClCompile Include="OutputStream.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
-    <ClCompile Include="FrameWork.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
     <ClCompile Include="Platform.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
@@ -347,9 +344,6 @@
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork.h">
-      <Filter>Source Files\System</Filter>
     </ClInclude>
     <ClInclude Include="Platform.h">
       <Filter>Source Files\System</Filter>

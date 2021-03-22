@@ -71,6 +71,8 @@ namespace GLSLPT
                     // temporary fix
                     if (!attrib.texcoords.empty())
                     {
+                        if (2 * idx.texcoord_index + 1 > attrib.texcoords.size())
+                            idx.texcoord_index = attrib.texcoords.size() / 2 - 2;
                         tx = attrib.texcoords[2 * idx.texcoord_index + 0];
                         ty = attrib.texcoords[2 * idx.texcoord_index + 1];
                     }

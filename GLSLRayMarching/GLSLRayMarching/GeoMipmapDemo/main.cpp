@@ -1,4 +1,3 @@
-#include "FrameWork.h"
 #include "Texture.h"
 #include "RenderStates.h"
 #include "ShaderProgram.h"
@@ -297,8 +296,6 @@ public:
 protected:
 	virtual bool OnConstruct() override
 	{
-		gameObject.Add(&terrainCameraComponent);
-
 		return true;
 	}
 

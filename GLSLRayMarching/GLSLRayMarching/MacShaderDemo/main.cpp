@@ -26,14 +26,18 @@ Service<Audio> AudioService("Audio");
 
 /////////////////////////////////////////////////////////////////////
 #include "DefaultScene.h"
-#include "Mac1Scene.h"
-#include "Mac2Scene.h"
-#include "Mac3Scene.h"
+#include "ShaderToyScene.h"
+#include "PathTraceScene.h"
+#include "IKDemoScene.h"
+#include "GeometryTextureScene.h"
+#include "GeoMipmapScene.h"
 
 Scene::Creator<DefaultScene> DefaultSceneCreator("Default");
-Scene::Creator<Mac1Scene> MacScene1Creator("Mac1");
-Scene::Creator<Mac2Scene> MacScene2Creator("Mac2");
-Scene::Creator<Mac3Scene> MacScene3Creator("Mac3");
+Scene::Creator<ShaderToyScene> MacScene1Creator("ShaderToy");
+Scene::Creator<PathTraceScene> MacScene2Creator("PathTrace");
+Scene::Creator<IKDemoScene> IKDemoSceneCreator("IKDemo");
+Scene::Creator<GeometryTextureScene> GeometryTextureSceneCreator("GeometryTexture");
+Scene::Creator<GeoMipmapScene> GeoMipmapSceneCreator("GeoMipmap");
 
 class MacShaderDemoApp : public FrameWork2
 {
@@ -67,7 +71,7 @@ int main(int argc, char** argv)
 {
 	MacShaderDemoApp macShaderDemoApp;
 
-	if (!macShaderDemoApp.Create(800*2, 400 * 2, "MacShaderDemo", "Mac1"))
+	if (!macShaderDemoApp.Create(800*2, 400 * 2, "MacShaderDemo", "GeoMipmap"))
 		return -1;
 
 	macShaderDemoApp.Start();
