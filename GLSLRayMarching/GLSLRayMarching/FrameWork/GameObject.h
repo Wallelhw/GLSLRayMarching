@@ -43,7 +43,7 @@ public:
 	public:
 		static Manager& GetInstance();
 	private:
-		bool Construct();
+		bool Initiate();
 
 		bool Start();
 
@@ -55,7 +55,7 @@ public:
 
 		void Stop();
 
-		void Destruct();
+		void Terminate();
 
 		void Add(GameObject* service);
 
@@ -88,7 +88,7 @@ public:
 	void Remove(Component* component_);
 private:
 protected:
-	bool Construct();
+	bool Initiate();
 
 	bool Start();
 
@@ -100,9 +100,9 @@ protected:
 
 	void Resume();
 
-	void Destruct();
+	void Terminate();
 
-	virtual bool OnConstruct();
+	virtual bool OnInitiate();
 
 	virtual bool OnStart();
 
@@ -114,7 +114,7 @@ protected:
 
 	virtual void OnStop();
 
-	virtual void OnDestruct();
+	virtual void OnTerminate();
 protected:
 private:
 	ID id;

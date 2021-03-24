@@ -24,7 +24,7 @@ public:
 		static ResourceAccess::Manager& GetInstance();
 
 		bool Initialize();
-		bool Process();
+		bool Update();
 		bool Pause();
 		void Resume();
 		void Terminate();
@@ -36,7 +36,7 @@ public:
 	{
 	public:
 		static bool Initialize();
-		static bool Process();
+		static bool Update();
 		static bool Pause();
 		static void Resume();
 		static void Terminate();

@@ -17,7 +17,6 @@ double currentTime = 0;
 double deltaTime = 0;
 int totalFrameCounter = 0;
 int sceneFrameCounter = 0;
-bool quitApp = false;
 
 bool keystates[(int)Platform::KeyCode::Count] = { 0 };
 bool oldkeystates[(int)Platform::KeyCode::Count] = { 0 };
@@ -495,16 +494,6 @@ bool Platform::PreUpdate()
 	glfwPollEvents();
 
 	///////////////////////////////////////////////////
-	// Quit Signal
-	if (glfwGetKey((GLFWwindow*)handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose((GLFWwindow*)handle, true);
-	}
-
-	if (glfwWindowShouldClose((GLFWwindow*)handle))
-		quitApp = true;
-
-	///////////////////////////////////////////////////
 	// Button
 	for(int i=0; i<(int)Platform::KeyCode::Count; i++)
 		oldkeystates[i] = keystates[i];
@@ -515,10 +504,20 @@ bool Platform::PreUpdate()
 		Platform::KeyCode code = glfwKeyCode2keyCodes[glfwKey];
 		
 		int keyState = glfwGetKey((GLFWwindow*)handle, glfwKey);
+
 		if (keyState == GLFW_PRESS)
+		{
 			keystates[int(code)] = true;
+
+			if (glfwKey == GLFW_KEY_LEFT_SHIFT)
+			{
+				int a = 1;
+			}
+		}
 		else if (keyState == GLFW_RELEASE)
+		{
 			keystates[int(code)] = false;
+		}
 	}
 
 	for (int i = 0; i < glfwMouseKeyCodes.size(); i++)
@@ -607,6 +606,7 @@ bool Platform::PostUpdate()
 		ImGui_ImplOpenGL3_RenderDrawData(drawData);
 	//glUseProgram(last_program);
 
+	glfwSwapInterval(0);
 	glfwMakeContextCurrent((GLFWwindow*)handle);
 	glfwSwapBuffers((GLFWwindow*)handle);
 
@@ -845,9 +845,14 @@ void Platform::SetClipBoard(const char* s)
 	glfwSetClipboardString(nullptr, s);
 }
 
-bool Platform::QuitApp()
+void Platform::QuitApp()
 {
-	return quitApp;
+	glfwSetWindowShouldClose((GLFWwindow*)handle, true);
+}
+
+bool Platform::ShouldAppQuit()
+{
+	return glfwWindowShouldClose((GLFWwindow*)handle);
 }
 
 ///////////////////////////////////////////

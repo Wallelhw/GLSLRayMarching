@@ -31,7 +31,7 @@ ShaderProgram::~ShaderProgram()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	if (impl)
 	{
@@ -40,7 +40,7 @@ ShaderProgram::~ShaderProgram()
 	}
 }
 
-bool ShaderProgram::Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+bool ShaderProgram::Initiate(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
 	Assert(impl);
 
@@ -96,7 +96,7 @@ bool ShaderProgram::Create(const char* vertexPath, const char* fragmentPath, con
 	return CreateFromSource(vShaderCode, fShaderCode, gShaderCode);
 }
 
-void ShaderProgram::Destroy()
+void ShaderProgram::Terminate()
 {
 	Assert(impl);
 
@@ -113,7 +113,7 @@ bool ShaderProgram::CreateFromSource(const char* vShaderCode, const char* fShade
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	// 2. compile shaders
 	unsigned int vertex, fragment, geometry;
@@ -195,7 +195,7 @@ bool ShaderProgram::CreateFromBinary(const ShaderProgramBinary& shaderProgramBin
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	// shader Program
 	impl->handle = glCreateProgram();

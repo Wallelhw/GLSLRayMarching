@@ -412,7 +412,6 @@ public:
 	};
 	static bool Instantiate(int width_, int height_, const char* appName_, const char* InitalizeScene_);
 	static bool PreUpdate();
-	static bool Update();
 	static bool PostUpdate();
 	static bool Pause();
 	static void Resume();
@@ -456,7 +455,8 @@ public:
 	static const char* GetClipBoardString();
 	static void SetClipBoard(const char* s);
 
-	static bool QuitApp();
+	static void QuitApp();
+	static bool ShouldAppQuit();
 private:
 };
 

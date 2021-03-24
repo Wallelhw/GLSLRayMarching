@@ -21,7 +21,7 @@ public:
 	{
 	}
 protected:
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -49,7 +49,7 @@ protected:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 private:

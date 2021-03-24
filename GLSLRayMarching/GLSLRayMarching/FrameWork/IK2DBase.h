@@ -17,9 +17,9 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
-		return OnCreate();
+		return OnInitiate();
 	}
 
 	void Update(const Vector2& targetPosition)
@@ -27,14 +27,14 @@ public:
 		OnUpdate(targetPosition);
 	}
 
-	void Destroy()
+	void Terminate()
 	{
-		OnDestroy();
+		OnTerminate();
 	}
 protected:
-	virtual bool OnCreate() = 0;
+	virtual bool OnInitiate() = 0;
 	virtual void OnUpdate(const Vector2& targetPosition) = 0;
-	virtual void OnDestroy() = 0;
+	virtual void OnTerminate() = 0;
 private:
 };
 

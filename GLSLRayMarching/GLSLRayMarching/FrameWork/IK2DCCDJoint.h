@@ -46,7 +46,7 @@ public:
 		return true;
 	}
 
-	virtual bool OnCreate() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -127,7 +127,7 @@ public:
 		} while (i++ < MAX_IK_TRIES && (curEnd - desiredEnd).SquaredLength() > IK_POS_THRESH);
 	}
 
-	virtual void OnDestroy() override
+	virtual void OnTerminate() override
 	{
 	}
 

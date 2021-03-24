@@ -26,7 +26,7 @@ public:
 	private:
 		void Render();
 
-		virtual bool OnConstruct() override;
+		virtual bool OnInitiate() override;
 
 		virtual bool OnStart() override;
 
@@ -38,7 +38,7 @@ public:
 
 		virtual void OnStop() override;
 
-		virtual void OnDestruct() override;
+		virtual void OnTerminate() override;
 
 		virtual void OnRender() = 0;
 	};
@@ -54,7 +54,7 @@ public:
 	private:
 		void Render();
 
-		virtual bool OnConstruct() override;
+		virtual bool OnInitiate() override;
 
 		virtual bool OnStart() override;
 
@@ -66,7 +66,7 @@ public:
 
 		virtual void OnStop() override;
 
-		virtual void OnDestruct() override;
+		virtual void OnTerminate() override;
 
 		virtual void OnRender() = 0;
 	private:
@@ -82,7 +82,7 @@ public:
 	private:
 		void Render();
 
-		virtual bool OnConstruct() override;
+		virtual bool OnInitiate() override;
 
 		virtual bool OnStart() override;
 
@@ -94,7 +94,7 @@ public:
 
 		virtual void OnStop() override;
 
-		virtual void OnDestruct() override;
+		virtual void OnTerminate() override;
 
 		virtual void OnRender() = 0;
 	};
@@ -107,7 +107,7 @@ public:
 		static Video::Manager& GetInstance();
 
 		bool Initialize();
-		bool Process();
+		bool Update();
 		bool Pause();
 		void Resume();
 		void Terminate();
@@ -130,7 +130,7 @@ public:
 	{
 	public:
 		static bool Initialize();
-		static bool Process();
+		static bool Update();
 		static bool Pause();
 		static void Resume();
 		static void Terminate();

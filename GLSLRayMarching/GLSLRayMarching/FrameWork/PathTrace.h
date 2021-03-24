@@ -9,9 +9,14 @@ public:
 	PathTrace();
 	~PathTrace();
 
-	bool Construct(const char* path_);
+	bool Initiate(const char* path_);
+	bool Start();
+	bool Update();
+	bool Pause();
+	bool Resume();
+	bool Stop();
+	void Terminate();
 	void Render();
-	void Destroy();
 private:
 	PathTraceImp* impl;
 };

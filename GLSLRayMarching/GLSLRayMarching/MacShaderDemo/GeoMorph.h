@@ -209,7 +209,7 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
 		std::vector<Vector4> vertices;
 		std::vector<unsigned int> indices;
@@ -227,7 +227,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap1.hdr", false))
+		if (!heightMap.Initiate("heightMap1.hdr", false))
 		{
 			return false;
 		}
@@ -238,7 +238,7 @@ public:
 		heightMap.SetWarpT(Texture::Wrap::Clamp);
 
 
-		if (!texture0.Create("texture0.jpg", false))
+		if (!texture0.Initiate("texture0.jpg", false))
 		{
 			return false;
 		}
@@ -248,7 +248,7 @@ public:
 		texture0.SetWarpR(Texture::Wrap::Repeat);
 		texture0.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture1.Create("texture1.jpg", false))
+		if (!texture1.Initiate("texture1.jpg", false))
 		{
 			return false;
 		}
@@ -258,7 +258,7 @@ public:
 		texture1.SetWarpR(Texture::Wrap::Repeat);
 		texture1.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture2.Create("texture2.jpg", false))
+		if (!texture2.Initiate("texture2.jpg", false))
 		{
 			return false;
 		}
@@ -268,7 +268,7 @@ public:
 		texture2.SetWarpR(Texture::Wrap::Repeat);
 		texture2.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture3.Create("texture3.jpg", false))
+		if (!texture3.Initiate("texture3.jpg", false))
 		{
 			return false;
 		}
@@ -278,7 +278,7 @@ public:
 		texture3.SetWarpR(Texture::Wrap::Repeat);
 		texture3.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!splatMap.Create("splatmap.jpg", false))
+		if (!splatMap.Initiate("splatmap.jpg", false))
 		{
 			return false;
 		}
@@ -289,7 +289,7 @@ public:
 		splatMap.SetWarpT(Texture::Wrap::Repeat);
 
 		////////////////////////////////////////////////////////////
-		if (!shaderProgram.Create("GeoMorphVS.glsl", "GeoMorphPS.glsl"))
+		if (!shaderProgram.Initiate("GeoMorphVS.glsl", "GeoMorphPS.glsl"))
 		{
 			return false;
 		}
@@ -511,16 +511,16 @@ public:
 		DrawCamera(camera);
 	}
 
-	void Destroy()
+	void Terminate()
 	{
-		heightMap.Destroy();
-		shaderStorageBlockBuffer.Destroy();
+		heightMap.Terminate();
+		shaderStorageBlockBuffer.Terminate();
 
-		uniformBlockBuffer.Destroy();
-		shaderProgram.Destroy();
-		renderStates.Destroy();
+		uniformBlockBuffer.Terminate();
+		shaderProgram.Terminate();
+		renderStates.Terminate();
 
-		primitives.Destroy();
+		primitives.Terminate();
 	}
 private:
 	Texture2DFile texture0;

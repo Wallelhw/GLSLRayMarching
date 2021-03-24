@@ -196,7 +196,7 @@ Texture::Texture(Texture::Type type_)
 
 Texture::~Texture()
 {
-	Destroy();
+	Terminate();
 
 	if (impl)
 	{
@@ -205,14 +205,14 @@ Texture::~Texture()
 	}
 }
 
-bool Texture::Create()
+bool Texture::Initiate()
 {
 	Assert(impl);
 
 	return true;
 }
 
-void Texture::Destroy()
+void Texture::Terminate()
 {
 	Assert(impl);
 
@@ -420,10 +420,10 @@ Texture1D::~Texture1D()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture1D::Create(unsigned int width_, Texture::Format format_, void* src_)
+bool Texture1D::Initiate(unsigned int width_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -443,21 +443,21 @@ bool Texture1D::Create(unsigned int width_, Texture::Format format_, void* src_)
 
 	glGenerateMipmap(textureType);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool Texture1D::Create(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool Texture1D::Initiate(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(width_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void Texture1D::Destroy()
+void Texture1D::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void Texture1D::Update(unsigned int x_, unsigned int width_, void* src_, int level_)
@@ -512,10 +512,10 @@ Texture2D::~Texture2D()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture2D::Create(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
+bool Texture2D::Initiate(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -536,21 +536,21 @@ bool Texture2D::Create(unsigned int width_, unsigned int height_, Texture::Forma
 
 	glGenerateMipmap(textureType);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool Texture2D::Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool Texture2D::Initiate(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void Texture2D::Destroy()
+void Texture2D::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void Texture2D::Update(unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
@@ -614,10 +614,10 @@ Texture3D::~Texture3D()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_)
+bool Texture3D::Initiate(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -639,14 +639,14 @@ bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int d
 	
 	glGenerateMipmap(textureType);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool Texture3D::Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool Texture3D::Initiate(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(width_, height_, depth_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(width_, height_, depth_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
 void Texture3D::Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int width_, unsigned int height_, unsigned int depth_, void* src_, int mipLevel_)
@@ -682,11 +682,11 @@ void Texture3D::GetResolution(unsigned int* w_, unsigned int* h_, unsigned int* 
 	*d_ = depth;
 }
 
-void Texture3D::Destroy()
+void Texture3D::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 unsigned int Texture3D::GetWidth() const
@@ -722,10 +722,10 @@ TextureCubeMap::~TextureCubeMap()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool TextureCubeMap::Create(unsigned int size_, Texture::Format format_, void* src_)
+bool TextureCubeMap::Initiate(unsigned int size_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -761,19 +761,19 @@ bool TextureCubeMap::Create(unsigned int size_, Texture::Format format_, void* s
 
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool TextureCubeMap::Create(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool TextureCubeMap::Initiate(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
-	return Create(size_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(size_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void TextureCubeMap::Destroy()
+void TextureCubeMap::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void TextureCubeMap::Update(Side side_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
@@ -863,10 +863,10 @@ Texture1DArray::~Texture1DArray()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture1DArray::Create(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* src_)
+bool Texture1DArray::Initiate(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -897,21 +897,21 @@ bool Texture1DArray::Create(unsigned int layerCount_, unsigned int width_, Textu
 	
 	glGenerateMipmap(textureType);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool Texture1DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool Texture1DArray::Initiate(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(layerCount_, width_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(layerCount_, width_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void Texture1DArray::Destroy()
+void Texture1DArray::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void Texture1DArray::Update(unsigned int layer_, unsigned int x_, unsigned int width_, void* src_, int level_)
@@ -980,10 +980,10 @@ Texture2DArray::~Texture2DArray()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture2DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
+bool Texture2DArray::Initiate(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -1010,21 +1010,21 @@ bool Texture2DArray::Create(unsigned int layerCount_, unsigned int width_, unsig
 
 	glGenerateMipmap(textureType);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool Texture2DArray::Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool Texture2DArray::Initiate(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
 	Assert(impl);
 
-	return Create(layerCount_, width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(layerCount_, width_, height_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void Texture2DArray::Destroy()
+void Texture2DArray::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void Texture2DArray::Update(unsigned int layer_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
@@ -1101,10 +1101,10 @@ TextureCubeMapArray::~TextureCubeMapArray()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool TextureCubeMapArray::Create(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_)
+bool TextureCubeMapArray::Initiate(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_)
 {
 	Assert(impl);
 
@@ -1147,19 +1147,19 @@ bool TextureCubeMapArray::Create(unsigned int layerCount_, unsigned int size_, T
 
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-	return Texture::Create();
+	return Texture::Initiate();
 }
 
-bool TextureCubeMapArray::Create(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
+bool TextureCubeMapArray::Initiate(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_)
 {
-	return Create(layerCount_, size_, GetFormat(nrComponents_, dynamicRange_), src_);
+	return Initiate(layerCount_, size_, GetFormat(nrComponents_, dynamicRange_), src_);
 }
 
-void TextureCubeMapArray::Destroy()
+void TextureCubeMapArray::Terminate()
 {
 	Assert(impl);
 
-	return Texture::Destroy();
+	return Texture::Terminate();
 }
 
 void TextureCubeMapArray::Update(unsigned int layer_, Side side_, unsigned int x_, unsigned int y_, unsigned int width_, unsigned int height_, void* src_, int mipLevel_)
@@ -1243,10 +1243,10 @@ Texture2DFile::~Texture2DFile()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture2DFile::Create(const std::string& path_, bool vflip_)
+bool Texture2DFile::Initiate(const std::string& path_, bool vflip_)
 {
 	Assert(impl);
 
@@ -1271,7 +1271,7 @@ bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 	if (data)
 	{
 		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
-		bool result = Texture2D::Create(width, height, nrComponents, precision, data);
+		bool result = Texture2D::Initiate(width, height, nrComponents, precision, data);
 
 		stbi_image_free(data);
 
@@ -1283,11 +1283,11 @@ bool Texture2DFile::Create(const std::string& path_, bool vflip_)
 	}
 }
 
-void Texture2DFile::Destroy()
+void Texture2DFile::Terminate()
 {
 	Assert(impl);
 
-	return Texture2D::Destroy();
+	return Texture2D::Terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1300,10 +1300,10 @@ Texture3DFile::~Texture3DFile()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool Texture3DFile::Create(const std::string& path_, bool vflip_)
+bool Texture3DFile::Initiate(const std::string& path_, bool vflip_)
 {
 	Assert(impl);
 
@@ -1329,7 +1329,7 @@ bool Texture3DFile::Create(const std::string& path_, bool vflip_)
 	if (data)
 	{
 		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
-		bool result = Texture3D::Create(width, height, depth, nrComponents, precision, data);
+		bool result = Texture3D::Initiate(width, height, depth, nrComponents, precision, data);
 
 		stbi_image_free(data);
 
@@ -1341,11 +1341,11 @@ bool Texture3DFile::Create(const std::string& path_, bool vflip_)
 	}
 }
 
-void Texture3DFile::Destroy()
+void Texture3DFile::Terminate()
 {
 	Assert(impl);
 
-	return Texture3D::Destroy();
+	return Texture3D::Terminate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1358,10 +1358,10 @@ TextureCubeMapFile::~TextureCubeMapFile()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 }
 
-bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
+bool TextureCubeMapFile::Initiate(const std::string& path_, bool vflip_)
 {
 	Assert(impl);
 
@@ -1386,7 +1386,7 @@ bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 	if (data)
 	{
 		Texture::DynamicRange precision = isHDR ? Texture::DynamicRange::HIGH : Texture::DynamicRange::LOW;
-		bool result = TextureCubeMap::Create(width, nrComponents, precision, data);
+		bool result = TextureCubeMap::Initiate(width, nrComponents, precision, data);
 
 		stbi_image_free(data);
 
@@ -1398,9 +1398,9 @@ bool TextureCubeMapFile::Create(const std::string& path_, bool vflip_)
 	}
 }
 
-void TextureCubeMapFile::Destroy()
+void TextureCubeMapFile::Terminate()
 {
 	Assert(impl);
 
-	return TextureCubeMap::Destroy();
+	return TextureCubeMap::Terminate();
 }

@@ -150,14 +150,14 @@ namespace GLSLPT
 
     void Camera::OffsetOrientation(float dx, float dy)
     {
-        pitch -= dy;
+        pitch += dy;
         yaw += dx;
         UpdateCamera();
     }
 
     void Camera::Strafe(float dx, float dy)
     {
-        Vec3 translation =  right * -dx + up * dy;
+        Vec3 translation = right * dx + up * dy;
         pivot = pivot + translation;
         UpdateCamera();
     }

@@ -150,8 +150,8 @@ public:
 	Texture(Texture::Type type_);
 	virtual ~Texture();
 
-	virtual bool Create();
-	virtual void Destroy();
+	virtual bool Initiate();
+	virtual void Terminate();
 
 	void Bind(unsigned int texStage_);
 	void Unbind();
@@ -189,9 +189,9 @@ public:
 	Texture1D();
 	virtual ~Texture1D();
 
-	bool Create(unsigned int width_, Texture::Format format_, void* data_);
-	bool Create(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
-	void Destroy();
+	bool Initiate(unsigned int width_, Texture::Format format_, void* data_);
+	bool Initiate(unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
+	void Terminate();
 
 	void Update(unsigned int x_, unsigned int w_, void* src_, int mipLevel_ = -1);
 	void Update(void* src_, int mipLevel_ = -1);
@@ -213,9 +213,9 @@ public:
 	Texture2D();
 	virtual ~Texture2D();
 
-	bool Create(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
-	bool Create(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
-	void Destroy();
+	bool Initiate(unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
+	bool Initiate(unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Terminate();
 
 	void Update(unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
 	void Update(void* src_, int mipLevel_ = -1);
@@ -239,9 +239,9 @@ public:
 	Texture3D();
 	virtual ~Texture3D();
 
-	bool Create(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_);
-	bool Create(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
-	void Destroy();
+	bool Initiate(unsigned int width_, unsigned int height_, unsigned int depth_, Texture::Format format_, void* src_);
+	bool Initiate(unsigned int width_, unsigned int height_, unsigned int depth_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Terminate();
 
 	void Update(unsigned int x_, unsigned int y_, unsigned int z_, unsigned int w_, unsigned int h_, unsigned int d_, void* src_, int mipLevel_ = -1);
 	void Update(void* src_, int mipLevel_ = -1);
@@ -277,9 +277,9 @@ public:
 	TextureCubeMap();
 	virtual ~TextureCubeMap();
 
-	bool Create(unsigned int size_, Texture::Format format_, void* src_);
-	bool Create(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
-	void Destroy();
+	bool Initiate(unsigned int size_, Texture::Format format_, void* src_);
+	bool Initiate(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Terminate();
 
 	void Update(Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
 	void Update(Side side_, void* src_, int mipLevel_ = -1);
@@ -303,9 +303,9 @@ public:
 	Texture1DArray();
 	virtual ~Texture1DArray();
 
-	bool Create(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* data_);
-	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
-	void Destroy();
+	bool Initiate(unsigned int layerCount_, unsigned int width_, Texture::Format format_, void* data_);
+	bool Initiate(unsigned int layerCount_, unsigned int width_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* data_);
+	void Terminate();
 
 	void Update(unsigned int layer_, unsigned int x_, unsigned int w_, void* src_, int mipLevel_ = -1);
 	void Update(unsigned int layer_, void* src_, int mipLevel_ = -1);
@@ -329,9 +329,9 @@ public:
 	Texture2DArray();
 	virtual ~Texture2DArray();
 
-	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
-	bool Create(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
-	void Destroy();
+	bool Initiate(unsigned int layerCount_, unsigned int width_, unsigned int height_, Texture::Format format_, void* src_);
+	bool Initiate(unsigned int layerCount_, unsigned int width_, unsigned int height_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Terminate();
 
 	void Update(unsigned int layer_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
 	void Update(unsigned int layer_, void* src_, int mipLevel_ = -1);
@@ -367,9 +367,9 @@ public:
 	TextureCubeMapArray();
 	virtual ~TextureCubeMapArray();
 
-	bool Create(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_);
-	bool Create(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
-	void Destroy();
+	bool Initiate(unsigned int layerCount_, unsigned int size_, Texture::Format format_, void* src_);
+	bool Initiate(unsigned int layerCount_, unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_, void* src_);
+	void Terminate();
 
 	void Update(unsigned int layer_, Side side_, unsigned int x_, unsigned int y_, unsigned int w_, unsigned int h_, void* src_, int mipLevel_ = -1);
 	void Update(unsigned int layer_, Side side_, void* src_, int mipLevel_ = -1);
@@ -395,8 +395,8 @@ public:
 	Texture1DFile();
 	virtual ~Texture1DFile();
 
-	bool Create(const std::string& path_);
-	void Destroy();
+	bool Initiate(const std::string& path_);
+	void Terminate();
 protected:
 private:
 
@@ -411,8 +411,8 @@ public:
 	Texture2DFile();
 	virtual ~Texture2DFile();
 
-	bool Create(const std::string& path_, bool vflip_);
-	void Destroy();
+	bool Initiate(const std::string& path_, bool vflip_);
+	void Terminate();
 protected:
 private:
 
@@ -427,8 +427,8 @@ public:
 	Texture3DFile();
 	virtual ~Texture3DFile();
 
-	bool Create(const std::string& path_, bool vflip_);
-	void Destroy();
+	bool Initiate(const std::string& path_, bool vflip_);
+	void Terminate();
 protected:
 private:
 
@@ -443,8 +443,8 @@ public:
 	TextureCubeMapFile();
 	virtual ~TextureCubeMapFile();
 
-	bool Create(const std::string& path_, bool vflip_);
-	void Destroy();
+	bool Initiate(const std::string& path_, bool vflip_);
+	void Terminate();
 protected:
 private:
 

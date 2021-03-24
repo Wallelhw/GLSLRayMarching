@@ -5,7 +5,7 @@
 #include "ShaderProgram.h"
 #include "Primitives.h"
 #include "GUI.h"
-#include "FrameWork2.h"
+#include "FrameWork.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,9 +33,9 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
-		if (!Texture2D::Create(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
+		if (!Texture2D::Initiate(256, 3, 1, Texture::DynamicRange::LOW, &buffer[0]))
 			return false;
 
 		SetMinFilter(Texture::MinFilter::Nearest);
@@ -115,7 +115,7 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
 		return true;
 	}
@@ -141,9 +141,9 @@ public:
 	{
 	}
 
-	bool Create(bool vflip_)
+	bool Initiate(bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
+		return Texture2D::Initiate(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -168,9 +168,9 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
-		return Texture2D::Create(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
+		return Texture2D::Initiate(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -195,9 +195,9 @@ public:
 	{
 	}
 
-	bool Create(const std::string& url, bool vflip_)
+	bool Initiate(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
+		return Texture2D::Initiate(512, 2, 1, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -222,9 +222,9 @@ public:
 	{
 	}
 
-	bool Create(const std::string& url, bool vflip_)
+	bool Initiate(const std::string& url, bool vflip_)
 	{
-		return Texture2D::Create(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
+		return Texture2D::Initiate(1280, 720, 4, Texture::DynamicRange::LOW, &buffer[0]);
 	}
 
 	virtual void Update()
@@ -276,27 +276,27 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
+	virtual bool Initiate(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
 	{
-		if (!FlipFrameBuffer::Create())
+		if (!FlipFrameBuffer::Initiate())
 			return false;
 
-		if (!texture[0].Create(width, height, nrComponents, dynamicRange_, nullptr))
+		if (!texture[0].Initiate(width, height, nrComponents, dynamicRange_, nullptr))
 			return false;
 
-		if (!texture[1].Create(width, height, nrComponents, dynamicRange_, nullptr))
+		if (!texture[1].Initiate(width, height, nrComponents, dynamicRange_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
-	virtual void Destroy()
+	virtual void Terminate()
 	{
 		for (int i = 0; i < 2; i++)
-			texture[i].Destroy();
+			texture[i].Terminate();
 
-		return FlipFrameBuffer::Destroy();
+		return FlipFrameBuffer::Terminate();
 	}
 
 	Texture* GetCurrentTexture()
@@ -326,27 +326,27 @@ public:
 	{
 	}
 
-	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
+	virtual bool Initiate(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
 	{
-		if (!FlipFrameBuffer::Create())
+		if (!FlipFrameBuffer::Initiate())
 			return false;
 
-		if (!texture[0].Create(size, nrComponents, dynamicRange_, nullptr))
+		if (!texture[0].Initiate(size, nrComponents, dynamicRange_, nullptr))
 			return false;
 
-		if (!texture[1].Create(size, nrComponents, dynamicRange_, nullptr))
+		if (!texture[1].Initiate(size, nrComponents, dynamicRange_, nullptr))
 			return false;
 
 		SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture[0]);
 		return true;
 	}
 
-	virtual void Destroy()
+	virtual void Terminate()
 	{
 		for (int i = 0; i < 2; i++)
-			texture[i].Destroy();
+			texture[i].Terminate();
 
-		return FlipFrameBuffer::Destroy();
+		return FlipFrameBuffer::Terminate();
 	}
 
 	Texture* GetCurrentTexture()
@@ -529,7 +529,7 @@ public:
 		return true;
 	}
 
-	bool Create(const Value& parametersJson)
+	bool Initiate(const Value& parametersJson)
 	{
 		for (auto iter = parametersJson.MemberBegin(); iter != parametersJson.MemberEnd(); ++iter)
 		{
@@ -599,7 +599,7 @@ public:
 		{
 		}
 
-		void Destroy()
+		void Terminate()
 		{
 			texture = nullptr;
 			frameBuffer = nullptr;
@@ -627,13 +627,11 @@ public:
 
 	virtual ~Pass()
 	{
-		Destroy();
+		Terminate();
 	}
 
-	bool Create(const rapidjson::Value& json)
+	bool Initiate(const rapidjson::Value& json)
 	{
-		Destroy();
-
 		float vertices[] =
 		{
 			1.0f,  1.0f, 0.0f,  // top right
@@ -797,20 +795,20 @@ public:
 		}
 	}
 
-	void Destroy()
+	void Terminate()
 	{
 		enabled = false;
 
-		renderStates.Destroy();
-		shaderProgram.Destroy();
+		renderStates.Terminate();
+		shaderProgram.Terminate();
 
 		for (auto& channel : iChannels)
 		{
-			channel.Destroy();
+			channel.Terminate();
 		}
 
 		frameBuffer = nullptr;
-		primitives.Destroy();
+		primitives.Terminate();
 	}
 
 	void SetEnabled(bool enabled_)
@@ -1136,7 +1134,7 @@ public:
 		KeyboardTexture* texture = new KeyboardTexture();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create())
+		if (!texture->Initiate())
 		{
 			delete texture;
 			return nullptr;
@@ -1151,7 +1149,7 @@ public:
 		WebcamTexture* texture = new WebcamTexture();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create(vflip_))
+		if (!texture->Initiate(vflip_))
 		{
 			delete texture;
 			return nullptr;
@@ -1166,7 +1164,7 @@ public:
 		MicrophoneTexture* texture = new MicrophoneTexture();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create())
+		if (!texture->Initiate())
 		{
 			delete texture;
 			return nullptr;
@@ -1181,7 +1179,7 @@ public:
 		SoundCloudTexture* texture = new SoundCloudTexture();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create(url_, vflip_))
+		if (!texture->Initiate(url_, vflip_))
 		{
 			delete texture;
 			return nullptr;
@@ -1196,7 +1194,7 @@ public:
 		Texture2DFile* texture = new Texture2DFile();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create(path, vflip_))
+		if (!texture->Initiate(path, vflip_))
 		{
 			delete texture;
 			return nullptr;
@@ -1211,7 +1209,7 @@ public:
 		TextureCubeMapFile* texture = new TextureCubeMapFile();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create(path, vflip_))
+		if (!texture->Initiate(path, vflip_))
 		{
 			delete texture;
 			return nullptr;
@@ -1226,7 +1224,7 @@ public:
 		VideoTexture* texture = new VideoTexture();
 		if (!texture)
 			return nullptr;
-		if (!texture->Create(path, vflip_))
+		if (!texture->Initiate(path, vflip_))
 		{
 			delete texture;
 			return nullptr;
@@ -1240,38 +1238,38 @@ public:
 		Debug("Error: %s\n", msg);
 	}
 
-	bool Create(const char* folder_)
+	bool Initiate(const char* folder_)
 	{
-		if (!CreateScene(folder_, "scene.json"))
+		if (!InitiateScene(folder_, "scene.json"))
 			return false;
 
 		return true;
 	}
 
-	bool CreateScene(const char* folder_, const char* scenefile_)
+	bool InitiateScene(const char* folder_, const char* scenefile_)
 	{
 		std::vector<char> colors(32 * 32 * 4);
 		memset(&colors[0], 0, (32 * 32 * 4));
 
-		if (!black.Create(32, 32, 4, Texture::DynamicRange::LOW, &colors[0]))
+		if (!black.Initiate(32, 32, 4, Texture::DynamicRange::LOW, &colors[0]))
 			return false;
-		if (!soundFrameBuffer.Create(512, 2, 1, Texture::DynamicRange::LOW))
+		if (!soundFrameBuffer.Initiate(512, 2, 1, Texture::DynamicRange::LOW))
 			return false;
-		if (!bufferAFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
+		if (!bufferAFrameBuffer.Initiate(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferBFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
+		if (!bufferBFrameBuffer.Initiate(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferCFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
+		if (!bufferCFrameBuffer.Initiate(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!bufferDFrameBuffer.Create(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
+		if (!bufferDFrameBuffer.Initiate(Platform::GetWidth(), Platform::GetHeight(), 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapAFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
+		if (!cubeMapAFrameBuffer.Initiate(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapBFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
+		if (!cubeMapBFrameBuffer.Initiate(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapCFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
+		if (!cubeMapCFrameBuffer.Initiate(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
-		if (!cubeMapDFrameBuffer.Create(1024, 4, Texture::DynamicRange::HIGH))
+		if (!cubeMapDFrameBuffer.Initiate(1024, 4, Texture::DynamicRange::HIGH))
 			return false;
 
 		std::string folder = folder_;
@@ -1344,7 +1342,7 @@ public:
 			Value& parametersJson = shaderToyDoc["parameters"];
 			if (parametersJson.IsObject())
 			{
-				if (!parameters.Create(parametersJson))
+				if (!parameters.Initiate(parametersJson))
 					return false;
 			}
 		}
@@ -1373,7 +1371,7 @@ public:
 
 	bool CreatePass(int i, rapidjson::Value& passesJson, std::string& folder, const char* commonShaderURL)
 	{
-		if (!passes[i].Create(passesJson[i]))
+		if (!passes[i].Initiate(passesJson[i]))
 		{
 			Debug("Failed to Create Pass %d\n", i);
 			return false;
@@ -1576,13 +1574,13 @@ public:
 		return true;
 	}
 
-	void Destroy()
+	void Terminate()
 	{
 		for (auto texture : textures)
 		{
 			if (texture)
 			{
-				texture->Destroy();
+				texture->Terminate();
 
 				delete texture;
 				texture = nullptr;
@@ -1590,17 +1588,17 @@ public:
 		}
 		textures.clear();
 
-		black.Destroy();
+		black.Terminate();
 
-		soundFrameBuffer.Destroy();
-		bufferAFrameBuffer.Destroy();
-		bufferBFrameBuffer.Destroy();
-		bufferCFrameBuffer.Destroy();
-		bufferDFrameBuffer.Destroy();
-		cubeMapAFrameBuffer.Destroy();
-		cubeMapBFrameBuffer.Destroy();
-		cubeMapCFrameBuffer.Destroy();
-		cubeMapDFrameBuffer.Destroy();
+		soundFrameBuffer.Terminate();
+		bufferAFrameBuffer.Terminate();
+		bufferBFrameBuffer.Terminate();
+		bufferCFrameBuffer.Terminate();
+		bufferDFrameBuffer.Terminate();
+		cubeMapAFrameBuffer.Terminate();
+		cubeMapBFrameBuffer.Terminate();
+		cubeMapCFrameBuffer.Terminate();
+		cubeMapDFrameBuffer.Terminate();
 	}
 protected:
 private:
@@ -1718,52 +1716,61 @@ void ShaderToyComponent::OnRender()
 	);
 }
 
-bool ShaderToyComponent::OnConstruct()
+bool ShaderToyComponent::OnInitiate()
 {
 	return true;
 }
 
 bool ShaderToyComponent::OnStart()
 {
-	//return macShaderDemo->Create("Demos/Noise/Perlin");//
-	//return macShaderDemo->Create("Demos/Clouds/Cheap Cloud Flythrough");//
-	//return macShaderDemo->Create("Demos/Clouds/Cloud");//
-	//return macShaderDemo->Create("Demos/Clouds/CloudFight");//
-	//return macShaderDemo->Create("Demos/Clouds/Cloud2");//
-	//return macShaderDemo->Create("Demos/default");
-	//return macShaderDemo->Create("Demos/Greek Temple");
-	//return macShaderDemo->Create("Demos/JustForFuns/Hexagonal Grid Traversal - 3D");		
-	//return macShaderDemo->Create("Demos/JustForFuns/MO");
-	//return macShaderDemo->Create("Demos/PathTracings/Bidirectional path tracing");
-	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 1");
-	//return macShaderDemo->Create("Demos/PathTracings/Demofox Path Tracing 2");
-	return macShaderDemo->Create("Demos/PathTracings/Path Tracer MIS");
-	//return macShaderDemo->Create("Demos/PathTracings/PBR Material Gold");
-	//return macShaderDemo->Create("Demos/PathTracings/Room DI");
-	//return macShaderDemo->Create("Demos/Post process - SSAO");
+	//return macShaderDemo->Initiate("Demos/Path Tracing Cornell Box 2");
+	return macShaderDemo->Initiate("Demos/Path Tracing (+ELS)");
+	return macShaderDemo->Initiate("Demos/PathTracings/Path tracing cornellbox with MIS");
+	return macShaderDemo->Initiate("Demos/[NV15] Space Curvature");
+	return macShaderDemo->Initiate("Demos/Buoy");
+	//return macShaderDemo->Initiate("Demos/Music - Pirates");
+	//return macShaderDemo->Initiate("Demos/Fork Heartfelt Nepse 180");
+	//return macShaderDemo->Initiate("Demos/Rainier mood");
+	//return macShaderDemo->Initiate("Demos/Noise/Perlin");//
+	//return macShaderDemo->Initiate("Demos/Clouds/Cheap Cloud Flythrough");//
+	//return macShaderDemo->Initiate("Demos/Clouds/Cloud");//
+	//return macShaderDemo->Initiate("Demos/Clouds/CloudFight");//
+	//return macShaderDemo->Initiate("Demos/Clouds/Cloud2");//
+	//return macShaderDemo->Initiate("Demos/default");
+	//return macShaderDemo->Initiate("Demos/Greek Temple");
+	//return macShaderDemo->Initiate("Demos/JustForFuns/Hexagonal Grid Traversal - 3D");		
+	//return macShaderDemo->Initiate("Demos/JustForFuns/MO");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Bidirectional path tracing");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Demofox Path Tracing 1");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Demofox Path Tracing 2");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Path Tracer MIS");
+	//return macShaderDemo->Initiate("Demos/PathTracings/PBR Material Gold");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Room DI");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Monte Carlo path tracer");
+	//return macShaderDemo->Initiate("Demos/Post process - SSAO");
+	//return macShaderDemo->Initiate("Demos/Biplanar mapping");
+	//return macShaderDemo->Initiate("Demos/Scattering/Atmospheric scattering explained");
+	//return macShaderDemo->Initiate("Demos/Scattering/Atmospheric Scattering Fog");
+	//return macShaderDemo->Initiate("Demos/Scattering/Fast Atmospheric Scattering");
+	//return macShaderDemo->Initiate("Demos/Scattering/RayleighMieDayNight");
+	//return macShaderDemo->Initiate("Demos/Scattering/RealySimpleAtmosphericScatter");
+	//return macShaderDemo->Initiate("Demos/Terrains/Cloudy Terrain");
+	//return macShaderDemo->Initiate("Demos/Terrains/Desert Sand");
+	//return macShaderDemo->Initiate("Demos/Terrains/Elevated");
+	//return macShaderDemo->Initiate("Demos/Terrains/Lake in highland");
+	//return macShaderDemo->Initiate("Demos/Terrains/Mountains");
+	//return macShaderDemo->Initiate("Demos/Terrains/Rainforest");
+	//return macShaderDemo->Initiate("Demos/Terrains/Sirenian Dawn");
 
-	//return macShaderDemo->Create("Demos/Scattering/Atmospheric scattering explained");
-	//return macShaderDemo->Create("Demos/Scattering/Atmospheric Scattering Fog");
-	//return macShaderDemo->Create("Demos/Scattering/Fast Atmospheric Scattering");
-	//return macShaderDemo->Create("Demos/Scattering/RayleighMieDayNight");
-	//return macShaderDemo->Create("Demos/Scattering/RealySimpleAtmosphericScatter");
-	//return macShaderDemo->Create("Demos/Terrains/Cloudy Terrain");
-	//return macShaderDemo->Create("Demos/Terrains/Desert Sand");
-	//return macShaderDemo->Create("Demos/Terrains/Elevated");
-	//return macShaderDemo->Create("Demos/Terrains/Lake in highland");
-	//return macShaderDemo->Create("Demos/Terrains/Mountains");
-	//return macShaderDemo->Create("Demos/Terrains/Rainforest");
-	//return macShaderDemo->Create("Demos/Terrains/Sirenian Dawn");
-
-	//return macShaderDemo->Create("Demos/Waters/RiverGo");
-	//return macShaderDemo->Create("Demos/Waters/Oceanic");
-	//return macShaderDemo->Create("Demos/Waters/Ocean");
-	//return macShaderDemo->Create("Demos/Waters/Very fast procedural ocean");
-	//return macShaderDemo->Create("Demos/Waters/Water World");
-	//return macShaderDemo->Create("Demos/Wave Propagation Effect");
-	//return macShaderDemo->Create("Demos/Beneath the Sea God Ray");
-	//return macShaderDemo->Create("Demos/Scattering/VolumetricIntegration");
-	//return macShaderDemo->Create("Demos/Waters/Spout");
+	//return macShaderDemo->Initiate("Demos/Waters/RiverGo");
+	//return macShaderDemo->Initiate("Demos/Waters/Oceanic");
+	//return macShaderDemo->Initiate("Demos/Waters/Ocean");
+	//return macShaderDemo->Initiate("Demos/Waters/Very fast procedural ocean");
+	//return macShaderDemo->Initiate("Demos/Waters/Water World");
+	//return macShaderDemo->Initiate("Demos/Wave Propagation Effect");
+	//return macShaderDemo->Initiate("Demos/Beneath the Sea God Ray");
+	//return macShaderDemo->Initiate("Demos/Scattering/VolumetricIntegration");
+	//return macShaderDemo->Initiate("Demos/Waters/Spout");
 
 	return true;
 }
@@ -1786,6 +1793,6 @@ void ShaderToyComponent::OnStop()
 {
 }
 
-void ShaderToyComponent::OnDestruct()
+void ShaderToyComponent::OnTerminate()
 {
 }

@@ -34,7 +34,7 @@ public:
 
 	void SetName(const std::string& name_);
 private:
-	bool Construct();
+	bool Initiate();
 
 	bool Start();
 
@@ -46,9 +46,9 @@ private:
 
 	void Stop();
 
-	void Destruct();
+	void Terminate();
 protected:
-	virtual bool OnConstruct() = 0;
+	virtual bool OnInitiate() = 0;
 
 	virtual bool OnStart() = 0;
 
@@ -60,7 +60,7 @@ protected:
 
 	virtual void OnStop() = 0;
 
-	virtual void OnDestruct() = 0;
+	virtual void OnTerminate() = 0;
 private:
 	ID id;
 	std::string name;

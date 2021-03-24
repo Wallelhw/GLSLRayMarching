@@ -12,7 +12,7 @@ ShaderToyCamera::~ShaderToyCamera()
 {
 }
 
-bool ShaderToyCamera::OnConstruct()
+bool ShaderToyCamera::OnInitiate()
 {
 	return true;
 }
@@ -40,7 +40,7 @@ void ShaderToyCamera::OnStop()
 {
 }
 
-void ShaderToyCamera::OnDestruct()
+void ShaderToyCamera::OnTerminate()
 {
 }
 

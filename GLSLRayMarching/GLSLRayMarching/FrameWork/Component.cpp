@@ -50,9 +50,9 @@ void Component::SetName(const std::string& name_)
 	name = name_;
 }
 
-bool Component::Construct()
+bool Component::Initiate()
 {
-	return OnConstruct();
+	return OnInitiate();
 }
 
 bool Component::Start()
@@ -80,7 +80,7 @@ void Component::Stop()
 	OnStop();
 }
 
-void Component::Destruct()
+void Component::Terminate()
 {
-	OnDestruct();
+	OnTerminate();
 }

@@ -19,7 +19,7 @@ PathTraceScene::~PathTraceScene()
 {
 }
 
-bool PathTraceScene::OnConstruct()
+bool PathTraceScene::OnInitiate()
 {
 	return true;
 }
@@ -61,6 +61,6 @@ void PathTraceScene::OnStop()
 {
 }
 
-void PathTraceScene::OnDestruct()
+void PathTraceScene::OnTerminate()
 {
 }

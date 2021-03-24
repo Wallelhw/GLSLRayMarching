@@ -16,7 +16,7 @@ DefaultScene::~DefaultScene()
 {
 }
 
-bool DefaultScene::OnConstruct()
+bool DefaultScene::OnInitiate()
 {
 	return true;
 }
@@ -44,6 +44,6 @@ void DefaultScene::OnStop()
 {
 }
 
-void DefaultScene::OnDestruct()
+void DefaultScene::OnTerminate()
 {
 }

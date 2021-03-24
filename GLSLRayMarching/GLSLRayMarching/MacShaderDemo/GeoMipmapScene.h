@@ -15,7 +15,7 @@
 #include "GeoMipmap.h"
 #include "GeoMorph.h"
 #include "Camera.h"
-#include "FrameWork2.h"
+#include "FrameWork.h"
 #include "Scene.h"
 #include "GameObject.h"
 #include "IKShapes.h"
@@ -40,7 +40,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -147,7 +147,7 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 
@@ -191,12 +191,12 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
-		if (!geoMipmap.Create(PATCH_SIZE))
+		if (!geoMipmap.Initiate(PATCH_SIZE))
 			return false;
 
-		if (!geoMorph.Create())
+		if (!geoMorph.Initiate())
 			return false;
 
 		return true;
@@ -220,10 +220,10 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
-		geoMipmap.Destroy();
-		geoMorph.Destroy();
+		geoMipmap.Terminate();
+		geoMorph.Terminate();
 	}
 
 	virtual void OnRender() override
@@ -278,7 +278,7 @@ public:
 	{
 	}
 protected:
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -306,7 +306,7 @@ protected:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 private:

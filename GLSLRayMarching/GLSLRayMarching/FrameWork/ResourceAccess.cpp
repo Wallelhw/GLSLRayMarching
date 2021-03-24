@@ -30,7 +30,7 @@ bool ResourceAccess::Manager::Initialize()
 	return true;
 }
 
-bool ResourceAccess::Manager::Process()
+bool ResourceAccess::Manager::Update()
 {
 	return true;
 }
@@ -54,9 +54,9 @@ bool ResourceAccess::Service::Initialize()
 	return ResourceAccess::Manager::GetInstance().Initialize();
 }
 
-bool ResourceAccess::Service::Process()
+bool ResourceAccess::Service::Update()
 {
-	return ResourceAccess::Manager::GetInstance().Process();
+	return ResourceAccess::Manager::GetInstance().Update();
 }
 
 bool ResourceAccess::Service::Pause()

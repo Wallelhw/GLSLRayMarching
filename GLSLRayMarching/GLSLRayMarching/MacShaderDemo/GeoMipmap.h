@@ -458,7 +458,7 @@ public:
 	{
 	}
 
-	bool Create(unsigned int size_)
+	bool Initiate(unsigned int size_)
 	{
 		unsigned int mipLevelCount = log(size_) / log(2);
 
@@ -479,7 +479,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!heightMap.Create("heightMap1.hdr", false))
+		if (!heightMap.Initiate("heightMap1.hdr", false))
 		{
 			return false;
 		}
@@ -490,7 +490,7 @@ public:
 		heightMap.SetWarpT(Texture::Wrap::Clamp);
 
 
-		if (!texture0.Create("texture0.jpg", false))
+		if (!texture0.Initiate("texture0.jpg", false))
 		{
 			return false;
 		}
@@ -500,7 +500,7 @@ public:
 		texture0.SetWarpR(Texture::Wrap::Repeat);
 		texture0.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture1.Create("texture1.jpg", false))
+		if (!texture1.Initiate("texture1.jpg", false))
 		{
 			return false;
 		}
@@ -510,7 +510,7 @@ public:
 		texture1.SetWarpR(Texture::Wrap::Repeat);
 		texture1.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture2.Create("texture2.jpg", false))
+		if (!texture2.Initiate("texture2.jpg", false))
 		{
 			return false;
 		}
@@ -520,7 +520,7 @@ public:
 		texture2.SetWarpR(Texture::Wrap::Repeat);
 		texture2.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!texture3.Create("texture3.jpg", false))
+		if (!texture3.Initiate("texture3.jpg", false))
 		{
 			return false;
 		}
@@ -530,7 +530,7 @@ public:
 		texture3.SetWarpR(Texture::Wrap::Repeat);
 		texture3.SetWarpT(Texture::Wrap::Repeat);
 
-		if (!splatMap.Create("splatmap.jpg", false))
+		if (!splatMap.Initiate("splatmap.jpg", false))
 		{
 			return false;
 		}
@@ -541,7 +541,7 @@ public:
 		splatMap.SetWarpT(Texture::Wrap::Repeat);
 
 		////////////////////////////////////////////////////////////
-		if (!shaderProgram.Create("GeoMipMapVS.glsl", "GeoMipMapPS.glsl"))
+		if (!shaderProgram.Initiate("GeoMipMapVS.glsl", "GeoMipMapPS.glsl"))
 		{
 			return false;
 		}
@@ -895,16 +895,16 @@ public:
 #endif
 	}
 
-	void Destroy()
+	void Terminate()
 	{
-		heightMap.Destroy();
-		shaderStorageBlockBuffer.Destroy();
+		heightMap.Terminate();
+		shaderStorageBlockBuffer.Terminate();
 
-		uniformBlockBuffer.Destroy();
-		shaderProgram.Destroy();
-		renderStates.Destroy();
+		uniformBlockBuffer.Terminate();
+		shaderProgram.Terminate();
+		renderStates.Terminate();
 
-		primitives.Destroy();
+		primitives.Terminate();
 	}
 
 	unsigned int GetLevelsCount() const

@@ -457,6 +457,8 @@ namespace GLSLPT
 
         if (scene->camera->isMoving || scene->instancesModified)
         {
+            printf("Renderer Moving\n");
+
             r1 = r2 = r3 = 0;
             tileX = -1;
             tileY = numTilesY - 1;
@@ -485,6 +487,8 @@ namespace GLSLPT
         }
         else
         {
+            printf("Renderer not Moving %d %d\n", frameCounter, sampleCounter);
+
             frameCounter++;
             tileX++;
             if (tileX >= numTilesX)

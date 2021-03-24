@@ -247,7 +247,7 @@ public:
 	{
 	}
 
-	void Destroy()
+	void Terminate()
 	{
 	}
 

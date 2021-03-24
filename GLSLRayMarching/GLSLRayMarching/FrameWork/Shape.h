@@ -145,7 +145,7 @@ public:
 		renderStates.depthTestState.func = DepthTestState::Func::LEQUAL;
 
 		////////////////////////////////////////////////////////////
-		if (!shaderProgram.Create("ShapeVS.glsl", "ShapePS.glsl"))
+		if (!shaderProgram.Initiate("ShapeVS.glsl", "ShapePS.glsl"))
 		{
 			return false;
 		}
@@ -192,14 +192,14 @@ public:
 		primitives.DrawArray(Primitives::Mode::TRIANGLES, 0, primitives.GetCount());
 	}
 
-	void Destroy()
+	void Terminate()
 	{
-		renderStates.Destroy();
-		texture.Destroy();
-		uniformBlockBuffer.Destroy();
-		shaderStorageBlockBuffer.Destroy();
-		shaderProgram.Destroy();
-		primitives.Destroy();
+		renderStates.Terminate();
+		texture.Terminate();
+		uniformBlockBuffer.Terminate();
+		shaderStorageBlockBuffer.Terminate();
+		shaderProgram.Terminate();
+		primitives.Terminate();
 	}
 private:
 	RenderStates renderStates;

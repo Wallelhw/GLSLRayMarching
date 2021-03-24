@@ -66,8 +66,8 @@ public:
 	FrameBuffer();
 	virtual ~FrameBuffer();
 	
-	virtual bool Create();
-	virtual void Destroy();
+	virtual bool Initiate();
+	virtual void Terminate();
 	
 	friend void Copy(FrameBuffer& src_, const Rect2& srcRect_, FrameBuffer& dst_, const Rect2& dstRect_, BlitMask blitMask_, Texture::MagFilter filter);
 
@@ -103,8 +103,8 @@ public:
 	Texture2DFrameBuffer();
 	virtual ~Texture2DFrameBuffer();
 
-	virtual bool Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
-	virtual void Destroy();
+	virtual bool Initiate(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
+	virtual void Terminate();
 	
 	Texture* GetTexture();
 	const Texture* GetTexture() const;
@@ -118,8 +118,8 @@ public:
 	TextureCubeMapFrameBuffer();
 	virtual ~TextureCubeMapFrameBuffer();
 
-	virtual bool Create(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
-	virtual void Destroy();
+	virtual bool Initiate(unsigned int size, unsigned int nrComponents, Texture::DynamicRange dynamicRange_);
+	virtual void Terminate();
 
 	Texture* GetTexture();
 	const Texture* GetTexture() const;

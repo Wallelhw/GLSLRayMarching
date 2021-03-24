@@ -26,7 +26,7 @@ public:
 
 	virtual bool Initialize() = 0;
 
-	virtual bool Process() = 0;
+	virtual bool Update() = 0;
 
 	virtual bool Pause() = 0;
 
@@ -55,9 +55,9 @@ public:
 		return T::Service::Initialize();
 	}
 
-	bool Process()
+	bool Update()
 	{
-		return T::Service::Process();
+		return T::Service::Update();
 	}
 
 	bool Pause()
@@ -92,7 +92,7 @@ public:
 private:
 	bool Initialize();
 
-	bool Process();
+	bool Update();
 
 	bool Pause();
 

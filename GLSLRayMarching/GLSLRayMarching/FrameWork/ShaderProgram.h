@@ -69,8 +69,8 @@ public:
 	ShaderProgram();
 	virtual ~ShaderProgram();
 
-	bool Create(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
-	void Destroy();
+	bool Initiate(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
+	void Terminate();
 	bool CreateFromSource(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr);
 	void GetProgramBinary(ShaderProgramBinary& binary);
 	bool CreateFromBinary(const ShaderProgramBinary& binary);

@@ -30,7 +30,7 @@ bool Physics2D::Manager::Initialize()
 	return true;
 }
 
-bool Physics2D::Manager::Process()
+bool Physics2D::Manager::Update()
 {
 	return true;
 }
@@ -54,9 +54,9 @@ bool Physics2D::Service::Initialize()
 	return Physics2D::Manager::GetInstance().Initialize();
 }
 
-bool Physics2D::Service::Process()
+bool Physics2D::Service::Update()
 {
-	return Physics2D::Manager::GetInstance().Process();
+	return Physics2D::Manager::GetInstance().Update();
 }
 
 bool Physics2D::Service::Pause()

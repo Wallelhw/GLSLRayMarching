@@ -36,7 +36,7 @@ void Video::Graphics3Component::Render()
 	OnRender();
 }
 
-bool Video::Graphics3Component::OnConstruct()
+bool Video::Graphics3Component::OnInitiate()
 {
 	return true;
 }
@@ -64,7 +64,7 @@ void Video::Graphics3Component::OnStop()
 {
 }
 
-void Video::Graphics3Component::OnDestruct()
+void Video::Graphics3Component::OnTerminate()
 {
 }
 
@@ -85,7 +85,7 @@ void Video::RendererComponent::Render()
 	OnRender();
 }
 
-bool Video::RendererComponent::OnConstruct()
+bool Video::RendererComponent::OnInitiate()
 {
 	return true;
 }
@@ -113,7 +113,7 @@ void Video::RendererComponent::OnStop()
 {
 }
 
-void Video::RendererComponent::OnDestruct()
+void Video::RendererComponent::OnTerminate()
 {
 }
 
@@ -134,7 +134,7 @@ void Video::CameraComponent::Render()
 	OnRender();
 }
 
-bool Video::CameraComponent::OnConstruct()
+bool Video::CameraComponent::OnInitiate()
 {
 	return true;
 }
@@ -162,7 +162,7 @@ void Video::CameraComponent::OnStop()
 {
 }
 
-void Video::CameraComponent::OnDestruct()
+void Video::CameraComponent::OnTerminate()
 {
 }
 
@@ -187,7 +187,7 @@ bool Video::Manager::Initialize()
 	return true;
 }
 
-bool Video::Manager::Process()
+bool Video::Manager::Update()
 {
 	for (auto& camera : cameras)
 	{
@@ -286,9 +286,9 @@ bool Video::Service::Initialize()
 	return Video::Manager::GetInstance().Initialize();
 }
 
-bool Video::Service::Process()
+bool Video::Service::Update()
 {
-	return Video::Manager::GetInstance().Process();
+	return Video::Manager::GetInstance().Update();
 }
 
 bool Video::Service::Pause()

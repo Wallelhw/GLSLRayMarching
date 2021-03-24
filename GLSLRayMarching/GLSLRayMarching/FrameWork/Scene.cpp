@@ -19,13 +19,13 @@ Scene::~Scene()
 {
 }
 
-bool Scene::Construct()
+bool Scene::Initiate()
 {
-	Debug("%sScene::Construct()\n", GetCurrentSceneName().c_str());
-	if (!GameObject::Manager::GetInstance().Construct())
+	Debug("%sScene::Initiate()\n", GetCurrentSceneName().c_str());
+	if (!GameObject::Manager::GetInstance().Initiate())
 		return false;
 
-	return OnConstruct();
+	return OnInitiate();
 }
 
 bool Scene::Start()
@@ -71,12 +71,12 @@ void Scene::Resume()
 	OnResume();
 }
 
-void Scene::Destruct()
+void Scene::Terminate()
 {
 	Debug("%sScene::Destruct()\n", GetCurrentSceneName().c_str());
-	GameObject::Manager::GetInstance().Destruct();
+	GameObject::Manager::GetInstance().Terminate();
 
-	OnDestruct();
+	OnTerminate();
 }
 
 bool Scene::Push(const char* name_)
@@ -145,14 +145,14 @@ bool Scene::Manager::Initialize()
 	return true;
 }
 
-bool Scene::Manager::Process()
+bool Scene::Manager::Update()
 {
 	if (nextCreator)
 	{
 		if (currentScene)
 		{
 			Debug("End Current Scene %s------------------------\n", currentScene->GetCurrentSceneName().c_str());
-			currentScene->Destruct();
+			currentScene->Terminate();
 
 			delete currentScene;
 			currentScene = nullptr;
@@ -160,13 +160,13 @@ bool Scene::Manager::Process()
 		}
 
 		Debug("Start Next Scene %s------------------------\n", nextCreator->GetName().c_str());
-		currentScene = nextCreator->Create();
+		currentScene = nextCreator->Initiate();
 		currentCreator = nextCreator;
 		nextCreator = nullptr;
 
 		Assert(currentScene);
 
-		if (!currentScene->Construct())
+		if (!currentScene->Initiate())
 		{
 			Error("failed to Construct %s\n", GetCurrentSceneName());
 			return false;
@@ -206,7 +206,7 @@ void Scene::Manager::Resume()
 void Scene::Manager::Terminate()
 {
 	if (currentScene)
-		currentScene->Destruct();
+		currentScene->Terminate();
 }
 
 void Scene::Manager::Add(ICreator* iCreator)
@@ -292,9 +292,9 @@ bool Scene::Service::Initialize()
 	return Scene::Manager::GetInstance().Initialize();
 }
 
-bool Scene::Service::Process()
+bool Scene::Service::Update()
 {
-	return Scene::Manager::GetInstance().Process();
+	return Scene::Manager::GetInstance().Update();
 }
 
 bool Scene::Service::Pause()

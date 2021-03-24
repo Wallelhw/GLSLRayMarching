@@ -81,12 +81,12 @@ Primitives::Primitives()
 
 Primitives::~Primitives()
 {
-	Destroy();
+	Terminate();
 }
 
 Primitives& Primitives::Begin()
 {
-	Destroy();
+	Terminate();
 
 	glGenVertexArrays(1, &vao);
 	Assert(vao);
@@ -142,7 +142,7 @@ bool Primitives::End()
 	return vao;
 }
 
-void Primitives::Destroy()
+void Primitives::Terminate()
 {
 	vertexAttributes.clear();
 

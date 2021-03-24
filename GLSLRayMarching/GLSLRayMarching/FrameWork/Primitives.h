@@ -64,7 +64,7 @@ public:
 	Primitives& FillIndices(const unsigned int* indices_, int indicesCount_);
 	bool End();
 	
-	void Destroy();
+	void Terminate();
 	void Bind();
 	void Unbind();
 

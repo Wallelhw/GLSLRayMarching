@@ -10,9 +10,7 @@ class PathTraceImp
 public:
     PathTraceImp()
         : scene(nullptr)
-        , selectedInstance(0)
         , renderer(nullptr)
-        , keyPressed(false)
     {
     }
 
@@ -21,9 +19,7 @@ public:
     }
 
     PTScene* scene;
-    int selectedInstance;
     TiledRenderer* renderer;
-    bool keyPressed;
 };
 
 ///////////////////////////////////////////////////////
@@ -36,11 +32,12 @@ PathTrace::~PathTrace()
 {
 }
 
-std::string shadersDir = "../assets/shaders/";
-std::string assetsDir = "../assets/";
-
-bool PathTrace::Construct(const char* sceneName)
+bool PathTrace::Initiate(const char* sceneName)
 {
+    std::string assetsDir = "../assets/";
+    std::string shadersDir = "../assets/shaders/";
+    std::string scenePath = assetsDir + sceneName;
+
     ///////////////////////////////////////////////////////
     impl = new PathTraceImp();
     if (!impl)
@@ -52,9 +49,7 @@ bool PathTrace::Construct(const char* sceneName)
         return false;
 
     RenderOptions renderOptions;
-    LoadSceneFromFile(sceneName, impl->scene, renderOptions);
-    //loadCornellTestScene(scene, renderOptions);
-    impl->selectedInstance = 0;
+    LoadSceneFromFile(scenePath.c_str(), impl->scene, renderOptions);
     impl->scene->renderOptions = renderOptions;
 
     ///////////////////////////////////////////////////////
@@ -67,58 +62,41 @@ bool PathTrace::Construct(const char* sceneName)
     return true;
 }
 
-void PathTrace::Render()
+bool PathTrace::Update()
 {
-    impl->keyPressed = false;
-    
-    if(Platform::GetKey(Platform::KeyCode::Mouse0) || Platform::GetKey(Platform::KeyCode::Mouse1) || Platform::GetKey(Platform::KeyCode::Mouse2))
+    if (Platform::GetKey(Platform::KeyCode::Mouse0) || Platform::GetKey(Platform::KeyCode::Mouse1) || Platform::GetKey(Platform::KeyCode::Mouse2))
     {
-        float mouseSensitivity = 0.1f;
+        float multiplier = 1.0f;
+        if (Platform::GetKey(Platform::KeyCode::LeftShift))
+        {
+            multiplier *= 10.0f;
+        }
 
         if (Platform::GetKey(Platform::KeyCode::Mouse0))
         {
             Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-            impl->scene->camera->OffsetOrientation(mouseSensitivity * mouseDelta.X(), mouseSensitivity * mouseDelta.Y());
+            impl->scene->camera->OffsetOrientation(mouseDelta.X() * 0.03 * multiplier, mouseDelta.Y() * 0.03 * multiplier);
         }
         else if (Platform::GetKey(Platform::KeyCode::Mouse1))
         {
             Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-            impl->scene->camera->SetRadius(mouseSensitivity * mouseDelta.Y());
+            impl->scene->camera->SetRadius(mouseDelta.Y() * 0.001 * multiplier);
         }
         else if (Platform::GetKey(Platform::KeyCode::Mouse2))
         {
             Vector2 mouseDelta = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-            impl->scene->camera->Strafe(mouseSensitivity * mouseDelta.X(), mouseSensitivity * mouseDelta.Y());
+            impl->scene->camera->Strafe(mouseDelta.X() * 0.0001 * multiplier, mouseDelta.Y() * 0.0001 * multiplier);
         }
         impl->scene->camera->isMoving = true;
     }
 
-    /*
-    if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) && ImGui::IsAnyMouseDown() && !ImGuizmo::IsOver())
-    {
-        if (ImGui::IsMouseDown(0))
-        {
-            ImVec2 mouseDelta = ImGui::GetMouseDragDelta(0, 0);
-            scene->camera->OffsetOrientation(mouseDelta.x, mouseDelta.y);
-            ImGui::ResetMouseDragDelta(0);
-        }
-        else if (ImGui::IsMouseDown(1))
-        {
-            ImVec2 mouseDelta = ImGui::GetMouseDragDelta(1, 0);
-            scene->camera->SetRadius(mouseSensitivity * mouseDelta.y);
-            ImGui::ResetMouseDragDelta(1);
-        }
-        else if (ImGui::IsMouseDown(2))
-        {
-            ImVec2 mouseDelta = ImGui::GetMouseDragDelta(2, 0);
-            scene->camera->Strafe(mouseSensitivity * mouseDelta.x, mouseSensitivity * mouseDelta.y);
-            ImGui::ResetMouseDragDelta(2);
-        }
-        scene->camera->isMoving = true;
-    }
-    */
+    return true;
+}
 
-    impl->renderer->Update(128);
+void PathTrace::Render()
+{
+    float dt = Platform::GetDeltaTime();
+    impl->renderer->Update(dt);
     //lastTime = presentTime;
 
     glClearColor(0., 0., 0., 0.);
@@ -131,15 +109,9 @@ void PathTrace::Render()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, screenSize.x, screenSize.y);
     impl->renderer->Present();
-
-    // Rendering
-    //ImGui::Render();
-    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    //SDL_GL_SwapWindow(loopdata.mWindow);
 }
 
-void PathTrace::Destroy()
+void PathTrace::Terminate()
 {
     if (impl)
     {

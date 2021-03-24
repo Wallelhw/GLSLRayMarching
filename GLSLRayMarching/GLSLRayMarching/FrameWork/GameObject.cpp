@@ -26,13 +26,13 @@ GameObject::Manager& GameObject::Manager::GetInstance()
 	return instance;
 }
 
-bool GameObject::Manager::Construct()
+bool GameObject::Manager::Initiate()
 {
 	Debug("GameObject::Manager::Construct()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
-		if (!gameObject->Construct())
+		if (!gameObject->Initiate())
 			return false;
 	}
 
@@ -96,13 +96,13 @@ void GameObject::Manager::Stop()
 	}
 }
 
-void GameObject::Manager::Destruct()
+void GameObject::Manager::Terminate()
 {
 	Debug("GameObject::Manager::Destruct()\n");
 
 	for (auto& gameObject : gameObjects)
 	{
-		gameObject->Destruct();
+		gameObject->Terminate();
 	}
 }
 
@@ -200,14 +200,14 @@ void GameObject::SetName(const std::string& name_)
 	name = name_;
 }
 
-bool GameObject::Construct()
+bool GameObject::Initiate()
 {
-	if (!OnConstruct())
+	if (!OnInitiate())
 		return false;
 
 	for (auto& component : components)
 	{
-		if (!component->Construct())
+		if (!component->Initiate())
 		{
 			return false;
 		}
@@ -284,17 +284,17 @@ void GameObject::Stop()
 	}
 }
 
-void GameObject::Destruct()
+void GameObject::Terminate()
 {
-	OnDestruct();
+	OnTerminate();
 
 	for (auto& component : components)
 	{
-		component->Destruct();
+		component->Terminate();
 	}
 }
 
-bool GameObject::OnConstruct()
+bool GameObject::OnInitiate()
 {
 	return true;
 }
@@ -322,7 +322,7 @@ void GameObject::OnStop()
 {
 }
 
-void GameObject::OnDestruct()
+void GameObject::OnTerminate()
 {
 }
 

@@ -94,7 +94,7 @@ Buffer::~Buffer()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	if (impl)
 	{
@@ -128,7 +128,7 @@ Buffer& Buffer::Begin(Buffer::Type type_, Buffer::Usage usage_)
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	impl->type = type_;
 	impl->usage = usage_;
@@ -196,7 +196,7 @@ bool Buffer::End()
 	return impl->handle!=0;
 }
 
-void Buffer::Destroy()
+void Buffer::Terminate()
 {
 	Assert(impl);
 

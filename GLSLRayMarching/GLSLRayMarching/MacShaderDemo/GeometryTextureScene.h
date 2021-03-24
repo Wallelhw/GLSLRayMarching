@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 
@@ -122,7 +122,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		////////////////////////////////////////////////////////////
 		float vertices[] =
@@ -146,7 +146,7 @@ public:
 		}
 
 		////////////////////////////////////////////////////////////
-		if (!geometryTexture.Create("bunny.p65.gim256.fmp.bmp", false))
+		if (!geometryTexture.Initiate("bunny.p65.gim256.fmp.bmp", false))
 		{
 			return false;
 		}
@@ -156,7 +156,7 @@ public:
 		geometryTexture.SetWarpR(Texture::Wrap::Clamp);
 		geometryTexture.SetWarpT(Texture::Wrap::Clamp);
 
-		if (!normalTexture.Create("bunny.p65.nim512.bmp", false))
+		if (!normalTexture.Initiate("bunny.p65.nim512.bmp", false))
 		{
 			return false;
 		}
@@ -167,7 +167,7 @@ public:
 		normalTexture.SetWarpT(Texture::Wrap::Repeat);
 
 		////////////////////////////////////////////////////////////
-		if (!geometryTextureShaderProgram.Create("BlitVS.glsl", "BlitPS.glsl"))
+		if (!geometryTextureShaderProgram.Initiate("BlitVS.glsl", "BlitPS.glsl"))
 		{
 			return false;
 		}
@@ -263,15 +263,15 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
-		geometryTexture.Destroy();
-		normalTexture.Destroy();
-		shaderStorageBlockBuffer.Destroy();
-		uniformBlockBuffer.Destroy();
-		geometryTextureShaderProgram.Destroy();
-		renderStates.Destroy();
-		primitives.Destroy();
+		geometryTexture.Terminate();
+		normalTexture.Terminate();
+		shaderStorageBlockBuffer.Terminate();
+		uniformBlockBuffer.Terminate();
+		geometryTextureShaderProgram.Terminate();
+		renderStates.Terminate();
+		primitives.Terminate();
 	}
 
 	virtual void OnRender() override
@@ -346,7 +346,7 @@ public:
 	{
 	}
 protected:
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -374,7 +374,7 @@ protected:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 private:

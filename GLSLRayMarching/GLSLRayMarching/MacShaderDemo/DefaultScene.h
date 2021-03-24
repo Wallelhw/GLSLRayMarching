@@ -19,7 +19,7 @@ public:
 
 	virtual ~DefaultScene();
 protected:
-	virtual bool OnConstruct() override;
+	virtual bool OnInitiate() override;
 
 	virtual bool OnStart() override;
 
@@ -31,7 +31,7 @@ protected:
 
 	virtual void OnStop() override;
 
-	virtual void OnDestruct() override;
+	virtual void OnTerminate() override;
 };
 
 #endif

@@ -416,7 +416,8 @@ pt_mis(Ray ray)
 	return contrib;
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord)
+void
+mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
 	light_size = 0.5;
 	light_area = light_size * light_size;
@@ -425,6 +426,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 	seed = 0;
 	light_albedo = vec4(1, 1, 1, 2.0 / (light_size * light_size));
 	flat_idx = int(dot(gl_FragCoord.xy, vec2(1, 4096)));
+
 
 	vec2 p = fragCoord.xy / vec2(iResolution) - vec2(0.5);
 	float a = float(iResolution.x) / float(iResolution.y);

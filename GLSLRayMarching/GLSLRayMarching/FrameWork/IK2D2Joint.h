@@ -24,7 +24,7 @@ public:
 		length[1] = (effectorPosition - joint1Position).Length(); // a
 	}
 
-	virtual bool OnCreate() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -60,7 +60,7 @@ public:
 		// Debug("%f %f %f %f %f %f\n", targetPosition.X(), targetPosition.Y(), jointAngle[0], jointAngle[1]);
 	}
 
-	virtual void OnDestroy() override
+	virtual void OnTerminate() override
 	{
 	}
 

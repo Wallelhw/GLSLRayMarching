@@ -275,23 +275,8 @@ bool Input::Manager::Initialize()
 	return true;
 }
 
-bool Input::Manager::Process()
+bool Input::Manager::Update()
 {
-	/*
-	for (int i = 0; i < Platform::GetKeyCount(); i++)
-	{
-		lastValues[i] = currentValues[i];
-		currentValues[i] = Platform::GetKeyState(i);
-	}
-
-	mouseMovement = Vector2(Platform::GetMouseDX(), Platform::GetMouseDY());
-
-	for (auto& input : inputs)
-	{
-		input.second.Update();
-	}
-	*/
-
 	return true;
 }
 
@@ -314,9 +299,9 @@ bool Input::Service::Initialize()
 	return Input::Manager::GetInstance().Initialize();
 }
 
-bool Input::Service::Process()
+bool Input::Service::Update()
 {
-	return Input::Manager::GetInstance().Process();
+	return Input::Manager::GetInstance().Update();
 }
 
 bool Input::Service::Pause()

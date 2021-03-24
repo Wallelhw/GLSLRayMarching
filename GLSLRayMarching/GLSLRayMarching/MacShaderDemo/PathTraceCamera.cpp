@@ -12,7 +12,7 @@ PathTraceCamera::~PathTraceCamera()
 {
 }
 
-bool PathTraceCamera::OnConstruct()
+bool PathTraceCamera::OnInitiate()
 {
 	return true;
 }
@@ -40,7 +40,7 @@ void PathTraceCamera::OnStop()
 {
 }
 
-void PathTraceCamera::OnDestruct()
+void PathTraceCamera::OnTerminate()
 {
 }
 

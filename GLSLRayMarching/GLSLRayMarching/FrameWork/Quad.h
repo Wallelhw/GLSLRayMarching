@@ -12,7 +12,7 @@ public:
 	{
 	}
 
-	bool Create()
+	bool Initiate()
 	{
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -51,7 +51,7 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Destroy()
+	void Terminate()
 	{
 		if (VAO)
 		{

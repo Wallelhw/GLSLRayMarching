@@ -20,7 +20,7 @@ public:
 
 	virtual ~Scene();
 
-	bool Construct();
+	bool Initiate();
 
 	bool Start();
 
@@ -32,9 +32,9 @@ public:
 
 	void Resume();
 
-	void Destruct();
+	void Terminate();
 protected:
-	virtual bool OnConstruct() = 0;
+	virtual bool OnInitiate() = 0;
 
 	virtual bool OnStart() = 0;
 
@@ -46,7 +46,7 @@ protected:
 
 	virtual void OnStop() = 0;
 
-	virtual void OnDestruct() = 0;
+	virtual void OnTerminate() = 0;
 protected:
 	bool Push(const char* name_);
 	bool Goto(const char* name_);
@@ -63,7 +63,7 @@ public:
 	public:
 		ICreator(const char* name_);
 		virtual ~ICreator();
-		virtual Scene* Create() = 0;
+		virtual Scene* Initiate() = 0;
 
 		const std::string& GetName() const;
 	private:
@@ -84,7 +84,7 @@ public:
 		{
 		}
 
-		virtual Scene* Create()
+		virtual Scene* Initiate()
 		{
 			return new T();
 		}
@@ -105,7 +105,7 @@ public:
 
 	private:
 		bool Initialize();
-		bool Process();
+		bool Update();
 		bool Pause();
 		void Resume();
 		void Terminate();
@@ -134,7 +134,7 @@ public:
 	{
 	public:
 		static bool Initialize();
-		static bool Process();
+		static bool Update();
 		static bool Pause();
 		static void Resume();
 		static void Terminate();

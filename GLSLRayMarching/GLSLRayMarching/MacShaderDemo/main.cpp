@@ -1,4 +1,4 @@
-#include "FrameWork2.h"
+#include "FrameWork.h"
 #include "Video.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@ Service<Audio> AudioService("Audio");
 /////////////////////////////////////////////////////////////////////
 #include "GameObject.h"
 
-
 /////////////////////////////////////////////////////////////////////
 #include "DefaultScene.h"
 #include "ShaderToyScene.h"
@@ -39,11 +38,11 @@ Scene::Creator<IKDemoScene> IKDemoSceneCreator("IKDemo");
 Scene::Creator<GeometryTextureScene> GeometryTextureSceneCreator("GeometryTexture");
 Scene::Creator<GeoMipmapScene> GeoMipmapSceneCreator("GeoMipmap");
 
-class MacShaderDemoApp : public FrameWork2
+class MacShaderDemoApp : public FrameWork
 {
 public:
 	MacShaderDemoApp()
-		: FrameWork2()
+	: FrameWork()
 	{
 	}
 
@@ -51,7 +50,7 @@ public:
 	{
 	}
 
-	virtual bool OnCreate() override
+	virtual bool OnInstantiate() override
 	{
 		return true;
 	}
@@ -61,7 +60,7 @@ public:
 		return true;
 	}
 
-	void OnDestroy() override
+	void OnTerminate() override
 	{
 	}
 private:
@@ -71,12 +70,12 @@ int main(int argc, char** argv)
 {
 	MacShaderDemoApp macShaderDemoApp;
 
-	if (!macShaderDemoApp.Create(800*2, 400 * 2, "MacShaderDemo", "GeoMipmap"))
+	if (!macShaderDemoApp.Instantiate(800*2, 400 * 2, "MacShaderDemo", "PathTrace"))
 		return -1;
 
 	macShaderDemoApp.Start();
 
-	macShaderDemoApp.Destroy();
+	macShaderDemoApp.Terminate();
 
 	return 0;
 }

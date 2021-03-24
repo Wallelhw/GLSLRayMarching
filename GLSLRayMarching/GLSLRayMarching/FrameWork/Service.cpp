@@ -55,11 +55,11 @@ bool ServiceManager::Initialize()
 	return true;
 }
 
-bool ServiceManager::Process()
+bool ServiceManager::Update()
 {
 	for (auto& service : services)
 	{
-		if (!service->Process())
+		if (!service->Update())
 			return false;
 	}
 

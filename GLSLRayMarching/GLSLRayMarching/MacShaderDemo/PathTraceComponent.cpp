@@ -15,16 +15,36 @@ void PathTraceComponent::OnRender()
 	pathTrace.Render();
 }
 
-bool PathTraceComponent::OnConstruct()
+bool PathTraceComponent::OnInitiate()
 {
 	return true;
 }
 
 bool PathTraceComponent::OnStart()
 {
-	if (!pathTrace.Construct("../assets/cornell_box.scene"))
-	//if (!pathTrace.Construct("../assets/bedroom.scene"))
-	//if (!pathTrace.Construct("../assets/diningroom.scene"))
+	std::string sceneName =
+		// "ajax.scene"
+		// "bedroom.scene"
+		// "boy.scene"
+		"coffee_cart.scene"
+		// "coffee_maker.scene"
+		// "cornell_box.scene"
+		// "cornell_box2.scene"
+		// "diningroom.scene"
+		// "dragon.scene"
+		// "furnace.scene"
+		// "hyperion.scene"
+		// "hyperion2.scene"
+		// "mustang.scene"
+		// "mustang_red.sce"
+		// "panther.scene"
+		// "spaceship.scene"
+		// "staircase.scene"
+		// "stormtrooper.scene"
+		//  "teapot.scene"
+		;
+
+	if (!pathTrace.Initiate(sceneName.c_str()))
 		return false;
 	
 	return true;
@@ -32,7 +52,7 @@ bool PathTraceComponent::OnStart()
 
 bool PathTraceComponent::OnUpdate()
 {
-	return true;
+	return pathTrace.Update();
 }
 
 bool PathTraceComponent::OnPause()
@@ -48,6 +68,7 @@ void PathTraceComponent::OnStop()
 {
 }
 
-void PathTraceComponent::OnDestruct()
+void PathTraceComponent::OnTerminate()
 {
+	pathTrace.Terminate();
 }

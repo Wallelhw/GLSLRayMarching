@@ -38,7 +38,7 @@ public:
 		return gradientDescent.End();
 	}
 
-	virtual bool OnCreate() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -48,7 +48,7 @@ public:
 		gradientDescent.Update(targetValue, std::bind(&IK2DNJoint::CostFunction, this, std::placeholders::_1, std::placeholders::_2));
 	}
 
-	virtual void OnDestroy() override
+	virtual void OnTerminate() override
 	{
 	}
 

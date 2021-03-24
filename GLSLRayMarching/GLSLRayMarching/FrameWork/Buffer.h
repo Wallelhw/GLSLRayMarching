@@ -59,7 +59,7 @@ public:
 
 	friend void Copy(Buffer& src_, unsigned int srcOffset_, Buffer& dst_, unsigned int dstOffset_, unsigned int size_);
 
-	void Destroy();
+	void Terminate();
 	
 	void Bind() const;
 	void Unbind() const;

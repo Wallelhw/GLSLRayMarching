@@ -30,7 +30,7 @@ bool ResourceImport::Manager::Initialize()
 	return true;
 }
 
-bool ResourceImport::Manager::Process()
+bool ResourceImport::Manager::Update()
 {
 	return true;
 }
@@ -54,9 +54,9 @@ bool ResourceImport::Service::Initialize()
 	return ResourceImport::Manager::GetInstance().Initialize();
 }
 
-bool ResourceImport::Service::Process()
+bool ResourceImport::Service::Update()
 {
-	return ResourceImport::Manager::GetInstance().Process();
+	return ResourceImport::Manager::GetInstance().Update();
 }
 
 bool ResourceImport::Service::Pause()

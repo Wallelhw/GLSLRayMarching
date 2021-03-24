@@ -19,7 +19,7 @@ ShaderToyScene::~ShaderToyScene()
 {
 }
 
-bool ShaderToyScene::OnConstruct()
+bool ShaderToyScene::OnInitiate()
 {
 	return true;
 }
@@ -61,6 +61,6 @@ void ShaderToyScene::OnStop()
 {
 }
 
-void ShaderToyScene::OnDestruct()
+void ShaderToyScene::OnTerminate()
 {
 }

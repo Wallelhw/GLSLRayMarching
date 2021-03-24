@@ -30,7 +30,7 @@ bool Audio::Manager::Initialize()
 	return true;
 }
 
-bool Audio::Manager::Process()
+bool Audio::Manager::Update()
 {
 	return true;
 }
@@ -54,9 +54,9 @@ bool Audio::Service::Initialize()
 	return Audio::Manager::GetInstance().Initialize();
 }
 
-bool Audio::Service::Process()
+bool Audio::Service::Update()
 {
-	return Audio::Manager::GetInstance().Process();
+	return Audio::Manager::GetInstance().Update();
 }
 
 bool Audio::Service::Pause()

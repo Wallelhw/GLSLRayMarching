@@ -205,9 +205,6 @@
     <ClCompile Include="Video.cpp">
       <Filter>Source Files\System\Services\Video</Filter>
     </ClCompile>
-    <ClCompile Include="FrameWork2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PathTrace\core\Camera.cpp">
       <Filter>Source Files\Graphics\PathTrace\core</Filter>
     </ClCompile>
@@ -261,6 +258,9 @@
     </ClCompile>
     <ClCompile Include="Quaternion.cpp">
       <Filter>Source Files\Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -423,9 +423,6 @@
     <ClInclude Include="Video.h">
       <Filter>Source Files\System\Services\Video</Filter>
     </ClInclude>
-    <ClInclude Include="FrameWork2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="PathTrace\core\Camera.h">
       <Filter>Source Files\Graphics\PathTrace\core</Filter>
     </ClInclude>
@@ -518,6 +515,9 @@
     </ClInclude>
     <ClInclude Include="IK2DCCDJoint.h">
       <Filter>Source Files\Graphics\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

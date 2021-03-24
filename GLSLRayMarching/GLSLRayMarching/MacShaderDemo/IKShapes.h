@@ -19,7 +19,7 @@
 #include "IK2DCCDJoint.h"
 #include "Video.h"
 #include "GameObject.h"
-#include "FrameWork2.h"
+#include "FrameWork.h"
 #include "Scene.h"
 #include "Input.h"
 
@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		return true;
 	}
@@ -110,7 +110,7 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 	}
 
@@ -155,10 +155,10 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		ikChain2D.SetPositions(Vector2(0, 0), Vector2(3, 3), Vector2(6, -2));
-		if (!ikChain2D.Create())
+		if (!ikChain2D.Initiate())
 			return false;
 
 		shapes.resize(ikChain2D.GetJointCount());
@@ -217,10 +217,10 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 		for (int i = 0; i < shapes.size(); i++)
-			shapes[i].Destroy();
+			shapes[i].Terminate();
 	}
 
 	virtual void OnRender() override
@@ -257,7 +257,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 #define JOINT_COUNT 6
 
@@ -270,7 +270,7 @@ public:
 			pos += Vector2(Math::IntervalRandom(-2, 2), Math::IntervalRandom(-2, 2));
 		}
 		ikChain2D.End(pos);
-		if (!ikChain2D.Create())
+		if (!ikChain2D.Initiate())
 			return false;
 
 		shapes.resize(ikChain2D.GetJointCount());
@@ -332,10 +332,10 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 		for (int i = 0; i < shapes.size(); i++)
-			shapes[i].Destroy();
+			shapes[i].Terminate();
 	}
 
 	virtual void OnRender() override
@@ -372,7 +372,7 @@ public:
 	{
 	}
 
-	virtual bool OnConstruct() override
+	virtual bool OnInitiate() override
 	{
 		Vector2 pos(1, 3);
 
@@ -383,7 +383,7 @@ public:
 			pos += Vector2(Math::IntervalRandom(-2, 2), Math::IntervalRandom(-2, 2));
 		}
 		ikChain2D.End(pos);
-		if (!ikChain2D.Create())
+		if (!ikChain2D.Initiate())
 			return false;
 
 		shapes.resize(ikChain2D.GetJointCount());
@@ -445,10 +445,10 @@ public:
 	{
 	}
 
-	virtual void OnDestruct() override
+	virtual void OnTerminate() override
 	{
 		for (int i = 0; i < shapes.size(); i++)
-			shapes[i].Destroy();
+			shapes[i].Terminate();
 	}
 
 	virtual void OnRender() override

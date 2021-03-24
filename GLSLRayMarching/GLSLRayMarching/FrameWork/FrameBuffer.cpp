@@ -94,7 +94,7 @@ FrameBuffer::~FrameBuffer()
 {
 	Assert(impl);
 
-	Destroy();
+	Terminate();
 
 	if (impl)
 	{
@@ -103,7 +103,7 @@ FrameBuffer::~FrameBuffer()
 	}
 }
 
-bool FrameBuffer::Create()
+bool FrameBuffer::Initiate()
 {
 	Assert(impl);
 
@@ -113,7 +113,7 @@ bool FrameBuffer::Create()
 	return impl->fbo != 0;
 }
 
-void FrameBuffer::Destroy()
+void FrameBuffer::Terminate()
 {
 	Assert(impl);
 
@@ -414,15 +414,15 @@ Texture2DFrameBuffer::Texture2DFrameBuffer()
 
 Texture2DFrameBuffer::~Texture2DFrameBuffer()
 {
-	Destroy();
+	Terminate();
 }
 
-bool Texture2DFrameBuffer::Create(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
+bool Texture2DFrameBuffer::Initiate(unsigned int width, unsigned int height, unsigned int nrComponents, Texture::DynamicRange dynamicRange_)
 {
-	if (!FrameBuffer::Create())
+	if (!FrameBuffer::Initiate())
 		return false;
 
-	if (!texture.Create(width, height, nrComponents, dynamicRange_, nullptr))
+	if (!texture.Initiate(width, height, nrComponents, dynamicRange_, nullptr))
 		return false;
 
 	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture, FrameBuffer::PixelStorage::Store);
@@ -430,11 +430,11 @@ bool Texture2DFrameBuffer::Create(unsigned int width, unsigned int height, unsig
 	return true;
 }
 
-void Texture2DFrameBuffer::Destroy()
+void Texture2DFrameBuffer::Terminate()
 {
-	texture.Destroy();
+	texture.Terminate();
 
-	return FrameBuffer::Destroy();
+	return FrameBuffer::Terminate();
 }
 
 Texture* Texture2DFrameBuffer::GetTexture()
@@ -455,15 +455,15 @@ TextureCubeMapFrameBuffer::TextureCubeMapFrameBuffer()
 
 TextureCubeMapFrameBuffer::~TextureCubeMapFrameBuffer()
 {
-	Destroy();
+	Terminate();
 }
 
-bool TextureCubeMapFrameBuffer::Create(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_)
+bool TextureCubeMapFrameBuffer::Initiate(unsigned int size_, unsigned int nrComponents_, Texture::DynamicRange dynamicRange_)
 {
-	if (!FrameBuffer::Create())
+	if (!FrameBuffer::Initiate())
 		return false;
 
-	if (!texture.Create(size_, nrComponents_, dynamicRange_, nullptr))
+	if (!texture.Initiate(size_, nrComponents_, dynamicRange_, nullptr))
 		return false;
 
 	SetColorAttachment(FrameBuffer::ColorAttachment::COLOR_ATTACHMENT0, &texture);
@@ -471,11 +471,11 @@ bool TextureCubeMapFrameBuffer::Create(unsigned int size_, unsigned int nrCompon
 	return true;
 }
 
-void TextureCubeMapFrameBuffer::Destroy()
+void TextureCubeMapFrameBuffer::Terminate()
 {
-	texture.Destroy();
+	texture.Terminate();
 
-	return FrameBuffer::Destroy();
+	return FrameBuffer::Terminate();
 }
 
 Texture* TextureCubeMapFrameBuffer::GetTexture()

@@ -17,7 +17,7 @@ public:
 
 	virtual void OnRender() override;
 
-	virtual bool OnConstruct() override;
+	virtual bool OnInitiate() override;
 
 	virtual bool OnStart() override;
 
@@ -29,7 +29,7 @@ public:
 
 	virtual void OnStop() override;
 
-	virtual void OnDestruct() override;
+	virtual void OnTerminate() override;
 private:
 	MacShaderDemo* macShaderDemo;
 };
