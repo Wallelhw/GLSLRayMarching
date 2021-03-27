@@ -1692,7 +1692,7 @@ bool ShaderToyComponent::OnStart()
 		return macShaderDemo->Initiate("Demos/default");
 	else
 	{
-		std::string path = "Demos/" + args[1];
+		std::string path = args[1];
 		return macShaderDemo->Initiate(path.c_str());
 	}
 	//return macShaderDemo->Initiate("Demos/default");
