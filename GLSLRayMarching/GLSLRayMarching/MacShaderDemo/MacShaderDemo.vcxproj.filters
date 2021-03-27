@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DefaultScene.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="PathTraceComponent.cpp">
+      <Filter>PathTrace</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderToyComponent.cpp">
+      <Filter>ShaderToy</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderToyCamera.cpp">
+      <Filter>ShaderToy</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTraceCamera.cpp">
+      <Filter>PathTrace</Filter>
+    </ClCompile>
+    <ClCompile Include="IKShapes.cpp">
+      <Filter>IK</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderToyScene.cpp">
+      <Filter>ShaderToy</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTraceScene.cpp">
+      <Filter>PathTrace</Filter>
+    </ClCompile>
+    <ClCompile Include="LightFieldRendererScene.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="phase-detection-autofocus.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="light-field-renderer.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="fbo.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="camera-array.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="n-sided-polygon.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="quad.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="LightFieldComponent.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="LightFieldCamera.cpp">
+      <Filter>LightFieldRenderer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DefaultScene.h" />
+    <ClInclude Include="PathTraceComponent.h">
+      <Filter>PathTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderToyComponent.h">
+      <Filter>ShaderToy</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderToyCamera.h">
+      <Filter>ShaderToy</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTraceCamera.h">
+      <Filter>PathTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="IKShapes.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="IKDemoScene.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderToyScene.h">
+      <Filter>ShaderToy</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTraceScene.h">
+      <Filter>PathTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoMipmapScene.h">
+      <Filter>GeoMipmapDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryTextureScene.h">
+      <Filter>GeometryTexture</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFieldRendererScene.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="fbo.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="camera-array.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="light-field-renderer.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFieldComponent.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFieldCamera.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="n-sided-polygon.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="quad.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>LightFieldRenderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="PathTrace">
+      <UniqueIdentifier>{73444fc4-f8b0-42f9-9dd3-5fe1edf0de25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderToy">
+      <UniqueIdentifier>{24a5bb1e-b433-4212-8fe2-2fc09a77f8c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IK">
+      <UniqueIdentifier>{5917beb2-53c6-4730-b66d-81ac34480121}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GeoMipmapDemo">
+      <UniqueIdentifier>{6cc587d6-0eae-4220-8511-b09eb797856e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GeometryTexture">
+      <UniqueIdentifier>{bf4ff4b0-93c5-44c5-b824-8974e14cfc34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LightFieldRenderer">
+      <UniqueIdentifier>{82a668fe-5213-422d-b9ad-b414e744d906}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
