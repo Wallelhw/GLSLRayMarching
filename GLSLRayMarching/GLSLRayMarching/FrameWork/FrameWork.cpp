@@ -6,21 +6,30 @@
 class FrameWorkImpl
 {
 public:
-	FrameWorkImpl()
+	FrameWorkImpl(int argc, char** argv)
 	{
+		std::vector<std::string> args(argc);
+
+		for (int i = 0; i < argc; i++)
+		{
+			args[i] = argv[i];
+		}
+
+		Platform::SetArgument(args);
+		Platform::GetArgument();
 	}
 };
 
 FrameWork* FrameWork::instance = nullptr;
 
-FrameWork::FrameWork()
+FrameWork::FrameWork(int argc, char** argv)
 : impl(nullptr)
 , state(FrameWork::State::Instantiate)
 {
 	assert(!instance);
 	instance = this;
 
-	impl = new FrameWorkImpl();
+	impl = new FrameWorkImpl(argc, argv);
 }
 
 FrameWork::~FrameWork()

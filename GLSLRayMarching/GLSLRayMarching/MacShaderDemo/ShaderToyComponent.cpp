@@ -1664,42 +1664,6 @@ Vector4 ShaderToyComponent::GetMouse()
 	//Debug("%f %f %f %f\n", r.X(), r.Y(), r.Z(), r.W());
 
 	return r;
-
-/*
-	int oldMouseButtonStatus = instance->impl->mouseLButtonStatus;
-	instance->impl->mouseLButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-	if (instance->impl->mouseLButtonStatus == GLFW_PRESS)
-	{
-		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
-		{
-			instance->impl->mouse.Z() = 1;
-			instance->impl->mouse.W() = 1;
-		}
-		else
-		{
-			instance->impl->mouse.Z() = 1;
-			instance->impl->mouse.W() = 0;
-		}
-
-		instance->impl->mouse.X() = xpos;
-		instance->impl->mouse.Y() = ypos;
-	}
-	else if (instance->impl->mouseLButtonStatus == GLFW_RELEASE)
-	{
-		if (oldMouseButtonStatus != instance->impl->mouseLButtonStatus)
-		{
-			//Debug("mouse unclick\n");
-		}
-		else
-		{
-			//Debug("mouse release\n");
-		}
-
-		instance->impl->mouse.Z() = -1;
-		instance->impl->mouse.W() = 0;
-	}
-
-*/
 }
 
 void ShaderToyComponent::OnRender()
@@ -1723,11 +1687,20 @@ bool ShaderToyComponent::OnInitiate()
 
 bool ShaderToyComponent::OnStart()
 {
+	std::vector<std::string>& args = Platform::GetArgument();
+	if(args.size() < 2)
+		return macShaderDemo->Initiate("Demos/default");
+	else
+	{
+		std::string path = "Demos/" + args[1];
+		return macShaderDemo->Initiate(path.c_str());
+	}
+	//return macShaderDemo->Initiate("Demos/default");
 	//return macShaderDemo->Initiate("Demos/Path Tracing Cornell Box 2");
-	return macShaderDemo->Initiate("Demos/Path Tracing (+ELS)");
-	return macShaderDemo->Initiate("Demos/PathTracings/Path tracing cornellbox with MIS");
-	return macShaderDemo->Initiate("Demos/[NV15] Space Curvature");
-	return macShaderDemo->Initiate("Demos/Buoy");
+	//return macShaderDemo->Initiate("Demos/Path Tracing (+ELS)");
+	//return macShaderDemo->Initiate("Demos/PathTracings/Path tracing cornellbox with MIS");
+	//return macShaderDemo->Initiate("Demos/[NV15] Space Curvature");
+	//return macShaderDemo->Initiate("Demos/Buoy");
 	//return macShaderDemo->Initiate("Demos/Music - Pirates");
 	//return macShaderDemo->Initiate("Demos/Fork Heartfelt Nepse 180");
 	//return macShaderDemo->Initiate("Demos/Rainier mood");

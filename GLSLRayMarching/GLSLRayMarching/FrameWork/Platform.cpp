@@ -7,6 +7,7 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 #include "Platform.h"
+#include "ArgParse.h"
 
 std::string appName = "";
 std::string initialScene = "";
@@ -28,6 +29,8 @@ bool joyStickConnected[JOYSTICK_COUNT] = { 0 };
 std::vector<std::string> joyStickNames;
 
 std::vector<std::string> dropPaths;
+
+std::vector<std::string> arguments;
 
 #if (PLATFORM == GLFW)
 #include <time.h>
@@ -843,6 +846,16 @@ const char* Platform::GetClipBoardString()
 void Platform::SetClipBoard(const char* s)
 {
 	glfwSetClipboardString(nullptr, s);
+}
+
+void Platform::SetArgument(std::vector<std::string>& args)
+{
+	arguments = args;
+}
+
+std::vector<std::string>& Platform::GetArgument()
+{
+	return arguments;
 }
 
 void Platform::QuitApp()

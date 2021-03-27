@@ -19,7 +19,7 @@ public:
 		Pause,
 		Terminate
 	};
-	FrameWork();
+	FrameWork(int argc, char** argv);
 	virtual ~FrameWork();
 
 	bool Instantiate(int width_, int height_, const std::string& appName_, const std::string& initialScene_);

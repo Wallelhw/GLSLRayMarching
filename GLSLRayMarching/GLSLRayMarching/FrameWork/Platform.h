@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <memory>
 
 // Platform Encapsulation
 #define PLATFORM GLFW
@@ -454,6 +455,9 @@ public:
 
 	static const char* GetClipBoardString();
 	static void SetClipBoard(const char* s);
+
+	static void SetArgument(std::vector<std::string>& std);
+	static std::vector<std::string>& GetArgument();
 
 	static void QuitApp();
 	static bool ShouldAppQuit();

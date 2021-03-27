@@ -89,6 +89,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,6 +112,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +135,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; _DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +158,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./PathTrace/oidn/include; ./PathTrace/RadeonRays; ./PathTrace/tests; ./PathTrace/math; ./PathTrace/loaders; ./PathTrace/core; ../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../../../3rdparty/rapidjson/include;  ../../../3rdparty/stb/include; ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include;../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

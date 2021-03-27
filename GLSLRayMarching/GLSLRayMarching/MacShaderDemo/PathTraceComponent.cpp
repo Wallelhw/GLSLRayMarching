@@ -23,10 +23,12 @@ bool PathTraceComponent::OnInitiate()
 bool PathTraceComponent::OnStart()
 {
 	std::string sceneName =
+		// "ferrai.scene"
 		// "ajax.scene"
+		"test.scene"
 		// "bedroom.scene"
 		// "boy.scene"
-		"coffee_cart.scene"
+		// "coffee_cart.scene"
 		// "coffee_maker.scene"
 		// "cornell_box.scene"
 		// "cornell_box2.scene"

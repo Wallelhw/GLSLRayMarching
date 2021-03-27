@@ -91,6 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/rapidjson/include;   ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -108,6 +109,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/rapidjson/include;   ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +129,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/rapidjson/include;   ../../../3rdparty/zlib; ../../../3rdparty/zlib/build;  ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN32/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +151,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../3rdparty/rttr/build/src/rttr/..; ../../../3rdparty/rttr/src/rttr/..; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/rapidjson/include;    ../../../3rdparty/rapidjson/include; ../FrameWork; ../../../3rdparty/stb/include; ../../../3rdparty/glad/include; ../../../3rdparty/glfw-3.3.2.bin.WIN64/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,8 +163,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera-array.cpp" />
+    <ClCompile Include="config.cpp" />
     <ClCompile Include="DefaultScene.cpp" />
+    <ClCompile Include="fbo.cpp" />
     <ClCompile Include="IKShapes.cpp" />
+    <ClCompile Include="light-field-renderer.cpp" />
+    <ClCompile Include="LightFieldCamera.cpp" />
+    <ClCompile Include="LightFieldComponent.cpp" />
+    <ClCompile Include="LightFieldRendererScene.cpp" />
+    <ClCompile Include="n-sided-polygon.cpp" />
+    <ClCompile Include="phase-detection-autofocus.cpp" />
+    <ClCompile Include="quad.cpp" />
+    <ClCompile Include="shader.cpp" />
     <ClCompile Include="ShaderToyScene.cpp" />
     <ClCompile Include="PathTraceScene.cpp" />
     <ClCompile Include="main.cpp">
@@ -175,17 +190,28 @@
     <ClCompile Include="ShaderToyComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera-array.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="DefaultScene.h" />
+    <ClInclude Include="fbo.h" />
     <ClInclude Include="GeometryTextureScene.h" />
     <ClInclude Include="GeoMipmapScene.h" />
     <ClInclude Include="IKDemoScene.h" />
     <ClInclude Include="IKShapes.h" />
+    <ClInclude Include="light-field-renderer.h" />
+    <ClInclude Include="LightFieldCamera.h" />
+    <ClInclude Include="LightFieldComponent.h" />
+    <ClInclude Include="LightFieldRendererScene.h" />
+    <ClInclude Include="n-sided-polygon.h" />
+    <ClInclude Include="quad.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="ShaderToyScene.h" />
     <ClInclude Include="PathTraceScene.h" />
     <ClInclude Include="PathTraceCamera.h" />
     <ClInclude Include="PathTraceComponent.h" />
     <ClInclude Include="ShaderToyCamera.h" />
     <ClInclude Include="ShaderToyComponent.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
