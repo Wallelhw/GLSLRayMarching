@@ -15,7 +15,6 @@
 
 // #define CAPTURE_GRAPHICS
 
-template<class T>
 class GeoMipmap
 {
 public:
@@ -39,7 +38,7 @@ public:
 			Bottom = 1
 		};
 
-		Patch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
+		Patch(std::vector<Vector2>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
 		{
 			size = size_;
 			stride = stride_;
@@ -103,7 +102,7 @@ public:
 			return vertexCount;
 		}
 	private:
-		void AddBigQuad(std::vector<T>& vertices_, unsigned int x_, unsigned int y_, bool L, bool R, bool T, bool B)
+		void AddBigQuad(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_, bool L, bool R, bool T, bool B)
 		{
 #define X0 ((x_))
 #define X1 ((x_) + stride)
@@ -291,63 +290,63 @@ public:
 			}
 		}
 
-		void AddTriangleNorthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleNorthWest(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y0);
 			AddVertex(vertices_, X0, Y1);
 			AddVertex(vertices_, X1, Y0);
 		}
 
-		void AddTriangleNorthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleNorthEast(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X1, Y1);
 			AddVertex(vertices_, X1, Y0);
 			AddVertex(vertices_, X0, Y0);
 		}
 
-		void AddTriangleSouthEast(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleSouthEast(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y1);
 			AddVertex(vertices_, X1, Y1);
 			AddVertex(vertices_, X1, Y0);
 		}
 
-		void AddTriangleSouthWest(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleSouthWest(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y1);
 			AddVertex(vertices_, X1, Y1);
 			AddVertex(vertices_, X0, Y0);
 		}
 
-		void AddTriangleLeft(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleLeft(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y0);
 			AddVertex(vertices_, X0, Y2);
 			AddVertex(vertices_, X1, Y1);
 		}
 
-		void AddTriangleRight(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleRight(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X2, Y0);
 			AddVertex(vertices_, X1, Y1);
 			AddVertex(vertices_, X2, Y2);
 		}
 
-		void AddTriangleTop(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleTop(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y0);
 			AddVertex(vertices_, X1, Y1);
 			AddVertex(vertices_, X2, Y0);
 		}
 
-		void AddTriangleBottom(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddTriangleBottom(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			AddVertex(vertices_, X0, Y2);
 			AddVertex(vertices_, X2, Y2);
 			AddVertex(vertices_, X1, Y1);
 		}
 
-		void AddVertex(std::vector<T>& vertices_, unsigned int x_, unsigned int y_)
+		void AddVertex(std::vector<Vector2>& vertices_, unsigned int x_, unsigned int y_)
 		{
 			vertices_.push_back(Vector2(x_, y_));
 		}
@@ -361,7 +360,7 @@ public:
 	class Level
 	{
 	public:
-		Level(std::vector<T>& vertices, unsigned int size_, unsigned int stride_)
+		Level(std::vector<Vector2>& vertices, unsigned int size_, unsigned int stride_)
 		{
 			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, false, false));
 			AddPatch(vertices, size_, stride_, GetPatchIndex(false, false, false, true));
@@ -426,7 +425,7 @@ public:
 			return patches[i];
 		}
 	private:
-		void AddPatch(std::vector<T>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
+		void AddPatch(std::vector<Vector2>& vertices, unsigned int size_, unsigned int stride_, unsigned int edge_)
 		{
 			patches.push_back(Patch(vertices, size_, stride_, edge_));
 		}
@@ -640,7 +639,7 @@ public:
 				bool coarseT = ((z - 1) >= 0) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxT].lodLevel) : false;
 				bool coarseB = ((z + 1) <= (heightMap.GetHeight() / PATCH_SIZE) - 1) ? (terrainRenderInfos_[idxC].lodLevel < terrainRenderInfos_[idxB].lodLevel) : false;
 
-				terrainRenderInfos_[idxC].patchID = GeoMipmap<IVector2>::Level::GetPatchIndex(coarseL, coarseR, coarseT, coarseB);
+				terrainRenderInfos_[idxC].patchID = GeoMipmap::Level::GetPatchIndex(coarseL, coarseR, coarseT, coarseB);
 			}
 		}
 	}
@@ -732,7 +731,7 @@ public:
 				RenderInfo& info = terrainRenderInfos[i];
 				if (info.visible)
 				{
-					const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+					const GeoMipmap::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
 					float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
 					shaderProgram.SetUniform1i("useTexture", true);
 					shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
@@ -754,7 +753,7 @@ public:
 				RenderInfo& info = terrainRenderInfos[i];
 				if (info.visible)
 				{
-					const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+					const GeoMipmap::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
 					float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
 					shaderProgram.SetUniform1i("useTexture", false);
 					shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
@@ -877,7 +876,7 @@ public:
 			info.lodLevel = 0;
 			info.patchID = i;
 
-			const GeoMipmap<Vector2>::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
+			const GeoMipmap::Patch& patch = GetLevel(info.lodLevel).GetPatch(info.patchID);
 			float c = ((float)(MAX_LOD - info.lodLevel)) / MAX_LOD;
 			shaderProgram.SetUniform1i("useTexture", false);
 			shaderProgram.SetUniform2i("offset", info.offset.X(), info.offset.Z());
@@ -917,7 +916,7 @@ public:
 		return levels[i];
 	}
 private:
-	void AddLevel(std::vector<T>& vertices_, unsigned int size_, unsigned int mipLevel_)
+	void AddLevel(std::vector<Vector2>& vertices_, unsigned int size_, unsigned int mipLevel_)
 	{
 		unsigned int stride = pow(2, mipLevel_);
 		levels.push_back(Level(vertices_, size_, stride));

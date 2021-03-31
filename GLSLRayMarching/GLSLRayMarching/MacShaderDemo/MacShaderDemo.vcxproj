@@ -195,7 +195,8 @@
     <ClInclude Include="DefaultScene.h" />
     <ClInclude Include="fbo.h" />
     <ClInclude Include="GeometryTextureScene.h" />
-    <ClInclude Include="GeoMipmapScene.h" />
+    <ClInclude Include="GeoMipmapTerrainScene.h" />
+    <ClInclude Include="GeoMorphTerrainScene.h" />
     <ClInclude Include="IKDemoScene.h" />
     <ClInclude Include="IKShapes.h" />
     <ClInclude Include="light-field-renderer.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="PathTraceComponent.h" />
     <ClInclude Include="ShaderToyCamera.h" />
     <ClInclude Include="ShaderToyComponent.h" />
+    <ClInclude Include="TerrainCameraComponent.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

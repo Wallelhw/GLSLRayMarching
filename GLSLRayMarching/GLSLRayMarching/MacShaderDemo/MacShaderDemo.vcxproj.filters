@@ -84,9 +84,6 @@
     <ClInclude Include="PathTraceScene.h">
       <Filter>PathTrace</Filter>
     </ClInclude>
-    <ClInclude Include="GeoMipmapScene.h">
-      <Filter>GeoMipmapDemo</Filter>
-    </ClInclude>
     <ClInclude Include="GeometryTextureScene.h">
       <Filter>GeometryTexture</Filter>
     </ClInclude>
@@ -123,6 +120,13 @@
     <ClInclude Include="shader.h">
       <Filter>LightFieldRenderer</Filter>
     </ClInclude>
+    <ClInclude Include="GeoMorphTerrainScene.h">
+      <Filter>GeoMipmapTerrainScene</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoMipmapTerrainScene.h">
+      <Filter>GeoMorphTerrainScene</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainCameraComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="PathTrace">
@@ -134,14 +138,17 @@
     <Filter Include="IK">
       <UniqueIdentifier>{5917beb2-53c6-4730-b66d-81ac34480121}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeoMipmapDemo">
-      <UniqueIdentifier>{6cc587d6-0eae-4220-8511-b09eb797856e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GeometryTexture">
       <UniqueIdentifier>{bf4ff4b0-93c5-44c5-b824-8974e14cfc34}</UniqueIdentifier>
     </Filter>
     <Filter Include="LightFieldRenderer">
       <UniqueIdentifier>{82a668fe-5213-422d-b9ad-b414e744d906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GeoMipmapTerrainScene">
+      <UniqueIdentifier>{6cc587d6-0eae-4220-8511-b09eb797856e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GeoMorphTerrainScene">
+      <UniqueIdentifier>{0e73d360-6ed2-4e48-9c34-7711ae57c1a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1687,6 +1687,8 @@ bool ShaderToyComponent::OnInitiate()
 
 bool ShaderToyComponent::OnStart()
 {
+	return macShaderDemo->Initiate("Demos/Abandoned Construction");
+
 	std::vector<std::string>& args = Platform::GetArgument();
 	if(args.size() < 2)
 		return macShaderDemo->Initiate("Demos/default");

@@ -29,7 +29,8 @@ Service<Audio> AudioService("Audio");
 #include "PathTraceScene.h"
 #include "IKDemoScene.h"
 #include "GeometryTextureScene.h"
-#include "GeoMipmapScene.h"
+#include "GeoMipmapTerrainScene.h"
+#include "GeoMorphTerrainScene.h"
 #include "LightFieldRendererScene.h"
 
 Scene::Creator<DefaultScene> DefaultSceneCreator("Default");
@@ -37,7 +38,8 @@ Scene::Creator<ShaderToyScene> MacScene1Creator("ShaderToy");
 Scene::Creator<PathTraceScene> MacScene2Creator("PathTrace");
 Scene::Creator<IKDemoScene> IKDemoSceneCreator("IKDemo");
 Scene::Creator<GeometryTextureScene> GeometryTextureSceneCreator("GeometryTexture");
-Scene::Creator<GeoMipmapScene> GeoMipmapSceneCreator("GeoMipmap");
+Scene::Creator<GeoMipmapTerrainScene> GeoMipmapTerrainSceneCreator("GeoMorphTerrain");
+Scene::Creator<GeoMorphTerrainScene> GeoMorphTerrainSceneCreator("GeoMorphTerrain");
 Scene::Creator<LightFieldRendererScene> LightFieldRendererSceneCreator("LightFieldRenderer");
 
 class MacShaderDemoApp : public FrameWork
@@ -72,7 +74,7 @@ int main(int argc, char** argv)
 {
 	MacShaderDemoApp macShaderDemoApp(argc, argv);
 
-	if (!macShaderDemoApp.Instantiate(800*2, 400 * 2, "MacShaderDemo", "PathTrace"))
+	if (!macShaderDemoApp.Instantiate(800*2, 400 * 2, "MacShaderDemo", "GeoMorphTerrain"))
 		return -1;
 
 	macShaderDemoApp.Start();
