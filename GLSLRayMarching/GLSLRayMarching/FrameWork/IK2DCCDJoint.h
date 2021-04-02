@@ -53,8 +53,8 @@ public:
 
 	virtual void OnUpdate(const Vector2& targetValue) override
 	{
-#define MAX_IK_TRIES 100 // TIMES THROUGH THE CCD LOOP
-#define IK_POS_THRESH 1.0f // THRESHOLD FOR SUCCESS
+#define MAX_IK_TRIES 100
+#define IK_POS_THRESH 1.0f
 
 		Vector2 rootPos;
 		Vector2 curEnd;
@@ -68,10 +68,8 @@ public:
 		int link;
 		int i;
 
-		///////////////////////////////////////////////////////////////////////////////
-		// START AT THE LAST LINK IN THE CHAIN
 		link = jointPositions.size() - 1;
-		i = 0; // LOOP COUNTER SO I KNOW WHEN TO QUIT
+		i = 0;
 		do
 		{
 			rootPos = jointPositions[link];
@@ -92,30 +90,24 @@ public:
 					float direction = Cross(targetVector, curVector);
 					if (direction > 0.0f)
 					{
-						// DAMPING
-						turnDeg = Math::ACos((float)cosAngle) * Math::Radian2Degree; // GET THE ANGLE
+						turnDeg = Math::ACos((float)cosAngle) * Math::Radian2Degree;
 						if (enableDamp && turnDeg > damps[link])
 							turnDeg = damps[link];
 
-						// ACTUALLY TURN THE LINK
 						angles[link] -= (float)turnDeg;
 
-						// DOF RESTRICTIONS
 						if (enableAngleLimit && angles[link] < mins[link])
 							angles[link] = mins[link];
 					}
 					else if (direction < 0.0f)
 					{
-						turnDeg = Math::ACos((float)cosAngle) * Math::Radian2Degree; // GET THE ANGLE
+						turnDeg = Math::ACos((float)cosAngle) * Math::Radian2Degree;
 
-						// DAMPING
 						if (enableDamp && turnDeg > damps[link])
 							turnDeg = damps[link];
 
-						// ACTUALLY TURN THE LINK
 						angles[link] += (float)turnDeg;
 
-						// DOF RESTRICTIONS
 						if (enableAngleLimit && angles[link] > maxs[link])
 							angles[link] = maxs[link];
 					}
@@ -123,7 +115,6 @@ public:
 				if (--link < 0)
 					link = jointPositions.size() - 1;
 			}
-			// QUIT IF I AM CLOSE ENOUGH OR BEEN RUNNING LONG ENOUGH
 		} while (i++ < MAX_IK_TRIES && (curEnd - desiredEnd).SquaredLength() > IK_POS_THRESH);
 	}
 

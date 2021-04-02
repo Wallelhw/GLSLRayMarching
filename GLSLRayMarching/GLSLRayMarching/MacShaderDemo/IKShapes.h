@@ -17,6 +17,7 @@
 #include "IK2DNJoint.h"
 #include "IK2D2Joint.h"
 #include "IK2DCCDJoint.h"
+#include "IK2DFABRIKJoint.h"
 #include "Video.h"
 #include "GameObject.h"
 #include "FrameWork.h"
@@ -458,6 +459,120 @@ public:
 	}
 
 	IK2DCCDJoint ikChain2D;
+	std::vector<Shape<UniformData>> shapes;
+	IKCameraComponent& ikCameraComponent;
+};
+
+class IK2DFABRIKJointShape : public Video::Graphics3Component
+{
+public:
+	class UniformData
+	{
+	public:
+		Matrix4 worldTransform;
+		Matrix4 viewTransform;
+		Matrix4 projTransform;
+		ColorRGBA color;
+	};
+
+	IK2DFABRIKJointShape(GameObject& gameObject, IKCameraComponent& ikCameraComponent_)
+		: Video::Graphics3Component(gameObject)
+		, ikCameraComponent(ikCameraComponent_)
+	{
+	}
+
+	~IK2DFABRIKJointShape()
+	{
+	}
+
+	virtual bool OnInitiate() override
+	{
+		Vector2 pos(1, 3);
+
+		ikChain2D.Begin(10, true);
+		for (int i = 0; i < JOINT_COUNT; i++)
+		{
+			ikChain2D.AddJoint(pos, i == 0 ? -90 : -45, i == 0 ? 90 : 45);
+			pos += Vector2(Math::IntervalRandom(-2, 2), Math::IntervalRandom(-2, 2));
+		}
+		ikChain2D.End(pos);
+		if (!ikChain2D.Initiate())
+			return false;
+
+		shapes.resize(ikChain2D.GetJointCount());
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			bool success =
+				shapes[i].Begin().
+				XYRect(Vector3(ikChain2D.GetLength(i), 0.1, 0), Vector3(-ikChain2D.GetLength(i) / 2, 0, 0)).
+				End();
+
+			if (!success)
+				return false;
+
+			ColorRGBA color = ColorRGBA(Math::UnitRandom(), Math::UnitRandom(), Math::UnitRandom());
+			shapes[i].GetUniformBlockData().color = color;
+
+			if (i - 1 >= 0)
+				shapes[i - 1].AddChild(&shapes[i]);
+		}
+
+		return true;
+	}
+
+	virtual bool OnUpdate() override
+	{
+		Vector2 mouse = Vector2(Platform::GetMouseX(), Platform::GetMouseY());
+		Vector2 targetPosition = Vector2
+		(
+			-(mouse.X() - Platform::GetWidth() / 2) / (Platform::GetWidth() / 2) * 10.0f,
+			(mouse.Y() - Platform::GetHeight() / 2) / (Platform::GetHeight() / 2) * (10.0f * Platform::GetHeight()) / Platform::GetWidth()
+		);
+
+		ikChain2D.Update(targetPosition);
+
+		/*
+		for (int i = 0; i < shapes.size(); i++)
+		{
+			if (i == 0)
+				shapes[i].SetTranslateRotZXYScale(ikChain2D.GetRoot().X(), ikChain2D.GetRoot().Y(), 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+			else
+				shapes[i].SetTranslateRotZXYScale((i - 1 >= 0 ? ikChain2D.GetLength(i - 1) : 0), 0, 0, ikChain2D.GetJointAngle(i), 0, 0, 1.0);
+		}
+		*/
+
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Render(ikCameraComponent.camera, Vector2(Platform::GetWidth(), Platform::GetHeight()));
+
+		return true;
+	}
+
+	virtual bool OnPause() override
+	{
+		return true;
+	}
+
+	virtual void OnResume() override
+	{
+	}
+
+	virtual void OnStop() override
+	{
+	}
+
+	virtual void OnTerminate() override
+	{
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Terminate();
+	}
+
+	virtual void OnRender() override
+	{
+		for (int i = 0; i < shapes.size(); i++)
+			shapes[i].Render(ikCameraComponent.camera, Vector2(Platform::GetWidth(), Platform::GetHeight()));
+	}
+
+	IK2DFABRIKJoint ikChain2D;
 	std::vector<Shape<UniformData>> shapes;
 	IKCameraComponent& ikCameraComponent;
 };

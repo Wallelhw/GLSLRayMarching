@@ -12,8 +12,9 @@ public:
 		: Scene()
 		, ikCameraComponent(gameObject)
 		//, ik2D2JointShape(gameObject, ikCameraComponent)
-		, ik2DNJointShape(gameObject, ikCameraComponent)
+		//, ik2DNJointShape(gameObject, ikCameraComponent)
 		//, ik2DCCDJointShape(gameObject, ikCameraComponent)
+		, ik2DFABRIKJointShape(gameObject, ikCameraComponent)
 	{
 	}
 
@@ -56,8 +57,9 @@ private:
 	GameObject gameObject;
 	IKCameraComponent ikCameraComponent;
 	// IK2D2JointShape ik2D2JointShape;
-	IK2DNJointShape ik2DNJointShape;
-	//IK2DCCDJointShape ik2DCCDJointShape;
+	// IK2DNJointShape ik2DNJointShape;
+	// IK2DCCDJointShape ik2DCCDJointShape;
+	IK2DFABRIKJointShape ik2DFABRIKJointShape;
 };
 
 #endif

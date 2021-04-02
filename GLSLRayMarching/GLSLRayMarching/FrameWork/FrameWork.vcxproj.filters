@@ -59,6 +59,9 @@
     <Filter Include="Source Files\Graphics\PathTrace\RadeonRays">
       <UniqueIdentifier>{d6e554d2-ee68-4d0e-8645-824c129fdb19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System\Services\Resource">
+      <UniqueIdentifier>{b4706268-69eb-481b-8da9-8897705ee30c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -175,12 +178,6 @@
     <ClCompile Include="Service.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceImport.cpp">
-      <Filter>Source Files\System\Services</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceAccess.cpp">
-      <Filter>Source Files\System\Services</Filter>
-    </ClCompile>
     <ClCompile Include="Audio.cpp">
       <Filter>Source Files\System\Services</Filter>
     </ClCompile>
@@ -261,6 +258,12 @@
     </ClCompile>
     <ClCompile Include="FrameWork.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceAccess.cpp">
+      <Filter>Source Files\System\Services\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceImport.cpp">
+      <Filter>Source Files\System\Services\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -393,12 +396,6 @@
     <ClInclude Include="Service.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceImport.h">
-      <Filter>Source Files\System\Services</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceAccess.h">
-      <Filter>Source Files\System\Services</Filter>
-    </ClInclude>
     <ClInclude Include="Audio.h">
       <Filter>Source Files\System\Services</Filter>
     </ClInclude>
@@ -518,6 +515,12 @@
     </ClInclude>
     <ClInclude Include="FrameWork.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceAccess.h">
+      <Filter>Source Files\System\Services\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceImport.h">
+      <Filter>Source Files\System\Services\Resource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

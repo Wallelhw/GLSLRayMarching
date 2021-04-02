@@ -16,6 +16,23 @@
 class ResourceImport
 {
 public:
+	friend class Manager;
+
+	ResourceImport()
+	{
+	}
+
+	virtual ~ResourceImport()
+	{
+	}
+private:
+	virtual bool Convert()
+	{
+		return OnConvert();
+	}
+
+	virtual bool OnConvert() = 0;
+
 	class Manager
 	{
 		Manager();
@@ -29,8 +46,6 @@ public:
 		void Resume();
 		void Terminate();
 	};
-
-
 
 	///////////////////////////////////////////////////////////////////////
 public:
