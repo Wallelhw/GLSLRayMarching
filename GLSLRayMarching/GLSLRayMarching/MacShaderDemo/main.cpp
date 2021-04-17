@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 {
 	MacShaderDemoApp macShaderDemoApp(argc, argv);
 
-	if (!macShaderDemoApp.Instantiate(800*2, 400 * 2, "MacShaderDemo", "IKDemo"))
+	if (!macShaderDemoApp.Instantiate(800*2, 400 * 2, "MacShaderDemo", "ShaderToy"))
 		return -1;
 
 	macShaderDemoApp.Start();

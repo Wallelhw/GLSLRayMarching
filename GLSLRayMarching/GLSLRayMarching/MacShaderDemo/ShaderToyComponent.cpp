@@ -1687,6 +1687,7 @@ bool ShaderToyComponent::OnInitiate()
 
 bool ShaderToyComponent::OnStart()
 {
+	/*
 	return macShaderDemo->Initiate("Demos/Abandoned Construction");
 
 	std::vector<std::string>& args = Platform::GetArgument();
@@ -1697,6 +1698,7 @@ bool ShaderToyComponent::OnStart()
 		std::string path = args[1];
 		return macShaderDemo->Initiate(path.c_str());
 	}
+	*/
 	//return macShaderDemo->Initiate("Demos/default");
 	//return macShaderDemo->Initiate("Demos/Path Tracing Cornell Box 2");
 	//return macShaderDemo->Initiate("Demos/Path Tracing (+ELS)");
@@ -1731,7 +1733,7 @@ bool ShaderToyComponent::OnStart()
 	//return macShaderDemo->Initiate("Demos/Scattering/RealySimpleAtmosphericScatter");
 	//return macShaderDemo->Initiate("Demos/Terrains/Cloudy Terrain");
 	//return macShaderDemo->Initiate("Demos/Terrains/Desert Sand");
-	//return macShaderDemo->Initiate("Demos/Terrains/Elevated");
+	return macShaderDemo->Initiate("Demos/Terrains/Elevated");
 	//return macShaderDemo->Initiate("Demos/Terrains/Lake in highland");
 	//return macShaderDemo->Initiate("Demos/Terrains/Mountains");
 	//return macShaderDemo->Initiate("Demos/Terrains/Rainforest");
